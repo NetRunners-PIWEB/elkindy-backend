@@ -7,7 +7,9 @@ const url = f(
   `mongodb+srv://${mongo.user}:${mongo.pass}@${mongo.uri}/?retryWrites=true&w=majority`
 );
 const connect = () => {
-  mongoose.connect(url, {});
+  mongoose.connect(url, {
+    dbName:'ElKindyDB'
+  });
   return mongoose.connection;
 };
 
