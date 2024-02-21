@@ -4,7 +4,8 @@ const { mongo } = require("../config/vars");
 const f = require("util").format;
 mongoose.Promise = global.Promise;
 const url = f(
-  `mongodb+srv://${mongo.user}:${mongo.pass}@${mongo.uri}/?retryWrites=true&w=majority`
+  //`mongodb+srv://${mongo.user}:${mongo.pass}@${mongo.uri}/?retryWrites=true&w=majority`
+  'mongodb://localhost:27017'
 );
 const connect = () => {
   mongoose.connect(url, {
