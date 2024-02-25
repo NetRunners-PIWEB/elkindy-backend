@@ -8,8 +8,8 @@ router.get('/:id', courseController.getCourse);
 router.put('/:id', courseController.updateCourse);
 router.delete('/:id', courseController.deleteCourse);
 
-// Route to list all courses
 router.get('/', courseController.listCourses);
+
 // Route to list courses by category
 router.get('/category/:category', courseController.listCoursesByCategory);
 
