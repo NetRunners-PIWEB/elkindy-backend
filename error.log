@@ -1,0 +1,5 @@
+{"level":"error","message":"MongoDB connection error: undefined"}
+{"level":"error","message":"connection error: undefined"}
+{"level":"error","message":"connected to database: undefined"}
+{"level":"error","message":"connected to database"}
+{"level":"error","message":"MongoDB connection error: MongoError: bad auth : authentication failed"}
