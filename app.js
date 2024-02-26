@@ -7,14 +7,18 @@ var bodyParser = require("body-parser");
 const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
 
+
 const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
 // ==============================================
 app.use(bodyParser.json());
 swaggerDoc(app);
 
 connect();
 
-app.use("/api", userRoutes);
+app.use(bodyParser.json());
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 // ==============================================
 // START THE SERVER
 // ==============================================
