@@ -7,7 +7,6 @@ class AuthController {
         try {
             const { username, password } = req.body;
 
-            // Find the user by username
             const user = await User.findOne({ username });
 
             // If user doesn't exist or password is incorrect, send an error response
