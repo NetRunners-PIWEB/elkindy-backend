@@ -13,6 +13,7 @@ router.get('/users/:id', UserController.getUserById);
 router.put('/updateUser/:id', UserController.updateUser);
 router.delete('/deleteUser/:id', UserController.deleteUser);
 
+//fetch teachers
 router.get('/teachers', UserController.listTeachers);
 
 //login routes 

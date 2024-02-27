@@ -18,15 +18,24 @@ app.use(bodyParser.json());
 swaggerDoc(app);
 
 connect();
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "*");
+    res.header("Access-Control-Allow-Headers", "*");
+    next();
+});
+app.use(cors({
+    origin: 'http://localhost:3001',
+}));
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/courses", courseRoutes);
 
-app.use(cors({
-    origin: 'http://localhost:3001',
-    }));
+
+
+
 
 app.use(bodyParser.json());
 
