@@ -9,9 +9,16 @@
   "engines": {
     "node": "12.8.0"
   },
+<<<<<<< HEAD
   "author": "NetRunners",
   "license": "ISC",
   "dependencies": {
+=======
+  "author": "omar",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+>>>>>>> 1d2ec6cb46d73e3518cdb4619a40198741863bd7
     "body-parser": "^1.19.0",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const mongoose = require('mongoose');
 
 const courseSchema = new mongoose.Schema({
@@ -20,3 +21,15 @@ const courseSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Course', courseSchema);
+=======
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const courseSchema = new Schema({
+    name: String,
+    
+  
+});
+
+module.exports = mongoose.model("Course", courseSchema);
+>>>>>>> 1d2ec6cb46d73e3518cdb4619a40198741863bd7
