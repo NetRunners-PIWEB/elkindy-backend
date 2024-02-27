@@ -14,13 +14,9 @@ const options = {
     },
     servers: [
       { url: "http://localhost:3000" },
+      { url: "http://localhost:3000/api/courses" },
       { url: "http://PREPROD" },
-<<<<<<< HEAD
-      { url: "http://PROD" },
-      { url: "http://localhost:3000/api/courses" }
-=======
       { url: "http://PROD" }
->>>>>>> 1d2ec6cb46d73e3518cdb4619a40198741863bd7
     ],
     components: {
       schemas: {
