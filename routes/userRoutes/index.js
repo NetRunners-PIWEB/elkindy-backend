@@ -6,8 +6,10 @@ const router = express.Router();
 
 const UserController = require("../../controllers/userControllers");
 const AuthController = require("../../controllers/Auth/authController");
+
 // Routes for User CRUD operations
 router.post('/createUser', UserController.createUser);
+router.get('/getAllUsers', UserController.getAllUsers);
 router.get('/users', UserController.getAllUsers);
 router.get('/users/:id', UserController.getUserById);
 router.put('/updateUser/:id', UserController.updateUser);
