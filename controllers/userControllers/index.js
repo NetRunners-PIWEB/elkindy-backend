@@ -1,9 +1,10 @@
 const asyncHandler = require('../../middlewares/asyncHandler');
 const User = require('../../models/user');
-
+const bcrypt = require('bcrypt');
 
    exports.createUser= asyncHandler(async (req, res) => {
     const userData = req.body;
+    userData.password = await bcrypt.hash(userData.password, 10);
     const newUser = new User(userData);
     await newUser.save();
     res.status(201).json(newUser);
@@ -42,6 +43,14 @@ exports.deleteUser = asyncHandler(async (req, res) => {
 exports.listTeachers = asyncHandler(async (req, res) => {
     const teachers = await User.find({ role: 'teacher', isDeleted: false }).select('-password');
     res.json(teachers); 
+  
+});
+
+
+
+exports.getAllStudents = asyncHandler(async (req, res) => {
+    const students = await User.find({ role: 'student', isDeleted: false }).select('-password');
+    res.json(students);
   
 });
 /*  

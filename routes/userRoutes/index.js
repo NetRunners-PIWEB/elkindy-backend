@@ -16,6 +16,7 @@ router.put('/updateUser/:id', UserController.updateUser);
 router.delete('/deleteUser/:id', UserController.deleteUser);
 
 router.get('/teachers', UserController.listTeachers);
+router.get('/Students', UserController.getAllStudents);
 
 //login routes 
 router.post("/login", AuthController.login);
