@@ -3,7 +3,7 @@ const router = express.Router();
 const controllers = require("../../controllers/userControllers");
 
 // Routes for User CRUD operations
-router.post('/createUser', controllers.createUser);
+router.post('/createUser',controllers.createUser);
 router.get('/users', controllers.getAllUsers);
 router.get('/users/:id', controllers.getUserById);
 router.put('/updateUser/:id', controllers.updateUser);

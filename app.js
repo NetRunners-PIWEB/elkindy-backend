@@ -1,20 +1,23 @@
 // BASE SETUP
 // ==============================================
-var express = require("express");
-var app = express();
-var { connect } = require("./config/mongoose");
+const express = require("express");
+const { connect } = require("./config/mongoose.js");
+const corsMiddleware = require("./middlewares/cors.js");
 var bodyParser = require("body-parser");
 const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
+const instrumentRouter = require("./routes/instrument.route.js");
+const app = express();
+app.use(express.json());
 
-const userRoutes = require("./routes/userRoutes");
 // ==============================================
 app.use(bodyParser.json());
+app.use(corsMiddleware);
 swaggerDoc(app);
 
 connect();
+app.use("/api/v1/instruments", instrumentRouter);
 
-app.use("/api", userRoutes);
 // ==============================================
 // START THE SERVER
 // ==============================================
