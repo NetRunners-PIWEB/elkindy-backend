@@ -22,7 +22,7 @@ const instrumentPipeline = (instrumentId, userId) => {
     },
   };
 
-  return reusablePipeline(userId, match);
+  return reusableInstrumentPipeline(userId, match);
 };
 
 module.exports = { allInstrumentsPipeline, instrumentPipeline };
@@ -48,7 +48,7 @@ const reusableInstrumentPipeline = (userId, match, sort, ops) => {
         details: 1,
         condition: 1,
         status: 1,
-        likeScore:1,
+        likeScore: 1,
       },
     },
   ];
@@ -56,7 +56,11 @@ const reusableInstrumentPipeline = (userId, match, sort, ops) => {
   if (ops) {
     pipelineArray.push(...ops);
   }
-  console.log(sort)
+  let liked = null;
+
+  if (userId) {
+    pipelineArray[1].$project.liked = liked;
+  }
 
   const res = sort
     ? [match, sort].concat(pipelineArray)

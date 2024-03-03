@@ -4,6 +4,7 @@ const {
   instrumentPipeline,
 } = require("../utils/pipelines.js");
 const { formatSort } = require("../utils/formatQueries.js");
+const mongoose = require("mongoose");
 class InstrumentController {
   static async getAllInstruments(req, res, next) {
     const sortBy = formatSort(req.query.sort);
@@ -69,6 +70,27 @@ class InstrumentController {
       } else {
         return next(new ErrorResponse("Instrument not found", 404));
       }
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async getInstrument(req, res, next) {
+    try {
+      const instrumentId = req.params.id
+        ? new mongoose.Types.ObjectId(req.params.id)
+        : "";
+      const userId = new mongoose.Types.ObjectId("65d517bddf2aa46349809694");
+      const aggregate = await Instrument.aggregate(
+        instrumentPipeline(instrumentId, userId)
+      );
+      const [instrument] = await Instrument.populate(aggregate, {
+        path: "comments",
+      });
+      console.log(aggregate);
+      res.status(200).json({
+        success: true,
+        instrument: { ...instrument, author: instrument.author[0] },
+      });
     } catch (err) {
       next(err);
     }

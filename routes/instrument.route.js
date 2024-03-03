@@ -6,6 +6,8 @@ router
   .route("/")
   .get(InstrumentController.getAllInstruments)
   .post(InstrumentController.addInstrument);
+
 router.route("/:id/like").patch(InstrumentController.addUserLike);
 
+router.route("/:id").get(InstrumentController.getInstrument);
 module.exports = router;
