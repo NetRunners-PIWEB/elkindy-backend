@@ -9,7 +9,7 @@
   "engines": {
     "node": "12.8.0"
   },
-  "author": "omar",
+  "author": "NetRunners",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",

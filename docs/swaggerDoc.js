@@ -14,6 +14,7 @@ const options = {
     },
     servers: [
       { url: "http://localhost:3000" },
+      { url: "http://localhost:3000/api/courses" },
       { url: "http://PREPROD" },
       { url: "http://PROD" }
     ],

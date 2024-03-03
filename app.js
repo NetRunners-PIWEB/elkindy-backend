@@ -8,7 +8,11 @@ const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
 
 const cors = require('cors');
+
 const userRoutes = require("./routes/userRoutes");
+const courseRoutes = require('./routes/courseRoutes/courseRoutes');
+
+
 const authRoutes = require("./routes/authRoutes");
 // ==============================================
 app.use(bodyParser.json());
@@ -16,9 +20,18 @@ swaggerDoc(app);
 
 connect();
 app.use(cors());
-app.use(bodyParser.json());
+
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+
+app.use("/api/courses", courseRoutes);
+
+app.use(cors({
+    origin: 'http://localhost:3001',
+    }));
+
+app.use(bodyParser.json());
+
 // ==============================================
 // START THE SERVER
 // ==============================================
