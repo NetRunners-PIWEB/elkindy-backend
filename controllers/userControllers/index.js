@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 
    exports.createUser= asyncHandler(async (req, res) => {
     const userData = req.body;
-    userData.password = await bcrypt.hash(userData.password, 10);
     const newUser = new User(userData);
     await newUser.save();
     res.status(201).json(newUser);

@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const AuthController = require('../../controllers/Auth/google');
+const AuthController = require("../../controllers/Auth/authController");
 
+//login routes 
+router.post("/login", AuthController.login);
+router.get("/logout", AuthController.logout);
+router.post('/forgot-password', AuthController.forgotPassword); 
 router.get('/connection', AuthController.loginGoogle);
 
 // if page not found then status = 404 and message ... page not found
