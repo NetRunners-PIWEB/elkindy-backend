@@ -42,7 +42,7 @@ exports.deleteCourse = async (req, res) => {
 
 exports.listCourses = async (req, res) => {
     try {
-        const courses = await Course.find({});
+        const courses = await Course.find({ isArchived: false });
         res.json(courses);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -54,6 +54,25 @@ exports.listCoursesByCategory = async (req, res) => {
         const category = req.params.category;
         const courses = await Course.find({ category: category });
         res.json(courses);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.archiveCourse = async (req, res) => {
+    try {
+        const course = await Course.findByIdAndUpdate(req.params.id, { isArchived: true }, { new: true });
+        if (!course) return res.status(404).json({ message: 'Course not found' });
+        res.json(course);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.listArchivedCourses = async (req, res) => {
+    try {
+        const archivedCourses = await Course.find({ isArchived: true });
+        res.json(archivedCourses);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

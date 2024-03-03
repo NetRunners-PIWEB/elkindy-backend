@@ -28,7 +28,7 @@
     "swagger-jsdoc": "^3.4.0",
     "swagger-ui-express": "^4.1.1",
     "sync-request": "^6.1.0",
-    "validator": "^11.1.0",
+    "validator": "13.11.0",
     "winston": "^3.11.0"
   }
 }
