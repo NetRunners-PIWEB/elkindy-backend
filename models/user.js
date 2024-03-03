@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
   username: {
     type: String,
     unique: true,
-    required: true,
+    required: [true, "Your username is required"],
   },
   firstName: {
     type: String,
@@ -16,12 +17,12 @@ const userSchema = new Schema({
   age: Number,
   email: {
     type: String,
-    required: false,
+    required: [true, "Your email address is required"],
     unique: true,
   },
   password: {
     type: String,
-    default: null,
+    required: [true, "Your password is required"],
   }, 
   registrationDate: {
     type: Date,
@@ -31,7 +32,6 @@ const userSchema = new Schema({
   dateOfBirth: Date,
   phoneNumber: {
     type: String,
-    default: null,
     unique: true,
   },
   gender: String,
@@ -49,7 +49,7 @@ const userSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["active", "inactive", "deleted", "suspended"],
+    enum: ["active", "inactive", "deleted", "suspended","offboarded","archived"],
     default: "active",
   },
 
@@ -59,10 +59,7 @@ const userSchema = new Schema({
   },
 });
 
-userSchema.statics.register = async (email, password) => {
-  const exists = await User.findOne({ email })
-  if (exists){
-    throw Error('Email already in use')
-  }
-}
+userSchema.pre("save", async function () {
+  this.password = await bcrypt.hash(this.password, 12);
+});
 module.exports = mongoose.model("Users", userSchema);
