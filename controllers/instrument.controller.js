@@ -9,7 +9,7 @@ class InstrumentController {
   static async getAllInstruments(req, res, next) {
     const sortBy = formatSort(req.query.sort);
     const status = req.query.status;
-    console.log(req.query.sort);
+
     try {
       let instruments = await Instrument.aggregate(
         allInstrumentsPipeline(req.user?.id || null, status, sortBy)
@@ -21,6 +21,9 @@ class InstrumentController {
       });
     } catch (err) {
       next(err);
+      res.status(500).json({
+        success: false,
+      });
     }
   }
   static async addInstrument(req, res, next) {
@@ -41,6 +44,9 @@ class InstrumentController {
         success: true,
       });
     } catch (err) {
+      res.status(500).json({
+        success: false,
+      });
       next(err);
     }
   }
@@ -72,6 +78,7 @@ class InstrumentController {
       }
     } catch (err) {
       next(err);
+      r;
     }
   }
   static async getInstrument(req, res, next) {

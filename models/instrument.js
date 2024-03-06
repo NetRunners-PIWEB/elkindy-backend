@@ -19,7 +19,7 @@ const instrumentSchema = new mongoose.Schema(
     },
     brand: {
       type: String,
-      required: true,
+      required: false,
     },
     details: {
       type: String,
@@ -32,7 +32,7 @@ const instrumentSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["exchange", "maintenance", "available for borrow", " "],
+      enum: ["exchange", "maintenance", "available for borrow", "buy"],
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
