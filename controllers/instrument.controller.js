@@ -9,10 +9,20 @@ class InstrumentController {
   static async getAllInstruments(req, res, next) {
     const sortBy = formatSort(req.query.sort);
     const status = req.query.status;
-
+    const pageIndex = req.query.pageNumber || 1;
+    const size = req.query.pageSize || 10;
+    console.log(pageIndex);
+    console.log(size);
     try {
       let instruments = await Instrument.aggregate(
-        allInstrumentsPipeline(req.user?.id || null, status, sortBy)
+        allInstrumentsPipeline(
+          req.user?.id || null,
+          status,
+          sortBy,
+          null,
+          pageIndex,
+          size
+        )
       ).exec();
       res.status(200).json({
         success: true,
@@ -21,6 +31,7 @@ class InstrumentController {
       });
     } catch (err) {
       next(err);
+      console.log(err);
       res.status(500).json({
         success: false,
       });
@@ -93,13 +104,44 @@ class InstrumentController {
       const [instrument] = await Instrument.populate(aggregate, {
         path: "comments",
       });
-      console.log(aggregate);
       res.status(200).json({
         success: true,
         instrument: { ...instrument, author: instrument.author[0] },
       });
     } catch (err) {
+      res.status(500).json({
+        success: false,
+      });
       next(err);
+    }
+  }
+
+  static async searchInstrument(req, res, next) {
+    try {
+      const searchQuery = req.query.query;
+      console.log(searchQuery);
+      console.log("triggered search");
+
+      const sortBy = formatSort(req.query.sort);
+      const status = req.query.status;
+      let instruments = await Instrument.aggregate(
+        allInstrumentsPipeline(
+          req.user?.id || null,
+          status,
+          sortBy,
+          searchQuery
+        )
+      ).exec();
+      res.status(200).json({
+        success: true,
+        instruments,
+        total_results: instruments.length,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+      });
+      next(error);
     }
   }
 }

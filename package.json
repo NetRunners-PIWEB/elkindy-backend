@@ -27,6 +27,7 @@
     "node-uuid": "^1.4.8",
     "nodeman": "^1.1.2",
     "nodemon": "^3.0.3",
+    "socket.io": "^4.7.4",
     "supertest": "^6.3.4",
     "swagger-jsdoc": "^3.4.0",
     "swagger-ui-express": "^4.1.1",

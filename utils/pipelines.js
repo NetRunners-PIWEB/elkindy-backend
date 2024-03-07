@@ -1,7 +1,14 @@
 const Instrument = require("../models/instrument.js");
 const mongoose = require("mongoose");
 
-const allInstrumentsPipeline = (userId, status, sortingObj) => {
+const allInstrumentsPipeline = (
+  userId,
+  status,
+  sortingObj,
+  searchQuery,
+  pageNumber,
+  pageSize
+) => {
   const match = {
     $match: {
       status: {
@@ -12,7 +19,15 @@ const allInstrumentsPipeline = (userId, status, sortingObj) => {
   if (status) {
     match.$match.status = status;
   }
-  return reusableInstrumentPipeline(userId, match, sortingObj);
+  return reusableInstrumentPipeline(
+    userId,
+    match,
+    sortingObj,
+    null,
+    searchQuery,
+    pageNumber,
+    pageSize
+  );
 };
 
 const instrumentPipeline = (instrumentId, userId) => {
@@ -27,7 +42,15 @@ const instrumentPipeline = (instrumentId, userId) => {
 
 module.exports = { allInstrumentsPipeline, instrumentPipeline };
 
-const reusableInstrumentPipeline = (userId, match, sort, ops) => {
+const reusableInstrumentPipeline = (
+  userId,
+  match,
+  sort,
+  ops,
+  search,
+  pageNumber,
+  pageSize
+) => {
   const pipelineArray = [
     {
       $lookup: {
@@ -56,10 +79,32 @@ const reusableInstrumentPipeline = (userId, match, sort, ops) => {
   if (ops) {
     pipelineArray.push(...ops);
   }
+
+  if (search) {
+    pipelineArray.unshift({
+      $match: {
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { brand: { $regex: search, $options: "i" } },
+        ],
+      },
+    });
+  }
   let liked = null;
 
   if (userId) {
     pipelineArray[1].$project.liked = liked;
+  }
+
+  if (pageNumber && pageSize) {
+    const skip = (pageNumber - 1) * pageSize;
+
+    pipelineArray.push({
+      $skip: skip,
+    });
+    pipelineArray.push({
+      $limit: parseInt(pageSize),
+    });
   }
 
   const res = sort

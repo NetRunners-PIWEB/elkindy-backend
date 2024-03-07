@@ -7,6 +7,8 @@ router
   .get(InstrumentController.getAllInstruments)
   .post(InstrumentController.addInstrument);
 
+router.route("/search").get(InstrumentController.searchInstrument);
+
 router.route("/:id/like").patch(InstrumentController.addUserLike);
 
 router.route("/:id").get(InstrumentController.getInstrument);
