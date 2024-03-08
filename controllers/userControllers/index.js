@@ -52,6 +52,12 @@ exports.getAllStudents = asyncHandler(async (req, res) => {
     res.json(students);
   
 });
+
+
+
+
+
+
 /*  
 module.exports = {
 
