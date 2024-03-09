@@ -6,7 +6,6 @@ const router = express.Router();
 const {
     createUser, getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents} = require  ('../../controllers/userControllers/index');
 const {authMiddleware, isAdmin } = require('../../middlewares/authJWT');
-const { handleRefreshToken } = require('../../controllers/Auth/authController');
 // Routes for User CRUD operations
 router.post('/createUser', authMiddleware,createUser);
 router.get('/getAllUsers',authMiddleware,isAdmin,getAllUsers);
@@ -16,6 +15,5 @@ router.put('/updateUser/:id', updateUser);
 router.delete('/deleteUser/:id',deleteUser);
 router.get('/teachers', listTeachers);
 router.get('/Students',authMiddleware ,getAllStudents);
-router.get("/refresh", handleRefreshToken);
 
 module.exports = router;

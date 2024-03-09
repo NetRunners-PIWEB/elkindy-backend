@@ -16,18 +16,21 @@ const courseRoutes = require('./routes/courseRoutes/courseRoutes');
 const authRoutes = require("./routes/authRoutes");
 const { userVerification } = require("./middlewares/authJWT");
 // ==============================================
-app.use(bodyParser.json());
-swaggerDoc(app);
+
 
 connect();
-app.use(
+/*app.use(
     cors({
       origin: ["http://localhost:3000"],
       methods: ["GET", "POST", "PUT", "DELETE"],
       credentials: true,
-    }));
+    }));*/
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(bodyParser.json());
+    swaggerDoc(app);
     app.use(cookieParser());
-
+    app.use(cors());
 
 app.use("/api/auth", authRoutes); 
 app.use("/api/users", userRoutes);

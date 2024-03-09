@@ -2,6 +2,7 @@ const User = require('../../models/user');
 const Teacher = require('../../models/teacher'); // Assuming you've created a separate Teacher model
 const jwt = require('jsonwebtoken');
 const { createSecretToken } = require('../../middlewares/SecretToken');
+const generateToken = require('../../config/generateToken');
 class RegisterController {
     async register(req, res) {
         try {
@@ -29,6 +30,7 @@ class RegisterController {
             });
 
             await newUser.save();
+            
             if (newUser.role === 'teacher') {
                 const { degree, specialization, teachingExperience, coursesTaught } = req.body;
             
@@ -44,14 +46,16 @@ class RegisterController {
             
                 await newTeacher.save();
               }
+        /*   const   emailsearch = newUser.email ;
             
-              const token = createSecretToken(newUser._id);
-                 res.cookie("token", token, {
-                  withCredentials: true,
-                 httpOnly: false,
-                  });
+              const findUser = await User.findOne({ emailsearch });
 
-              res.status(201).json({ message: "User registered successfully!", userId: newUser._id, token }); 
+                
+              const { firstNamefound, lastNamefound, emailfound, _id, mobile } = findUser;*/
+
+
+              res.status(201).json({newUser,
+                 token: generateToken(newUser._id)}); 
               
         } catch (error) {
             console.error('Registration error:', error);

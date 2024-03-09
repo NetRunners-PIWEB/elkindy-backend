@@ -10,7 +10,7 @@ const { userVerification } = require('../../middlewares/authJWT');
 //login routes 
 
 router.post("/login", AuthController.loginUser);
-router.get("/logout", AuthController.logout);
+router.post("/logout", AuthController.logout);
 router.post('/forgot-password', AuthController.forgotPassword); 
 router.get('/connection', AuthGoogle.loginGoogle);
 router.post('/Register', RegisterController.register);

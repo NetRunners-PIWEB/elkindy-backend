@@ -24,10 +24,7 @@ class AuthController {
           new: true,
         }
       );
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        maxAge: 72 * 60 * 60 * 1000,
-      });
+      
       const { firstName, lastName, email, _id, mobile } = findUser;
       res.status(200).json({
         message: "User logged in successfully",
@@ -62,22 +59,16 @@ handleRefreshToken = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Logout user / clear cookie
+// @route   POST /api/users/logout
+// @access 
    logout = asyncHandler(async (req, res) => {
-  const cookie = req.refreshToken;
-  const user = await User.findOne(cookie);
-  if (!user) {
-    throw new Error("User not found");
-  } else {
-    await User.findOneAndUpdate(cookie, {
-      refreshToken: "",
-    });
-    res.clearCookie("refreshToken", {
+    res.cookie('refreshToken', '', {
       httpOnly: true,
-      secure: true,
+      expires: new Date(0),
     });
-    res.status(200).json({ success: true });
-  }
-});
+    res.status(200).json({ message: 'Logged out successfully' });
+  });
 
 
     async forgotPassword(req, res) {
