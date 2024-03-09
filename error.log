@@ -3,3 +3,4 @@
 {"level":"error","message":"connected to database: undefined"}
 {"level":"error","message":"connected to database"}
 {"level":"error","message":"MongoDB connection error: MongoError: bad auth : authentication failed"}
+{"level":"error","message":"MongoDB connection error: MongoServerSelectionError: getaddrinfo ENOTFOUND ac-edftf5u-shard-00-00.scfokhp.mongodb.net"}

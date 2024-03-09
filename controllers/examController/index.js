@@ -2,6 +2,17 @@ const exam = require('../../models/exam');
 
 
 module.exports = {
+
+    async getTypeEvaluations(req, res) {
+        try {
+            const exams = await exam.find({
+                type:"exam"
+            });
+            res.status(200).json(exams);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
     async createExam(req, res) {
         try {
           const examData = req.body;
@@ -13,9 +24,11 @@ module.exports = {
         }
       },
 
-      async getAllExams(req, res) {
+      async getTypeExams(req, res) {
         try {
-            const exams = await exam.find();
+            const exams = await exam.find({
+                type:"exam"
+            });
             res.status(200).json(exams);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -57,7 +70,8 @@ module.exports = {
             res.status(500).json({ message: error.message });
         }
     }
-   
+
+
           
   };
 

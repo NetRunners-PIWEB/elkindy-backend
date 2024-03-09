@@ -1,12 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const controllers = require("../../controllers/examController");
+const ExamController = require("../../controllers/examController");
+
+//Exam routes
+router.post('/createExam', ExamController.createExam);
+router.get('/typeExams', ExamController.getTypeExams);
+router.get('/exam/:id', ExamController.getExamById);
+router.put('/updateExam/:id', ExamController.updateExam);
+router.delete('/deleteExam/:id', ExamController.deleteExam);
 
 
-router.post('/createExam', controllers.createExam);
-router.get('/exams', controllers.getAllExams);
-router.get('/exam/:id', controllers.getExamById);
-router.put('/updateExam/:id', controllers.updateExam);
-router.delete('/deleteExam/:id', controllers.deleteExam);
+
+
+
+
+
 
 module.exports = router;
