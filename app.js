@@ -36,7 +36,22 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
 app.use(bodyParser.json());
+app.get('/api/validate-session', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
 
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    // Optionally, fetch user details from your database and return them
+    return res.status(200).json({ user: decoded });
+  });
+});
 // ==============================================
 // START THE SERVER
 // ==============================================

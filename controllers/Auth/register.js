@@ -52,10 +52,10 @@ class RegisterController {
 
                 
               const { firstNamefound, lastNamefound, emailfound, _id, mobile } = findUser;*/
+             const user=newUser
 
-
-              res.status(201).json({newUser,
-                 token: generateToken(newUser._id)}); 
+              res.status(201).json({user,
+                 token: generateToken(user._id)}); 
               
         } catch (error) {
             console.error('Registration error:', error);
