@@ -1,6 +1,7 @@
 const User = require('../../models/user');
 const Teacher = require('../../models/teacher'); // Assuming you've created a separate Teacher model
 const jwt = require('jsonwebtoken');
+const { createSecretToken } = require('../../middlewares/SecretToken');
 class RegisterController {
     async register(req, res) {
         try {
@@ -44,7 +45,11 @@ class RegisterController {
                 await newTeacher.save();
               }
             
-              const token = jwt.sign({ userId: newUser._id, role: newUser.role }, process.env.TOKEN_KEY, { expiresIn: '1h' });
+              const token = createSecretToken(newUser._id);
+                 res.cookie("token", token, {
+                  withCredentials: true,
+                 httpOnly: false,
+                  });
 
               res.status(201).json({ message: "User registered successfully!", userId: newUser._id, token }); 
               

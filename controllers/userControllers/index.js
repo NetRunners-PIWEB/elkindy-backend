@@ -2,19 +2,19 @@ const asyncHandler = require('../../middlewares/asyncHandler');
 const User = require('../../models/user');
 const bcrypt = require('bcrypt');
 
-   exports.createUser= asyncHandler(async (req, res) => {
+createUser= asyncHandler(async (req, res) => {
     const userData = req.body;
     const newUser = new User(userData);
     await newUser.save();
     res.status(201).json(newUser);
   }
 );
-exports.getAllUsers = asyncHandler(async (req, res) => {
+getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find();
     res.status(200).json(users);
 });
 
-exports.getUserById = asyncHandler(async (req, res) => {
+getUserById = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) {
         return res.status(404).json({ message: 'User not found' });
@@ -22,7 +22,7 @@ exports.getUserById = asyncHandler(async (req, res) => {
     res.status(200).json(user);
 });
 
-exports.updateUser = asyncHandler(async (req, res) => {
+updateUser = asyncHandler(async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedUser) {
         return res.status(404).json({ message: 'User not found' });
@@ -31,15 +31,14 @@ exports.updateUser = asyncHandler(async (req, res) => {
 });
 
 
-exports.deleteUser = asyncHandler(async (req, res) => {
+deleteUser = asyncHandler(async (req, res) => {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser) {
         return res.status(404).json({ message: 'User not found' });
     }
     res.status(200).json({ message: 'User deleted successfully' });
 });
-
-exports.listTeachers = asyncHandler(async (req, res) => {
+listTeachers = asyncHandler(async (req, res) => {
     const teachers = await User.find({ role: 'teacher', isDeleted: false }).select('-password');
     res.json(teachers); 
   
@@ -47,15 +46,17 @@ exports.listTeachers = asyncHandler(async (req, res) => {
 
 
 
-exports.getAllStudents = asyncHandler(async (req, res) => {
+const getAllStudents = asyncHandler(async (req, res) => {
     const students = await User.find({ role: 'student', isDeleted: false }).select('-password');
     res.json(students);
   
 });
 
+module.exports = {
 
+    createUser,getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents
 
-
+}
 
 
 /*  
