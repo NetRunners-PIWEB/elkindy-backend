@@ -39,7 +39,8 @@ class InstrumentController {
   }
   static async addInstrument(req, res, next) {
     try {
-      const { title, type, brand, details, condition, status } = req.body;
+      const { title, type, brand, details, condition,price, status } = req.body;
+      console.log(req.body)
       const author = req.user?.id;
       await Instrument.create({
         author,
@@ -47,6 +48,7 @@ class InstrumentController {
         type,
         brand,
         details,
+        price,
         condition,
         status,
       });
