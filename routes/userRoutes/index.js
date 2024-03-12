@@ -7,11 +7,12 @@ const router = express.Router();
 const UserController = require("../../controllers/userControllers");
 const AuthController = require("../../controllers/Auth/authController");
 // Routes for User CRUD operations
-router.post('/createUser', UserController.createUser);
-router.get('/users', UserController.getAllUsers);
-router.get('/users/:id', UserController.getUserById);
-router.put('/updateUser/:id', UserController.updateUser);
-router.delete('/deleteUser/:id', UserController.deleteUser);
+router.post('/createUser',controllers.createUser);
+router.get('/users', controllers.getAllUsers);
+router.get('/users/:id', controllers.getUserById);
+router.put('/updateUser/:id', controllers.updateUser);
+router.delete('/deleteUser/:id', controllers.deleteUser);
+
 
 router.get('/teachers', UserController.listTeachers);
 
