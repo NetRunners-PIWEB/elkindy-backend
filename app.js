@@ -21,6 +21,14 @@ app.use(express.json());
 //     origin: "http://localhost:3000",
 //   },
 // });
+
+const cors = require('cors');
+
+const userRoutes = require("./routes/userRoutes");
+const courseRoutes = require('./routes/courseRoutes/courseRoutes');
+
+
+const authRoutes = require("./routes/authRoutes");
 // ==============================================
 app.use(bodyParser.json());
 app.use(corsMiddleware);
@@ -46,6 +54,18 @@ io.on("connection", (socket) => {
     console.log("disocnnect");
   });
 });
+app.use(cors());
+
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+
+app.use("/api/courses", courseRoutes);
+
+app.use(cors({
+    origin: 'http://localhost:3001',
+    }));
+
+app.use(bodyParser.json());
 
 // ==============================================
 // START THE SERVER
