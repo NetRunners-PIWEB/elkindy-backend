@@ -4,3 +4,4 @@
 {"level":"error","message":"connected to database"}
 {"level":"error","message":"MongoDB connection error: MongoError: bad auth : authentication failed"}
 {"level":"error","message":"MongoDB connection error: Error: querySrv ETIMEOUT _mongodb._tcp.cluster0.scfokhp.mongodb.net"}
+{"level":"error","message":"MongoDB connection error: MongooseError: The `uri` parameter to `openUri()` must be a string, got \"undefined\". Make sure the first parameter to `mongoose.connect()` or `mongoose.createConnection()` is a string."}
