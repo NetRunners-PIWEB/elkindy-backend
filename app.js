@@ -14,6 +14,7 @@ const corsMiddleware = require("./middlewares/cors.js");
 var bodyParser = require("body-parser");
 const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
+const { EventEmitter } = require('events');
 const instrumentRouter = require("./routes/instrument.route.js");
 app.use(express.json());
 // const io = new ioS.Server({
@@ -26,9 +27,12 @@ const cors = require('cors');
 
 const userRoutes = require("./routes/userRoutes");
 const courseRoutes = require('./routes/courseRoutes/courseRoutes');
-
-
 const authRoutes = require("./routes/authRoutes");
+const eventRoutes = require("./routes/eventRoutes/eventRoutes");
+const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
+const reservationRoutes = require("./routes/reservationRoutes/reservationRoutes");
+
+
 // ==============================================
 app.use(bodyParser.json());
 app.use(corsMiddleware);
@@ -67,13 +71,18 @@ io.on("connection", (socket) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
-
+app.use("/api/events", eventRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/reservations", reservationRoutes);
 
 
 
 
 app.use(bodyParser.json());
+
+// Increase the limit for EventEmitter instance
+EventEmitter.defaultMaxListeners = 20; 
 
 // ==============================================
 // START THE SERVER
@@ -82,4 +91,6 @@ app.listen(port);
 io.listen(5000);
 console.log("Magic happens on port " + port);
 
+
 module.exports = app;
+
