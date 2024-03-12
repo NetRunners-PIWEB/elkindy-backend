@@ -35,6 +35,16 @@ app.use(corsMiddleware);
 swaggerDoc(app);
 
 connect();
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "*");
+    res.header("Access-Control-Allow-Headers", "*");
+    next();
+});
+app.use(cors({
+    origin: 'http://localhost:3001',
+}));
+
 app.use("/api/v1/instruments", instrumentRouter);
 
 io.on("connection", (socket) => {
@@ -54,16 +64,14 @@ io.on("connection", (socket) => {
     console.log("disocnnect");
   });
 });
-app.use(cors());
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/courses", courseRoutes);
 
-app.use(cors({
-    origin: 'http://localhost:3001',
-    }));
+
+
 
 app.use(bodyParser.json());
 
