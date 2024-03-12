@@ -25,7 +25,7 @@ app.use(express.json());
 
 const cors = require('cors');
 
-const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require('./routes/courseRoutes/courseRoutes');
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
