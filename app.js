@@ -24,11 +24,12 @@ swaggerDoc(app);
 app.use(morgan("dev"));
 connect();
 app.use(
-    cors({
-      origin: ["http://localhost:3000"],
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      credentials: true,
-    }));
+     cors(//{
+    //   origin: ["http://localhost:3000"],
+    //   methods: ["GET", "POST", "PUT", "DELETE"],
+    //   credentials: true,
+    // }
+    ));
     app.use(cookieParser());
 
 

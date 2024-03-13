@@ -17,7 +17,8 @@ router.get('/users/:id', authMiddleware, getUserById);
 router.put('/updateUser/:id', updateUser);
 router.delete('/deleteUser/:id',deleteUser);
 router.get('/teachers', listTeachers);
-router.get('/Students',authMiddleware ,getAllStudents);
+// router.get('/Students',authMiddleware ,getAllStudents);
+router.get('/Students' ,getAllStudents)
 router.get("/refresh", handleRefreshToken);
 
 module.exports = router;

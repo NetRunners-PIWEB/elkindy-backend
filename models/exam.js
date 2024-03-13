@@ -15,7 +15,7 @@ const examSchema = new Schema({
     // Références aux autres entités
     //course: { type: Schema.Types.ObjectId, ref: "Course" }, // Référence au cours associé à cet examen
     teacher: String, // Référence à l'utilisateur (enseignant) qui a créé cet examen
-    students: [{ String }], // Liste des étudiants associés à cet examen 
+    students:[String], // Liste des étudiants associés à cet examen 
     classe: String
     
    
