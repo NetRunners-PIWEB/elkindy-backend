@@ -15,8 +15,9 @@ router.get('/category/:category', courseController.listCoursesByCategory);
 
 //Archive endpoint
 router.patch('/archive/:id', courseController.archiveCourse);
-router.get('/courses/archived', courseController.listArchivedCourses);
+router.get('/arch/archived', courseController.listArchivedCourses);
 
-router.put('/courses/:courseId/teachers', courseController.updateCourseTeachers);
+router.put('/details/:courseId/teachers', courseController.updateCourseTeachers);
+router.get('/details/:courseId/teachers', courseController.getAssignedTeachers);
 module.exports = router;
 

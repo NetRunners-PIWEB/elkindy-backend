@@ -10,11 +10,11 @@ const courseSchema = new mongoose.Schema({
     },
     teacher: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'Users'
     }],
     students: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'Users'
     }],
     price: {
         type: Number,

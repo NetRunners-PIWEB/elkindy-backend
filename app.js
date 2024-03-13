@@ -14,6 +14,17 @@ const corsMiddleware = require("./middlewares/cors.js");
 var bodyParser = require("body-parser");
 const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
+const cors = require('cors');
+
+app.use(bodyParser.json());
+
+
+app.use(cors({
+    origin: 'http://localhost:3001'
+}));
+
+
+
 const { EventEmitter } = require('events');
 const instrumentRouter = require("./routes/instrument.route.js");
 app.use(express.json());
@@ -22,8 +33,6 @@ app.use(express.json());
 //     origin: "http://localhost:3000",
 //   },
 // });
-
-const cors = require('cors');
 
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require('./routes/courseRoutes/courseRoutes');
@@ -65,7 +74,7 @@ io.on("connection", (socket) => {
   );
 
   socket.on("disconnect", () => {
-    console.log("disocnnect");
+    console.log("disocnnect of the socket");
   });
 });
 
