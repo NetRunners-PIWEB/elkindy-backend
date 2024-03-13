@@ -15,15 +15,6 @@ var bodyParser = require("body-parser");
 const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
 const cookieParser = require("cookie-parser");
-const { EventEmitter } = require('events');
-const instrumentRouter = require("./routes/instrument.route.js");
-app.use(express.json());
-// const io = new ioS.Server({
-//   cors: {
-//     origin: "http://localhost:3000",
-//   },
-// });
-
 const cors = require('cors');
 
 const userRoutes = require("./routes/userRoutes/index");
@@ -57,52 +48,12 @@ app.use(corsMiddleware);
 swaggerDoc(app);
 
 connect();
-/*app.use(
-    cors({
-      origin: ["http://localhost:3000"],
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      credentials: true,
-    }));*/
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
-    app.use(bodyParser.json());
-    swaggerDoc(app);
-    app.use(cookieParser());
-    app.use(function(req, res, next) {
+app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "*");
     res.header("Access-Control-Allow-Headers", "*");
     next();
 });
-app.use(cors({
-    origin: 'http://localhost:3001',
-}));
-
-app.use("/api/v1/instruments", instrumentRouter);
-
-io.on("connection", (socket) => {
-  socket.on(
-    "sendNotification",
-    ({ senderName, receiverName, instrument, message }) => {
-      console.log("emit notif now");
-      io.emit("getNotification", {
-        senderName,
-        instrument,
-        message,
-      });
-    }
-  );
-
-  socket.on("disconnect", () => {
-    console.log("disocnnect");
-  });
-});
-
-app.use("/api/users", userRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/events", eventRoutes);
-app.use("/api/courses", courseRoutes);
-
 app.use(cors({
     origin: 'http://localhost:3001',
 }));
