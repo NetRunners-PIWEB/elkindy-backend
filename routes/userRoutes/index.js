@@ -1,19 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require("../../controllers/userControllers");
-const AuthController = require("../../controllers/Auth/authController");
+
 const RegisterController = require("../../controllers/Auth/register");
 
 // Routes for User CRUD operations
-router.post('/createUser', RegisterController.register);
-router.get('/users', UserController.getAllUsers);
-router.get('/users/:id', UserController.getUserById);
-router.put('/updateUser/:id', UserController.updateUser);
-router.delete('/deleteUser/:id', UserController.deleteUser);
 
-//login routes 
-router.post("/login", AuthController.login);
-router.get("/logout", AuthController.logout);
-
+const {
+    createUser, getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents} = require  ('../../controllers/userControllers/index');
+const {authMiddleware, isAdmin } = require('../../middlewares/authJWT');
+const { handleRefreshToken } = require('../../controllers/Auth/authController');
+// Routes for User CRUD operations
+router.post('/createUser', authMiddleware,createUser);
+router.get('/getAllUsers',authMiddleware,isAdmin,getAllUsers);
+router.get('/users',authMiddleware, getAllUsers);
+router.get('/users/:id', authMiddleware, getUserById);
+router.put('/updateUser/:id', updateUser);
+router.delete('/deleteUser/:id',deleteUser);
+router.get('/teachers', listTeachers);
+router.get('/Students',authMiddleware ,getAllStudents);
+router.get("/refresh", handleRefreshToken);
 
 module.exports = router;

@@ -1,46 +1,105 @@
-const User = require('../../models/user');
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const generateToken = require("../../config/generateToken.js");
+const generateRefreshToken = require("../../config/refreshToken.js");
+const { createSecretToken } = require("../../middlewares/SecretToken");
+const { generatePasswordResetToken, sendResetPasswordEmail } = require('../../middlewares/passwordReset');
+const asyncHandler = require('../../middlewares/asyncHandler');
+const User = require('../../models/user');
 class AuthController {
-    async login(req, res) {
+
+  loginUser = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const findUser = await User.findOne({ email });
+    if (findUser && (await findUser.isPasswordMatched(password))) {
+      const { id } = findUser;
+      const refreshToken = await generateRefreshToken(id);
+      await User.findByIdAndUpdate(
+        id,
+        {
+          refreshToken,
+        },
+        {
+          new: true,
+        }
+      );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
+      const { firstName, lastName, email, _id, mobile } = findUser;
+      res.status(200).json({
+        message: "User logged in successfully",
+        success: true,
+        user: {
+          _id,
+          firstName,
+          lastName,
+          email,
+          mobile,
+          token: generateToken(_id),
+        },
+      });
+    } else {
+      throw new Error("Invalid Credentials");
+    }
+  });
+
+
+handleRefreshToken = asyncHandler(async (req, res) => {
+  const { refreshToken } = req.cookies;
+  if (!refreshToken) throw new Error("No refresh token found in cookies");
+  const user = await User.findOne({ refreshToken });
+  if (!user) throw new Error("No refresh token found in the database");
+  jwt.verify(refreshToken, process.env.TOKEN_KEY, (err, decoded) => {
+    if (err || user.id !== decoded.id) {
+      throw new Error("There is something wrong with the refresh token");
+    } else {
+      const accessToken = generateToken(decoded.id);
+      res.json({ accessToken });
+    }
+  });
+});
+
+   logout = asyncHandler(async (req, res) => {
+  const cookie = req.refreshToken;
+  const user = await User.findOne(cookie);
+  if (!user) {
+    throw new Error("User not found");
+  } else {
+    await User.findOneAndUpdate(cookie, {
+      refreshToken: "",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+    });
+    res.status(200).json({ success: true });
+  }
+});
+
+
+    async forgotPassword(req, res) {
         try {
-            const { username, password } = req.body;
-
-            // Find the user by username
-            const user = await User.findOne({ username });
-
-            // If user doesn't exist or password is incorrect, send an error response
-            if (!user || !(await bcrypt.compare(password, user.password))) {
-                return res.status(401).json({ error: 'Invalid username or password' });
+            const { email } = req.body;
+            // Check if the user exists
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
             }
-
-            // Generate JWT token
-            const token = jwt.sign({ username: user.username, role: user.role }, 'your_secret_key', { expiresIn: '1h' });
-
-            res.json({ token });
+            // Generate a password reset token
+            const token = generatePasswordResetToken();
+            // Save the token to the user document
+            user.resetPasswordToken = token;
+            user.resetPasswordExpires = Date.now() + 3600000; 
+            await user.save();
+            sendResetPasswordEmail(email, token);
+            res.json({ message: 'Password reset email sent successfully' });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Error logging in' });
+            res.status(500).json({ error: 'Internal server error' });
         }
-    }
-
-  
-    async logout(req, res) {
-        // try {
-        //     // Clear the JWT token from the client-side 
-        //     // Assuming you stored the token as 'jwtToken' remove it from localStorage
-        //     localStorage.removeItem('jwtToken'); 
-        //     // Redirect the user to the login page
-        //     res.redirect('/login'); 
-        // } catch (error) {
-        //     console.error(error);
-        //     res.status(500).json({ error: 'Error logging out' });
-        // }
-    }
-  
-    async loginGoogle(req, res) {
-   
     }
   
   }
