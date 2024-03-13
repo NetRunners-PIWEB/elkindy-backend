@@ -82,6 +82,8 @@ exports.listArchivedCourses = async (req, res) => {
 exports.updateCourseTeachers = async (req, res) => {
     const { courseId } = req.params;
     const { teacherIds } = req.body;
+    console.log('Request Params:', req.params);
+    console.log('Request Body:', req.body);
 
     try {
         const course = await Course.findById(courseId);
@@ -90,11 +92,30 @@ exports.updateCourseTeachers = async (req, res) => {
             return res.status(404).send({ message: 'Course not found' });
         }
 
-        course.teachers = teacherIds;
+        course.teacher = teacherIds;
         await course.save();
-
         res.status(200).send({ message: 'Course updated successfully', course });
     } catch (error) {
         res.status(500).send({ message: 'Error updating course', error });
     }
 };
+
+
+exports.getAssignedTeachers = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const course = await Course.findById(courseId).populate('teacher');
+        console.log('Populated Course:', course);
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        const assignedTeachers = course.teacher;
+        console.log('Populated Course:', course);
+        res.json({ assignedTeachers });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching assigned teachers', error });
+    }
+};
+
