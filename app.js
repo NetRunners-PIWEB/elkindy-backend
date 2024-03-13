@@ -33,9 +33,23 @@ const io = require("socket.io")(server, {
   },
 });
 const corsMiddleware = require("./middlewares/cors.js");
+
+
+app.use(bodyParser.json());
+
+
+app.use(cors({
+    origin: 'http://localhost:3001'
+}));
+
+
+
+const { EventEmitter } = require('events');
+
 const cookieParser = require("cookie-parser");
 const instrumentRouter = require("./routes/instrument.route.js");
-const { EventEmitter } = require('events');
+
+
 
 const authRoutes = require("./routes/authRoutes");
 const { userVerification } = require("./middlewares/authJWT");
@@ -79,43 +93,47 @@ app.use(
 app.use("/api/v1/instruments", instrumentRouter);
 
 io.on("connection", (socket) => {
-  socket.on(
-    "sendNotification",
-    ({ senderName, receiverName, instrument, message }) => {
-      console.log("emit notif now");
-      io.emit("getNotification", {
-        senderName,
-        instrument,
-        message,
-      });
-    }
-  );
+    socket.on(
+        "sendNotification",
+        ({senderName, receiverName, instrument, message}) => {
+            console.log("emit notif now");
+            io.emit("getNotification", {
+                senderName,
+                instrument,
+                message,
+            });
+        }
+    );
 
-  // socket.on("disconnect", () => {
-  //   console.log("disocnnect");
-  // });
-});
+    socket.on("disconnect", () => {
+        console.log("disocnnect of the socket");
+    });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/events", eventRoutes);
-app.use("/api/courses", courseRoutes);
-app.use("/api/tickets", ticketRoutes);
-app.use("/api/reservations", reservationRoutes);
+    // socket.on("disconnect", () => {
+    //   console.log("disocnnect");
+    // });
 
-app.use(bodyParser.json());
+    app.use("/api/auth", authRoutes);
+    app.use("/api/users", userRoutes);
+    app.use("/api/auth", authRoutes);
+    app.use("/api/events", eventRoutes);
+    app.use("/api/courses", courseRoutes);
+    app.use("/api/tickets", ticketRoutes);
+    app.use("/api/reservations", reservationRoutes);
+
+    app.use(bodyParser.json());
 
 // Increase the limit for EventEmitter instance
-EventEmitter.defaultMaxListeners = 20;
+    EventEmitter.defaultMaxListeners = 20;
 
 
 // ==============================================
 // START THE SERVER
 // ==============================================
-app.listen(port);
-console.log("Magic happens on port " + port);
-io.listen(5000);
-console.log("Magic happens on port " + port);
+    app.listen(port);
+    console.log("Magic happens on port " + port);
+    io.listen(5000);
+    console.log("Magic happens on port " + port);
 
-module.exports = app;
+    module.exports = app;
+});
