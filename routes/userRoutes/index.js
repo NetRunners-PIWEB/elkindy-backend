@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const UserController = require('../../controllers/userControllers/index');
 
 // Routes for User CRUD operations
 
