@@ -42,6 +42,7 @@ exports.deleteCourse = async (req, res) => {
 
 exports.listCourses = async (req, res) => {
     try {
+        //const courses = await Course.find({});
         const courses = await Course.find({ isArchived: false });
         res.json(courses);
     } catch (error) {

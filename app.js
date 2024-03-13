@@ -1,26 +1,42 @@
 // BASE SETUP
 // ==============================================
-const express = require("express");
+
+var express = require("express");
+var app = express();
+var { connect } = require("./config/mongoose");
+var bodyParser = require("body-parser");
+const swaggerDoc = require("./docs/swaggerDoc");
+const { port, env } = require("./config/vars");
+
+const cors = require('cors');
+
+const userRoutes = require("./routes/userRoutes/index");
+const courseRoutes = require('./routes/courseRoutes/courseRoutes');
+
+
+app.use(bodyParser.json());
+swaggerDoc(app);
+
+connect();
+app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3001',
+    }));
+app.use("/api/users", userRoutes);
+app.use("/api/courses", courseRoutes);
+
 const http = require("http");
-const app = express();
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
     origin: "*",
   },
 });
-const { connect } = require("./config/mongoose.js");
 const corsMiddleware = require("./middlewares/cors.js");
-var bodyParser = require("body-parser");
-const swaggerDoc = require("./docs/swaggerDoc");
-const { port, env } = require("./config/vars");
 const cookieParser = require("cookie-parser");
-const cors = require("cors");
 const instrumentRouter = require("./routes/instrument.route.js");
 const { EventEmitter } = require('events');
 
-const userRoutes = require("./routes/userRoutes/index");
-const courseRoutes = require("./routes/courseRoutes/courseRoutes");
 const authRoutes = require("./routes/authRoutes");
 const { userVerification } = require("./middlewares/authJWT");
 // ==============================================
@@ -93,10 +109,12 @@ app.use(bodyParser.json());
 // Increase the limit for EventEmitter instance
 EventEmitter.defaultMaxListeners = 20;
 
+
 // ==============================================
 // START THE SERVER
 // ==============================================
 app.listen(port);
+console.log("Magic happens on port " + port);
 io.listen(5000);
 console.log("Magic happens on port " + port);
 

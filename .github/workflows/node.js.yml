@@ -28,6 +28,9 @@ jobs:
       run: |
         npm install
         npm run build --if-present
+<<<<<<< HEAD
+        npm run test --if-present
+=======
         # npm run test --if-present
     - name: Build and push docker image
       uses: mr-smithers-excellent/docker-build-push@v4
@@ -49,3 +52,4 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+>>>>>>> 49f9aba77fb1ba63f683dc43252f270d51ce7a23
