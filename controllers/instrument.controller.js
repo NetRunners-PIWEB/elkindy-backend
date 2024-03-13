@@ -9,7 +9,8 @@ class InstrumentController {
   static async getAllInstruments(req, res, next) {
     const sortBy = formatSort(req.query.sort);
     const status = req.query.status;
-    const pageIndex = req.query.pageNumber || 1;
+    const pageIndex = req.query.pageNumber;
+    console.log(req.query);
     const size = req.query.pageSize || 10;
     console.log(pageIndex);
     console.log(size);
@@ -39,8 +40,9 @@ class InstrumentController {
   }
   static async addInstrument(req, res, next) {
     try {
-      const { title, type, brand, details, condition,price, status } = req.body;
-      console.log(req.body)
+      const { title, type, brand, details, condition, price, status } =
+        req.body;
+      console.log(req.body);
       const author = req.user?.id;
       await Instrument.create({
         author,
@@ -144,6 +146,31 @@ class InstrumentController {
         success: false,
       });
       next(error);
+    }
+  }
+  static async getUserInstruments(req, res, next) {
+    try {
+      const userId = req.params.userId;
+      const sortBy = formatSort(req.query.sort);
+      const status = req.query.status;
+      const pageIndex = req.query.pageNumber || 1;
+      const size = req.query.pageSize || 10;
+
+      const instruments = await Instrument.aggregate(
+        allInstrumentsPipeline(userId, status, sortBy, null, pageIndex, size)
+      ).exec();
+
+      res.status(200).json({
+        success: true,
+        instruments,
+        total_results: instruments.length,
+      });
+    } catch (err) {
+      next(err);
+      console.log(err);
+      res.status(500).json({
+        success: false,
+      });
     }
   }
 }

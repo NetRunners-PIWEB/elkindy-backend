@@ -19,6 +19,9 @@ const allInstrumentsPipeline = (
   if (status) {
     match.$match.status = status;
   }
+  if (userId) {
+    match.$match["author._id"] = new mongoose.Types.ObjectId(userId);
+  }
   return reusableInstrumentPipeline(
     userId,
     match,
@@ -52,6 +55,7 @@ const reusableInstrumentPipeline = (
   pageSize
 ) => {
   const pipelineArray = [
+    { $addFields: { v: 0 } },
     {
       $lookup: {
         from: "user",
@@ -98,12 +102,15 @@ const reusableInstrumentPipeline = (
 
   if (pageNumber && pageSize) {
     const skip = (pageNumber - 1) * pageSize;
-
+   console.log(pageNumber)
     pipelineArray.push({
       $skip: skip,
     });
     pipelineArray.push({
       $limit: parseInt(pageSize),
+    });
+    pipelineArray.push({
+      $addFields: { v: 0 },
     });
   }
 

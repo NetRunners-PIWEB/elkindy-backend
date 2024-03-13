@@ -12,4 +12,6 @@ router.route("/search").get(InstrumentController.searchInstrument);
 router.route("/:id/like").patch(InstrumentController.addUserLike);
 
 router.route("/:id").get(InstrumentController.getInstrument);
+router.route("/user/:userId").get(InstrumentController.getUserInstruments);
+
 module.exports = router;
