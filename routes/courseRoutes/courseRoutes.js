@@ -13,11 +13,13 @@ router.get('/', courseController.listCourses);
 // Route to list courses by category
 router.get('/category/:category', courseController.listCoursesByCategory);
 
+
 //Archive endpoint
 router.patch('/archive/:id', courseController.archiveCourse);
 router.get('/arch/archived', courseController.listArchivedCourses);
 
 router.put('/details/:courseId/teachers', courseController.updateCourseTeachers);
 router.get('/details/:courseId/teachers', courseController.getAssignedTeachers);
+
 module.exports = router;
 

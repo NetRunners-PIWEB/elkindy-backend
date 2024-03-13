@@ -42,6 +42,7 @@ exports.deleteCourse = async (req, res) => {
 
 exports.listCourses = async (req, res) => {
     try {
+        //const courses = await Course.find({});
         const courses = await Course.find({ isArchived: false });
         res.json(courses);
     } catch (error) {
@@ -99,6 +100,7 @@ exports.updateCourseTeachers = async (req, res) => {
     }
 };
 
+
 exports.getAssignedTeachers = async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -116,3 +118,4 @@ exports.getAssignedTeachers = async (req, res) => {
         res.status(500).json({ message: 'Error fetching assigned teachers', error });
     }
 };
+
