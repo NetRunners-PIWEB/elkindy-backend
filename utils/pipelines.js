@@ -97,6 +97,7 @@ const reusableInstrumentPipeline = (
   let liked = null;
 
   if (userId) {
+    console.log("true")
     pipelineArray[1].$project.liked = liked;
   }
 
