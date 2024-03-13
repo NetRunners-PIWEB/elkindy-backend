@@ -58,9 +58,23 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  preferedInstrument :[String],
 });
+
 
 userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, 12);
 });
+
+userSchema.methods.isPasswordMatched = async function(enteredPassword){
+  return await bcrypt.compare(enteredPassword, this.password)
+}
+
+
+userSchema.methods.resetPasswordToken = async function(){
+  const resetToken = crypto.randomBytes(32).toString('hex')
+  this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+  this.passwordResetExpires = Date.now() + 30 * 60 * 1000
+  return resetToken
+}
 module.exports = mongoose.model("Users", userSchema);

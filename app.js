@@ -14,20 +14,29 @@ const corsMiddleware = require("./middlewares/cors.js");
 var bodyParser = require("body-parser");
 const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
-const { EventEmitter } = require('events');
-const instrumentRouter = require("./routes/instrument.route.js");
-app.use(express.json());
-// const io = new ioS.Server({
-//   cors: {
-//     origin: "http://localhost:3000",
-//   },
-// });
-
+const cookieParser = require("cookie-parser");
 const cors = require('cors');
 
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require('./routes/courseRoutes/courseRoutes');
 const authRoutes = require("./routes/authRoutes");
+const { userVerification } = require("./middlewares/authJWT");
+// ==============================================
+
+
+connect();
+/*app.use(
+    cors({
+      origin: ["http://localhost:3000"],
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      credentials: true,
+    }));*/
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(bodyParser.json());
+    swaggerDoc(app);
+    app.use(cookieParser());
+    app.use(cors());
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
 const reservationRoutes = require("./routes/reservationRoutes/reservationRoutes");
@@ -69,6 +78,7 @@ io.on("connection", (socket) => {
   });
 });
 
+app.use("/api/auth", authRoutes); 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
