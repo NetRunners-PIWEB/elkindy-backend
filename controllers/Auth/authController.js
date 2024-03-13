@@ -121,7 +121,7 @@ verifyTokenAndRole = async (req, res) => {
       }
 
       // Send back the user role
-      res.json({ role: user.role });
+      res.json({ user:user,role: user.role });
   } catch (ex) {
       res.status(400).send({ message: 'Invalid token.' });
   }
@@ -174,14 +174,6 @@ handleRefreshToken = asyncHandler(async (req, res) => {
     }
   });
 });
-
-   logout = asyncHandler(async (req, res) => {
-    res.cookie('refreshToken', '', {
-      httpOnly: true,
-      expires: new Date(0),
-    });
-    res.status(200).json({ message: 'Logged out successfully' });
-  });
 
 
     async forgotPassword(req, res) {
