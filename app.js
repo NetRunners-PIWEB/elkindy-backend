@@ -75,9 +75,9 @@ io.on("connection", (socket) => {
     }
   );
 
-  socket.on("disconnect", () => {
-    console.log("disocnnect");
-  });
+  // socket.on("disconnect", () => {
+  //   console.log("disocnnect");
+  // });
 });
 
 app.use("/api/auth", authRoutes);
