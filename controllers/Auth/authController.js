@@ -24,6 +24,10 @@ class AuthController {
           new: true,
         }
       );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
       
       const { firstName, lastName, email, _id, mobile, role } = findUser;
       res.status(200).json({
@@ -43,6 +47,26 @@ class AuthController {
       throw new Error("Invalid Credentials");
     }
   });
+
+  logout = asyncHandler(async (req, res) => {
+    const cookie = req.refreshToken;
+    const user = await User.findOne(cookie);
+    if (!user) {
+      throw new Error("User not found");
+    } else {
+      await User.findOneAndUpdate(cookie, {
+        refreshToken: "",
+      });
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
+      });
+      res.status(200).json({ success: true });
+    }
+  });
+
+
+  
    validateSession = asyncHandler(async (req, res) => {
     // Assuming the request contains a bearer token in the Authorization header
     const authHeader = req.headers.authorization;
@@ -103,6 +127,38 @@ verifyTokenAndRole = async (req, res) => {
   }
 };
 
+checkEmailExists = async (req, res) => {
+  const { email } = req.params;
+  try {
+      const user = await User.findOne({ email });
+      if (user) {
+          res.status(200).json({ exists: true });
+      } else {
+          res.status(200).json({ exists: false });
+      }
+  } catch (error) {
+      console.error('Error checking email existence:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Function to check phone number existence
+checkPhoneNumberExists = async (req, res) => {
+  const { phoneNumber } = req.params;
+  try {
+      const user = await User.findOne( { phoneNumber });
+      if (user) {
+          res.status(200).json({ exists: true });
+      } else {
+          res.status(200).json({ exists: false });
+      }
+  } catch (error) {
+      console.error('Error checking phone number existence:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+}
+;
+
 
 handleRefreshToken = asyncHandler(async (req, res) => {
   const { refreshToken } = req.cookies;
@@ -119,9 +175,6 @@ handleRefreshToken = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Logout user / clear cookie
-// @route   POST /api/users/logout
-// @access 
    logout = asyncHandler(async (req, res) => {
     res.cookie('refreshToken', '', {
       httpOnly: true,
@@ -154,6 +207,12 @@ handleRefreshToken = asyncHandler(async (req, res) => {
     }
   
   }
+
+
+
+
+
+
   
   module.exports = new AuthController();
   

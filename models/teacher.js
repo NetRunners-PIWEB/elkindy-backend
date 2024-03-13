@@ -14,7 +14,7 @@ const teacherSchema = new Schema({
       institution: String,
       yearCompleted: Number,
     }],*/
-    specialization: String,
+    specialization: [String],
     teachingExperience:Number/* {
       years: Number,
       details: [String],

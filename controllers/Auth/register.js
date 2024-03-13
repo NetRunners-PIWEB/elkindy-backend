@@ -6,7 +6,7 @@ const generateToken = require('../../config/generateToken');
 class RegisterController {
     async register(req, res) {
         try {
-            const { username, firstName, lastName, age, email, password, phoneNumber, gender, address, dateOfBirth, role } = req.body;
+            const { username, firstName, lastName, age, email, password, phoneNumber, gender, address, dateOfBirth, role, preferedInstrument} = req.body;
 
             // Check if the user already exists
             let existingUser = await User.findOne({ $or: [{ email }, { username }, { phoneNumber }] });
@@ -27,6 +27,7 @@ class RegisterController {
                 address,
                 dateOfBirth,
                 role,
+                preferedInstrument
             });
 
             await newUser.save();
@@ -52,7 +53,7 @@ class RegisterController {
 
                 
               const { firstNamefound, lastNamefound, emailfound, _id, mobile } = findUser;*/
-             const user=newUser
+             const user=newUser;
 
               res.status(201).json({user,
                  token: generateToken(user._id)}); 

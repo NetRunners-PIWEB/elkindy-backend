@@ -14,6 +14,8 @@ router.post('/forgot-password', AuthController.forgotPassword);
 router.get('/connection', AuthGoogle.loginGoogle);
 router.post('/Register', RegisterController.register);
 router.get("/verifyTokenAndRole",AuthController.verifyTokenAndRole);
+router.get('/check-email/:email', AuthController.checkEmailExists);
+router.get('/check-phone/:phoneNumber', AuthController.checkPhoneNumberExists);
 // if page not found then status = 404 and message ... page not found
 router.all('*', (req, res) => {
     res.status(404).send('Page not found!')
