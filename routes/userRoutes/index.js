@@ -1,20 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const userController = require("../../controllers/userControllers/index");
+const UserController = require('../../controllers/userControllers/index');
 
 
-
-// router.get('/teachers', UserController.listTeachers);
-
-
-//fetch teachers
-router.get('/teachers', userController.listTeachers);
-
-// //login routes 
-// router.post("/login", AuthController.login);
-// router.get("/logout", AuthController.logout);
-// router.post('/forgot-password', AuthController.forgotPassword); 
-
-
+const {
+    createUser, getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents} = require  ('../../controllers/userControllers/index');
+const {authMiddleware, isAdmin } = require('../../middlewares/authJWT');
+// Routes for User CRUD operations
+router.post('/createUser', authMiddleware,createUser);
+router.get('/getAllUsers',authMiddleware,isAdmin,getAllUsers);
+router.get('/users',authMiddleware, getAllUsers);
+router.get('/users/:id', authMiddleware, getUserById);
+router.put('/updateUser/:id', updateUser);
+router.delete('/deleteUser/:id',deleteUser);
+router.get('/teachers', listTeachers);
+router.get('/Students',authMiddleware ,getAllStudents);
 
 module.exports = router;

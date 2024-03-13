@@ -1,6 +1,0 @@
-{"level":"error","message":"MongoDB connection error: undefined"}
-{"level":"error","message":"connection error: undefined"}
-{"level":"error","message":"connected to database: undefined"}
-{"level":"error","message":"connected to database"}
-{"level":"error","message":"MongoDB connection error: MongoError: bad auth : authentication failed"}
-{"level":"error","message":"MongoDB connection error: Error: querySrv ETIMEOUT _mongodb._tcp.cluster0.scfokhp.mongodb.net"}
