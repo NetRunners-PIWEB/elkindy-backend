@@ -105,13 +105,13 @@ exports.getAssignedTeachers = async (req, res) => {
     try {
         const { courseId } = req.params;
         const course = await Course.findById(courseId).populate('teacher');
-        console.log('Populated Course:', course);
+
         if (!course) {
             return res.status(404).json({ message: 'Course not found' });
         }
 
         const assignedTeachers = course.teacher;
-        console.log('Populated Course:', course);
+
         res.json({ assignedTeachers });
     } catch (error) {
         console.error(error);
