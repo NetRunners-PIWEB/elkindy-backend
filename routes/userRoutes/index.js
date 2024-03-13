@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const userController = require("../../controllers/userControllers/index");
 
 
 
@@ -7,7 +8,7 @@ const router = express.Router();
 
 
 //fetch teachers
-router.get('/teachers', UserController.listTeachers);
+router.get('/teachers', userController.listTeachers);
 
 // //login routes 
 // router.post("/login", AuthController.login);

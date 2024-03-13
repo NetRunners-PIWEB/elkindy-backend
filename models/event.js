@@ -53,6 +53,10 @@ const eventSchema = new Schema({
     enum: ["Charity Concert", "Final Year Party", "Other"],
     default: "Other",
   },
+  isArchived: {
+    type: Boolean,
+    default: false, 
+  },
   tickets: [
     {
       type: Schema.Types.ObjectId,
