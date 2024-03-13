@@ -2,10 +2,14 @@ FROM node:14-alpine
 
 EXPOSE 3000
 
+
 ENV NODE_ENV
 
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 
+
+
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 
 WORKDIR /home/node/app
 
@@ -19,3 +23,4 @@ COPY --chown=node:node . .
 
 
 CMD [ "node", "app.js" ]
+

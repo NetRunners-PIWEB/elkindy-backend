@@ -17,6 +17,7 @@ const options = {
       { url: "http://PREPROD" },
       { url: "http://PROD" },
       { url: "http://localhost:3000/api/courses" }
+
     ],
     components: {
       schemas: {
