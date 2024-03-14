@@ -814,3 +814,9 @@
 {"level":"info","message":"connected to database "}
 {"level":"info","message":"connected to database "}
 {"level":"info","message":"connected to database "}
+{"level":"info","message":"connected to database "}
+{"level":"info","message":"connected to database "}
+{"level":"error","message":"MongoDB connection error: MongoServerSelectionError: connect ETIMEDOUT 13.36.53.162:27017"}
+{"level":"error","message":"MongoDB connection error: MongoServerSelectionError: connect ETIMEDOUT 13.36.53.162:27017"}
+{"level":"info","message":"connected to database "}
+{"level":"info","message":"connected to database "}

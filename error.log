@@ -4,3 +4,5 @@
 {"level":"error","message":"connected to database"}
 {"level":"error","message":"MongoDB connection error: MongoError: bad auth : authentication failed"}
 {"level":"error","message":"MongoDB connection error: MongoServerSelectionError: getaddrinfo ENOTFOUND ac-edftf5u-shard-00-00.scfokhp.mongodb.net"}
+{"level":"error","message":"MongoDB connection error: MongoServerSelectionError: connect ETIMEDOUT 13.36.53.162:27017"}
+{"level":"error","message":"MongoDB connection error: MongoServerSelectionError: connect ETIMEDOUT 13.36.53.162:27017"}
