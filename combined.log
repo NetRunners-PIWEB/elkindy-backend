@@ -653,6 +653,7 @@
 {"level":"info","message":"connected to database ElKindyDB"}
 {"level":"info","message":"connected to database ElKindyDB"}
 {"level":"info","message":"connected to database ElKindyDB"}
+<<<<<<< HEAD
 {"level":"info","message":"connected to database ElKindyDB"}
 {"level":"info","message":"connected to database ElKindyDB"}
 {"level":"info","message":"connected to database ElKindyDB"}
@@ -694,3 +695,4 @@
 {"level":"info","message":"connected to database ElKindyDB_Test"}
 {"level":"info","message":"connected to database ElKindyDB_Test"}
 {"level":"info","message":"connected to database ElKindyDB_Test"}
+
