@@ -41,13 +41,25 @@ exports.deleteCourse = async (req, res) => {
 };
 
 exports.listCourses = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize,7) || 7;
     try {
-        //const courses = await Course.find({});
-        const courses = await Course.find({ isArchived: false });
-        res.json(courses);
+        const total = await Course.countDocuments({ isArchived: true });
+        const courses = await Course.find({ isArchived: false })
+            .skip(((page - 1) * pageSize))
+            .limit(pageSize);
+
+        res.json({
+            data:courses,
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+
 };
 
 exports.listCoursesByCategory = async (req, res) => {
@@ -71,9 +83,22 @@ exports.archiveCourse = async (req, res) => {
 };
 
 exports.listArchivedCourses = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize,5) || 5;
     try {
-        const archivedCourses = await Course.find({ isArchived: true });
-        res.json(archivedCourses);
+        const total = await Course.countDocuments({ isArchived: true });
+
+        const archivedCourses = await Course.find({ isArchived: true })
+            .skip(((page - 1) * pageSize))
+            .limit(pageSize);
+
+        res.json({
+            data:archivedCourses,
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
