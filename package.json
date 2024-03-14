@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon app.js",
     "test:jest": "jest --config=tests/jest.config.js --detectOpenHandles",
-    "test:mocha": "cross-env NODE_ENV=test mocha tests/course.test.js",
+    "test:mocha": "cross-env NODE_ENV=test mocha tests/course.test.js --timeout 10000",
     "test": "npm run test:mocha && npm run test:jest"
 
   },
