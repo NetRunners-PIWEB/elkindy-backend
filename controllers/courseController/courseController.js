@@ -43,9 +43,18 @@ exports.deleteCourse = async (req, res) => {
 exports.listCourses = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize,7) || 7;
+    const searchQuery = req.query.searchQuery || '';
+
+
     try {
-        const total = await Course.countDocuments({ isArchived: true });
-        const courses = await Course.find({ isArchived: false })
+
+        const query = {
+            isArchived: false,
+            ...(searchQuery && { title: { $regex: searchQuery, $options: 'i' } }),
+        };
+
+        const total = await Course.countDocuments(query);
+        const courses = await Course.find(query)
             .skip(((page - 1) * pageSize))
             .limit(pageSize);
 
@@ -61,6 +70,7 @@ exports.listCourses = async (req, res) => {
     }
 
 };
+
 
 exports.listCoursesByCategory = async (req, res) => {
     try {
@@ -143,4 +153,7 @@ exports.getAssignedTeachers = async (req, res) => {
         res.status(500).json({ message: 'Error fetching assigned teachers', error });
     }
 };
+
+
+
 
