@@ -16,7 +16,8 @@ const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
 const cookieParser = require("cookie-parser");
 const cors = require('cors');
-
+const { EventEmitter } = require('events');
+const instrumentRouter = require("./routes/instrument.route.js"); 
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require('./routes/courseRoutes/courseRoutes');
 const authRoutes = require("./routes/authRoutes");
@@ -25,12 +26,7 @@ const { userVerification } = require("./middlewares/authJWT");
 
 
 connect();
-/*app.use(
-    cors({
-      origin: ["http://localhost:3000"],
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      credentials: true,
-    }));*/
+
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(bodyParser.json());

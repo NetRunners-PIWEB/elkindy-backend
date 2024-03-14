@@ -6,11 +6,11 @@
   "scripts": {
     "start": "nodemon app.js",
     "test:jest": "jest --config=tests/jest.config.js",
-    "test:mocha": "mocha \"./test/**/*.test.js\"",
+    "test:mocha": "mocha \"./tests/**/*.test.js\"",
     "test": "npm run test:mocha && npm run test:jest"
   },
   "engines": {
-    "node": "12.8.0"
+    "node": ">=12.8.0"
   },
   "author": "NetRunners",
   "license": "ISC",
