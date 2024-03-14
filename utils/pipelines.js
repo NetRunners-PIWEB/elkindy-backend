@@ -19,9 +19,7 @@ const allInstrumentsPipeline = (
   if (status) {
     match.$match.status = status;
   }
-  // if (userId) {
-  //   match.$match["author._id"] = new mongoose.Types.ObjectId(userId);
-  // }
+
   return reusableInstrumentPipeline(
     userId,
     match,
@@ -90,8 +88,12 @@ const reusableInstrumentPipeline = (
       },
     });
   }
+  if (ops) {
+    pipelineArray.push(...ops);
+  }
 
   let liked = null;
+
   if (userId) {
     liked = {
       $cond: {
@@ -111,9 +113,7 @@ const reusableInstrumentPipeline = (
   if (userId) {
     pipelineArray[2].$project.liked = liked;
   }
-  if (ops) {
-    pipelineArray.push(...ops);
-  }
+
 
   // if (pageNumber && pageSize) {
   //   const skip = (pageNumber - 1) * pageSize;
@@ -124,9 +124,7 @@ const reusableInstrumentPipeline = (
   //   pipelineArray.push({
   //     $limit: parseInt(pageSize),
   //   });
-  //   pipelineArray.push({
-  //     $addFields: { v: 0 },
-  //   });
+
   // }
 
   const res = sort
