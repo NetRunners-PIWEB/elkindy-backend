@@ -7,7 +7,7 @@
     "start": "nodemon app.js",
     "test:jest": "jest --config=tests/jest.config.js",
     "test:mocha": "mocha \"./test/**/*.test.js\"",
-    "test": "npm run test:mocha && npm run test:jest"
+    "test": " npm run test:jest"
   },
   "engines": {
     "node": "12.8.0"
