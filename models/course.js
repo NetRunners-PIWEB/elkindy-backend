@@ -10,11 +10,11 @@ const courseSchema = new mongoose.Schema({
     },
     teacher: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'Users'
     }],
     students: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'Users'
     }],
     price: {
         type: Number,
@@ -22,7 +22,7 @@ const courseSchema = new mongoose.Schema({
     },
     startDate: Date,
     endDate: Date,
-
+    maxStudents: Number,
     isArchived: {
         type: Boolean,
         default: false
