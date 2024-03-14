@@ -14,7 +14,7 @@ class InstrumentController {
     try {
       let instruments = await Instrument.aggregate(
         allInstrumentsPipeline(
-          req.user?.id || null,
+          req.user?.id,
           status,
           sortBy,
           null,
@@ -39,7 +39,8 @@ class InstrumentController {
       const { title, type, brand, details, condition, price, status } =
         req.body;
       const author = req.user?.id;
-      await Instrument.create({
+      console.log(author);
+      const instrument = new Instrument({
         author,
         title,
         type,
@@ -49,6 +50,8 @@ class InstrumentController {
         condition,
         status,
       });
+
+      await instrument.save();
 
       res.status(201).json({
         success: true,
@@ -63,17 +66,15 @@ class InstrumentController {
   static async addUserLike(req, res, next) {
     try {
       const id = req.params.id;
-      console.log(req.params);
-      console.log(id);
       const instrument = await Instrument.findById(id);
       if (instrument) {
         let liked = false;
-        const userIndex = instrument.likes.indexOf("65d517bddf2aa46349809694");
+        const userIndex = instrument.likes.indexOf(req.user.id);
         if (userIndex !== -1) {
           instrument.likes.splice(userIndex, 1);
           instrument.likeScore -= 1;
         } else {
-          instrument.likes.push("65d517bddf2aa46349809694");
+          instrument.likes.push(req.user.id);
           liked = true;
           instrument.likeScore += 1;
         }
@@ -88,7 +89,6 @@ class InstrumentController {
       }
     } catch (err) {
       next(err);
-      r;
     }
   }
   static async getInstrument(req, res, next) {
@@ -118,9 +118,6 @@ class InstrumentController {
   static async searchInstrument(req, res, next) {
     try {
       const searchQuery = req.query.query;
-      console.log(searchQuery);
-      console.log("triggered search");
-
       const sortBy = formatSort(req.query.sort);
       const status = req.query.status;
       let instruments = await Instrument.aggregate(
@@ -145,16 +142,8 @@ class InstrumentController {
   }
   static async getUserInstruments(req, res, next) {
     try {
-      const userId = req.params.userId;
-      const sortBy = formatSort(req.query.sort);
-      const status = req.query.status;
-      const pageIndex = req.query.pageNumber || 1;
-      const size = req.query.pageSize || 10;
-
-      const instruments = await Instrument.aggregate(
-        allInstrumentsPipeline(userId, status, sortBy, null, pageIndex, size)
-      ).exec();
-
+      const userId = req.user.id;
+      const instruments = await Instrument.find({ author: userId }).exec();
       res.status(200).json({
         success: true,
         instruments,
