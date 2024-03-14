@@ -8,6 +8,7 @@ const dbName = process.env.NODE_ENV === 'test' ? 'ElKindyDB_Test' : 'ElKindyDB';
 
 const url = f(
   `mongodb+srv://${mongo.user}:${mongo.pass}@${mongo.uri}/?retryWrites=true&w=majority`
+    //'mongodb://localhost:27017'
 );
 const connect = () => {
   mongoose.connect(url, {
