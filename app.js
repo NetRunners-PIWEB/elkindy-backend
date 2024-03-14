@@ -99,8 +99,16 @@ EventEmitter.defaultMaxListeners = 20;
 // ==============================================
 // START THE SERVER
 // ==============================================
+
+// if (process.env.NODE_ENV !== 'test') {
+//   // Only start the server if not in test environment
+//   app.listen(port, () => console.log(`Server running on port ${port}`));
+//   io.listen(5000);
+// }
 app.listen(port);
 io.listen(5000);
 console.log("Magic happens on port " + port);
 
 module.exports = app;
+
+
