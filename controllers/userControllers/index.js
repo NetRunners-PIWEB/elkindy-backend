@@ -46,7 +46,7 @@ listTeachers = asyncHandler(async (req, res) => {
 
 
 
-const getAllStudents = asyncHandler(async (req, res) => {
+ getAllStudents = asyncHandler(async (req, res) => {
     const students = await User.find({ role: 'student', isDeleted: false }).select('-password');
     res.json(students);
   

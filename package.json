@@ -46,6 +46,7 @@
     "sync-request": "^6.1.0",
     "validator": "13.11.0",
     "winston": "^3.11.0",
+    "morgan": "^1.10.0",
     "yup": "^1.3.3"
   },
   "devDependencies": {

@@ -37,6 +37,9 @@ app.use(express.json());
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require('./routes/courseRoutes/courseRoutes');
 const authRoutes = require("./routes/authRoutes");
+const examRoutes = require("./routes/examRoutes");
+const classRoutes = require("./routes/classRoutes");
+const morgan = require("morgan");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
 const reservationRoutes = require("./routes/reservationRoutes/reservationRoutes");
@@ -46,7 +49,7 @@ const reservationRoutes = require("./routes/reservationRoutes/reservationRoutes"
 app.use(bodyParser.json());
 app.use(corsMiddleware);
 swaggerDoc(app);
-
+app.use(morgan("dev"));
 connect();
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -88,6 +91,8 @@ app.use("/api/reservations", reservationRoutes);
 
 
 
+app.use("/api/exam", examRoutes);
+app.use("/api/class", classRoutes);
 app.use(bodyParser.json());
 
 // Increase the limit for EventEmitter instance
@@ -99,7 +104,6 @@ EventEmitter.defaultMaxListeners = 20;
 app.listen(port);
 io.listen(5000);
 console.log("Magic happens on port " + port);
-
 
 module.exports = app;
 
