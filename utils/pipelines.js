@@ -19,9 +19,9 @@ const allInstrumentsPipeline = (
   if (status) {
     match.$match.status = status;
   }
-  if (userId) {
-    match.$match["author._id"] = new mongoose.Types.ObjectId(userId);
-  }
+  // if (userId) {
+  //   match.$match["author._id"] = new mongoose.Types.ObjectId(userId);
+  // }
   return reusableInstrumentPipeline(
     userId,
     match,
@@ -80,10 +80,6 @@ const reusableInstrumentPipeline = (
     },
   ];
 
-  if (ops) {
-    pipelineArray.push(...ops);
-  }
-
   if (search) {
     pipelineArray.unshift({
       $match: {
@@ -94,26 +90,44 @@ const reusableInstrumentPipeline = (
       },
     });
   }
+
   let liked = null;
-
   if (userId) {
-    console.log("true")
-    pipelineArray[1].$project.liked = liked;
+    liked = {
+      $cond: {
+        if: {
+          $ne: [
+            {
+              $indexOfArray: ["$likes", new mongoose.Types.ObjectId(userId)],
+            },
+            -1,
+          ],
+        },
+        then: 1,
+        else: 0,
+      },
+    };
+  }
+  if (userId) {
+    pipelineArray[2].$project.liked = liked;
+  }
+  if (ops) {
+    pipelineArray.push(...ops);
   }
 
-  if (pageNumber && pageSize) {
-    const skip = (pageNumber - 1) * pageSize;
-   console.log(pageNumber)
-    pipelineArray.push({
-      $skip: skip,
-    });
-    pipelineArray.push({
-      $limit: parseInt(pageSize),
-    });
-    pipelineArray.push({
-      $addFields: { v: 0 },
-    });
-  }
+  // if (pageNumber && pageSize) {
+  //   const skip = (pageNumber - 1) * pageSize;
+  //   console.log(pageNumber);
+  //   pipelineArray.push({
+  //     $skip: skip,
+  //   });
+  //   pipelineArray.push({
+  //     $limit: parseInt(pageSize),
+  //   });
+  //   pipelineArray.push({
+  //     $addFields: { v: 0 },
+  //   });
+  // }
 
   const res = sort
     ? [match, sort].concat(pipelineArray)
