@@ -5,9 +5,10 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
-    "test:jest": "jest --config=tests/jest.config.js",
+    "test:jest": "jest --config=tests/jest.config.js --detectOpenHandles",
     "test:mocha": "cross-env NODE_ENV=test mocha tests/course.test.js",
     "test": "npm run test:mocha && npm run test:jest"
+
   },
   "engines": {
     "node": "12.8.0"
@@ -30,7 +31,6 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "node-uuid": "^1.4.8",
-    "nodeman": "^1.1.2",
     "nodemon": "^3.0.3",
     "socket.io": "^4.7.4",
     "supertest": "^6.3.4",
