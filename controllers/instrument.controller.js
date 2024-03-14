@@ -8,7 +8,6 @@ const mongoose = require("mongoose");
 class InstrumentController {
   static async getAllInstruments(req, res, next) {
     const sortBy = formatSort(req.query.sort);
-    console.log(req.query);
     const status = req.query.status;
     const pageIndex = req.query.pageNumber;
     const size = req.query.pageSize || 10;
@@ -39,7 +38,6 @@ class InstrumentController {
     try {
       const { title, type, brand, details, condition, price, status } =
         req.body;
-      console.log(req.body);
       const author = req.user?.id;
       await Instrument.create({
         author,
@@ -164,7 +162,6 @@ class InstrumentController {
       });
     } catch (err) {
       next(err);
-      console.log(err);
       res.status(500).json({
         success: false,
       });
