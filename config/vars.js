@@ -12,4 +12,5 @@ module.exports = {
     pass: encodeURIComponent(process.env.MONGO_PASS),
   },
   logs: "dev",
+  access_token_secret:process.env.TOKEN_KEY
 };
