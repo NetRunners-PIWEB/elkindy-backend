@@ -5,19 +5,35 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
-  cors: {
-    origin: "*",
-  },
+    cors: {
+        origin: "*",
+    },
 });
 const { connect } = require("./config/mongoose.js");
 const corsMiddleware = require("./middlewares/cors.js");
 var bodyParser = require("body-parser");
 const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
-const cookieParser = require("cookie-parser");
 const cors = require('cors');
+
+app.use(bodyParser.json());
+
+
+app.use(cors({
+    origin: 'http://localhost:3001'
+}));
+
+
+
 const { EventEmitter } = require('events');
-const instrumentRouter = require("./routes/instrument.route.js"); 
+const instrumentRouter = require("./routes/instrument.route.js");
+app.use(express.json());
+// const io = new ioS.Server({
+//   cors: {
+//     origin: "http://localhost:3000",
+//   },
+// });
+
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require('./routes/courseRoutes/courseRoutes');
 const authRoutes = require("./routes/authRoutes");
@@ -31,7 +47,6 @@ connect();
     app.use(express.urlencoded({ extended: true }));
     app.use(bodyParser.json());
     swaggerDoc(app);
-    app.use(cookieParser());
     app.use(cors());
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
@@ -45,11 +60,12 @@ swaggerDoc(app);
 
 connect();
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "*");
-    res.header("Access-Control-Allow-Headers", "*");
-    next();
-});
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+}); 
 app.use(cors({
     origin: 'http://localhost:3001',
 }));
@@ -57,24 +73,23 @@ app.use(cors({
 app.use("/api/v1/instruments", instrumentRouter);
 
 io.on("connection", (socket) => {
-  socket.on(
-    "sendNotification",
-    ({ senderName, receiverName, instrument, message }) => {
-      console.log("emit notif now");
-      io.emit("getNotification", {
-        senderName,
-        instrument,
-        message,
-      });
-    }
-  );
+    socket.on(
+        "sendNotification",
+        ({ senderName, receiverName, instrument, message }) => {
+            console.log("emit notif now");
+            io.emit("getNotification", {
+                senderName,
+                instrument,
+                message,
+            });
+        }
+    );
 
-  socket.on("disconnect", () => {
-    console.log("disocnnect");
-  });
+    socket.on("disconnect", () => {
+        console.log("disocnnect of the socket");
+    });
 });
 
-app.use("/api/auth", authRoutes); 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
@@ -88,7 +103,7 @@ app.use("/api/reservations", reservationRoutes);
 app.use(bodyParser.json());
 
 // Increase the limit for EventEmitter instance
-EventEmitter.defaultMaxListeners = 20; 
+EventEmitter.defaultMaxListeners = 20;
 
 // ==============================================
 // START THE SERVER

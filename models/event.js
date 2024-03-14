@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const eventSchema = new Schema({
+    name: String,
+    startDate: Date,
+    endDate: Date,
+    location: String,
+    capacity: Number,
   title: {
     type: String,
     required: true,
@@ -52,6 +57,10 @@ const eventSchema = new Schema({
     type: String,
     enum: ["Charity Concert", "Final Year Party", "Other"],
     default: "Other",
+  },
+  isArchived: {
+    type: Boolean,
+    default: false, 
   },
   tickets: [
     {

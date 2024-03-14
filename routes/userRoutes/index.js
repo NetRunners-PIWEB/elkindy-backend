@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const { listTeachers } = require('../../controllers/userController/userController');
+
+router.get('/teachers', listTeachers);
 const UserController = require('../../controllers/userControllers/index');
 
 
 const {
-    createUser, getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents} = require  ('../../controllers/userControllers/index');
+    createUser, getAllUsers,getUserById,updateUser,deleteUser,getAllStudents} = require  ('../../controllers/userControllers/index');
 const {authMiddleware, isAdmin } = require('../../middlewares/authJWT');
 // Routes for User CRUD operations
 router.post('/createUser', authMiddleware,createUser);
