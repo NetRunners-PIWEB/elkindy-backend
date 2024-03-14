@@ -11,8 +11,8 @@ const url = f(
 );
 const connect = () => {
   mongoose.connect(url, {
-   // dbName:'ElKindyDB'
-    dbName : dbName,
+   dbName:'ElKindyDB'
+    // dbName : dbName,
   });
   return mongoose.connection;
 };
