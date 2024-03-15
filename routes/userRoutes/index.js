@@ -11,7 +11,7 @@ const {
 const {authMiddleware, isAdmin } = require('../../middlewares/authJWT');
 // Routes for User CRUD operations
 router.post('/createUser', authMiddleware,createUser);
-router.get('/getAllUsers',authMiddleware,isAdmin,getAllUsers);
+router.get('/getAllUsers',getAllUsers);//,authMiddleware,isAdmin 
 router.get('/users',authMiddleware, getAllUsers);
 router.get('/users/:id', authMiddleware, getUserById);
 router.put('/updateUser/:id', updateUser);
