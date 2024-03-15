@@ -59,6 +59,7 @@ const userSchema = new Schema({
     default: false,
   },
   preferedInstrument :[String],
+  resetToken:{type:String,required:false},
 });
 
 
