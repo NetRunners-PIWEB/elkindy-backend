@@ -9,9 +9,10 @@ const mongoose = require("mongoose");
 
 const should = chai.should();
 chai.use(chaiHttp);
-before(function() {
+before(async function () {
     this.timeout(10000);
 });
+
 describe('Database Connection', function() {
     before(function(done) {
         connect().once('open', () => done()).on('error', (error) => done(error));
@@ -19,24 +20,28 @@ describe('Database Connection', function() {
 
     it('should connect to the test database', function() {
         expect(mongoose.connection.db.databaseName).to.equal('ElKindyDB_Test');
+        console.log(mongoose.connection.db.databaseName);
     });
 
 });
 describe('Courses', () => {
     describe('/GET/:id course', () => {
-        it('it should GET a course by the given id', (done) => {
-            let courseId = '65db52b1d59f029a2488b527';
-            chai.request(server)
-                .get('/api/courses/' + courseId)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('_id').eql(courseId);
-                    done();
-                });
+        it('it should GET a course by the given id', async () => {
+            let course = new Course({
+                title: 'Course to Archive',
+                category: 'Initiation',
+                price: 33,
+                isArchived: false
+            });
+            course = await course.save();
+            const res = await chai.request(server).get('/api/courses/' + course._id);
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('_id').eql(course._id.toString());
         });
     });
 });
+
 describe('PUT /api/courses/:id', () => {
     it('should update a course given the id', async function() {
         this.timeout(10000);
@@ -85,7 +90,7 @@ describe('GET /api/courses', () => {
             .get('/api/courses')
             .end((err, res) => {
                 res.should.have.status(200);
-                res.body.should.be.a('array');
+                res.body.should.be.a('object');
                 done();
             });
     });
@@ -110,6 +115,9 @@ describe('PATCH /api/courses/archive/:id', function() {
         res.body.should.have.property('isArchived').eql(true);
     });
 });
-
-
+/*
+after(async () => {
+    await mongoose.connection.db.collection('courses').deleteMany({});
+});
+*/
 

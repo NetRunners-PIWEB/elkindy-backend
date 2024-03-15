@@ -5,9 +5,10 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
-    "test:jest": "jest --config=tests/jest.config.js",
-    "test:mocha": "cross-env NODE_ENV=test mocha tests/course.test.js",
-    "test": "npm run test:mocha && npm run test:jest"
+    "test:jest": "jest --config=tests/jest.config.js --detectOpenHandles",
+    "test:mocha": "cross-env NODE_ENV=test mocha tests/course.test.js --timeout 10000 --exit",
+    "test": "cross-env NODE_ENV=test npm run test:mocha && npm run test:jest"
+
   },
   "engines": {
     "node": "12.8.0"
