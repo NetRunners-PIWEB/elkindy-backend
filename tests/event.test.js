@@ -1,304 +1,326 @@
 const supertest = require("supertest");
 const app = require("../app.js");
 const request = supertest(app);
-const Exam = require("../models/exam.js");
+const Event = require("../models/event.js");
 
-jest.mock("../models/exam.js", () => ({
+jest.mock("../models/event.js", () => ({
   find: jest.fn(),
   findById: jest.fn(),
-  save: jest.fn(),
   findByIdAndDelete: jest.fn(),
   findByIdAndUpdate: jest.fn(),
-
+  save: jest.fn(),
 }));
 
+// beforeAll(() => {
+//   jest.setTimeout(3000);
+// });
 
+describe("Event Controller", () => {
+  describe("GET /api/events", () => {
+    it("should list all events", async () => {
+      const mockEvents = [{ title: "Event 1" }, { title: "Event 2" }];
+      Event.find.mockResolvedValue(mockEvents);
 
-describe("Exam Controller", () => {
-  describe("GET /api/exam/typeEvaluation", () => {
-    it("should return evaluations with status 200", async () => {
-      // Mock data for exams
-      const mockExams = [
-        { name: "Evaluation 1", type: "evaluation" },
-        { name: "Evaluation 2", type: "evaluation" }
-      ];
+      const response = await request.get("/api/events");
 
-      // Mock the behavior of Exam.find() to resolve with mockExams
-      Exam.find.mockResolvedValue(mockExams);
-
-      // Send GET request to the endpoint
-      const response = await request.get("/api/exam/typeEvaluation");
-
-      // Check status code
       expect(response.status).toBe(200);
-
-      // Check response body
-      expect(response.body).toBeDefined();
-
-      // Check if the number of exams returned matches the expected number
-      expect(response.body.length).toBe(mockExams.length);
-
-      // Check type of each exam returned
-      response.body.forEach(exam => {
-        expect(exam.type).toBe("evaluation");
-      });
-
-      // Check if Exam.find() was called with the correct parameters
-      expect(Exam.find).toHaveBeenCalledWith({ type: "evaluation" });
+      expect(response.body.length).toBe(2);
+      expect(Event.find).toHaveBeenCalledWith({ isArchived: false });
     });
 
-    it("should handle errors and return status 500", async () => {
-      // Mock error message
-      const errorMessage = "Error fetching evaluations";
+    it("should handle errors when listing events", async () => {
+      const errorMessage = "Error fetching events";
+      Event.find.mockRejectedValue(new Error(errorMessage));
 
-      // Mock the behavior of Exam.find() to reject with an error
-      Exam.find.mockRejectedValue(new Error(errorMessage));
+      const response = await request.get("/api/events");
 
-      // Send GET request to the endpoint
-      const response = await request.get("/api/exam/typeEvaluation");
-
-      // Check status code
       expect(response.status).toBe(500);
-
-      // Check error message in response body
       expect(response.body.message).toBe(errorMessage);
     });
   });
-});
 
+  describe("GET /api/events/:id", () => {
+    it("should get an event by id", async () => {
+      const mockEventId = "65e487bc64aff87a4f39971a";
+      const mockEvent = { _id: mockEventId, title: "Final Year Event" };
+      Event.findById.mockResolvedValue(mockEvent);
 
-describe("GET /api/exam/typeExams", () => {
-  it("should return exams with status 200", async () => {
-    // Mock data for exams
-    const mockExams = [
-      { name: "Exam 1", type: "exam" },
-      { name: "Exam 2", type: "exam" }
-    ];
+      const response = await request.get(`/api/events/${mockEventId}`);
 
-    // Mock the behavior of Exam.find() to resolve with mockExams
-    Exam.find.mockResolvedValue(mockExams);
-
-    // Send GET request to the endpoint
-    const response = await request.get("/api/exam/typeExams");
-
-    // Check status code
-    expect(response.status).toBe(200);
-
-    // Check response body
-    expect(response.body).toBeDefined();
-
-    // Check if the number of exams returned matches the expected number
-    expect(response.body.length).toBe(mockExams.length);
-
-    // Check type of each exam returned
-    response.body.forEach(exam => {
-      expect(exam.type).toBe("exam");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("_id", mockEventId);
+      expect(response.body).toHaveProperty("title", mockEvent.title);
+      expect(Event.findById).toHaveBeenCalledWith(mockEventId);
     });
 
-    // Check if Exam.find() was called with the correct parameters
-    expect(Exam.find).toHaveBeenCalledWith({ type: "exam" });
+    it("should return 404 when event is not found", async () => {
+      const mockEventId = "nonexistentid";
+      Event.findById.mockResolvedValue(null);
+
+      const response = await request.get(`/api/events/${mockEventId}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("message", "Event not found");
+      expect(Event.findById).toHaveBeenCalledWith(mockEventId);
+    });
   });
 
-  it("should handle errors and return status 500", async () => {
-    // Mock error message
-    const errorMessage = "Error fetching exams";
+//   describe("POST /api/events/createEvent", () => {
+//       const mockEventData = {
+//           title: "New Event",
+//           description: "This is an Event test Description",
+//           startDate: new Date(),
+//           endDate: new Date(),
+//           location: "Event Location",
+//           startTime: "12:00",
+//           endTime: "14:00",
+//           capacity: 100,
+//       };
 
-    // Mock the behavior of Exam.find() to reject with an error
-    Exam.find.mockRejectedValue(new Error(errorMessage));
+//       it("should create an event and return 201 status", async () => {
+//           const mockEventInstance = new Event(mockEventData); 
+//           Event.mockReturnValueOnce(mockEventInstance); 
 
-    // Send GET request to the endpoint
-    const response = await request.get("/api/exam/typeExams");
+//           const response = await request
+//               .post("/api/events/createEvent")
+//               .send(mockEventData);
 
-    // Check status code
-    expect(response.status).toBe(500);
+//           expect(response.status).toBe(201);
+//           expect(response.body).toEqual(mockEventData);
+//           expect(Event).toHaveBeenCalledWith(mockEventData); 
+//           expect(mockEventInstance.save).toHaveBeenCalled(); 
+//       });
 
-    // Check error message in response body
-    expect(response.body.message).toBe(errorMessage);
+//       it("should handle errors and return 500 status", async () => {
+//           const errorMessage = "Error creating event";
+//           const mockEventInstance = new Event(mockEventData);
+//           mockEventInstance.save.mockRejectedValue(new Error(errorMessage)); 
+//           Event.mockReturnValueOnce(mockEventInstance);
+
+//           const response = await request.post("/api/events/createEvent").send({});
+
+//           expect(response.status).toBe(500);
+//           expect(response.body).toHaveProperty("message", errorMessage);
+//           expect(Event).toHaveBeenCalledWith({}); 
+//           expect(mockEventInstance.save).toHaveBeenCalled(); 
+//       });
+//   });
+
+  describe("DELETE api/events/deleteEvent/:id", () => {
+    it("should delete an event and return 200 status", async () => {
+      const mockEventId = "65f228518c3460cb1bbd4ef6";
+      Event.findByIdAndDelete.mockResolvedValue({ _id: mockEventId });
+      const response = await request.delete(
+        `/api/events/deleteEvent/${mockEventId}`
+      );
+      // Assert
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Event deleted successfully"
+      );
+      expect(Event.findByIdAndDelete).toHaveBeenCalledWith(mockEventId);
+    });
+
+    it("should return 404 when event to delete is not found", async () => {
+      const mockEventId = "nonexistentid";
+      Event.findByIdAndDelete.mockResolvedValue(null);
+      const response = await request.delete(
+        `/api/events/deleteEvent/${mockEventId}`
+      );
+      // Assert
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("message", "Event not found");
+      expect(Event.findByIdAndDelete).toHaveBeenCalledWith(mockEventId);
+    });
+
+    it("should handle errors and return 500 status", async () => {
+      const mockEventId = "65f228518c3460cb1bbd4ef6";
+      const errorMessage = "Error deleting event";
+      Event.findByIdAndDelete.mockRejectedValue(new Error(errorMessage));
+      const response = await request.delete(
+        `/api/events/deleteEvent/${mockEventId}`
+      );
+      // Assert
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty("message", errorMessage);
+      expect(Event.findByIdAndDelete).toHaveBeenCalledWith(mockEventId);
+    });
   });
-});
 
-
-describe("GET /api/exam/exam/:id", () => {
-  it("should return an exam by id with status 200", async () => {
-    // Mock exam ID
-    const mockExamId = "65f279e02eb8ae573af106bb";
-
-    // Mock data for exam
-    const mockExam = {
-      _id: mockExamId,
-      examName: "solfej",
-      studentName: "farah",
-      grade: 120,
-      levellllll: "A"
+  describe("PUT api/events/updateEvent/:id", () => {
+    const mockEventId = "65f1cd1185b360993d9cfc7b";
+    const updatedData = {
+      title: "Competition Edition",
     };
 
-    // Mock the behavior of Exam.findById() to resolve with mockExam
-    Exam.findById.mockResolvedValue(mockExam);
+    it("should update an event and return 200 status", async () => {
+      Event.findByIdAndUpdate.mockResolvedValue({
+        _id: mockEventId,
+        ...updatedData,
+      });
 
-    // Send GET request to the endpoint with mock exam ID
-    const response = await request.get(`/api/exam/exam/${mockExamId}`);
-
-    // Check status code
-    expect(response.status).toBe(200);
-
-    // Check response body
-    expect(response.body).toBeDefined();
-    expect(response.body._id).toBe(mockExamId);
-
-    // Check if Exam.findById() was called with the correct parameter
-    //  expect(Exam.findById).toHaveBeenCalledWith(mockExamId);
-  });
-  it("should handle exam not found and return status 404", async () => {
-    // Mock exam ID that does not exist
-    const mockExamId = "nonexistentid";
-
-    // Mock the behavior of Exam.findById() to resolve with null
-    Exam.findById.mockResolvedValue(null);
-
-    // Send GET request to the endpoint with mock exam ID
-    const response = await request.get(`/api/exam/${mockExamId}`);
-
-    // Check status code
-    expect(response.status).toBe(404);
-
-    // Check error message in response body
-    expect(response.body.message).toBe(undefined);
-
-    // Check if Exam.findById() was called with the correct parameter
-    // expect(Exam.findById).toHaveBeenCalledWith(mockExamId);
-  });
-
-  it("should handle errors and return status 500", async () => {
-    // Mock exam ID
-    const mockExamId = 145; // Assuming this is a valid exam ID
-
-    // Mock error message
-    const errorMessage = "Error fetching exam";
-
-    // Mock the behavior of Exam.findById() to reject with an error
-    Exam.findById.mockRejectedValue(new Error(errorMessage));
-
-    // Send GET request to the endpoint with mock exam ID
-    const response = await request.get(`/api/exam/exam/${mockExamId}`);
-
-    // Check status code
-    expect(response.status).toBe(500);
-
-    // Check error message in response body
-    // expect(response.body.message).toBe(errorMessage);
-
-    // Check if Exam.findById() was called with the correct parameter
-    // expect(Exam.findById).toHaveBeenCalledWith(mockExamId);
-  });
-
-});
-describe("DELETE /api/exam/deleteExam/:id", () => {
-  it("should delete an exam and return status 200", async () => {
-    // Mock the behavior of findByIdAndDelete to resolve
-    const mockDeletedExam = '65f279e02eb8ae573af106bb' ;
-
-    // Check status code
-
-    Exam.findByIdAndDelete.mockResolvedValue({ _id: mockDeletedExam });
-    const response = await request.delete(
-        `/api/exam/deleteExam/${mockDeletedExam}`
-    );
-    // Assert
-    expect(response.status).toBe(200);
-
-    expect(Exam.findByIdAndDelete).toHaveBeenCalledWith(mockDeletedExam);
-    // Check response body
-    //  expect(response.body).toEqual({ message: 'Exam deleted successfully' });
-
-    // Check if findByIdAndDelete was called with the correct parameter
-    // expect(findByIdAndDeleteSpy).toHaveBeenCalledWith('mockId');
-  });
-
-  it("should handle exam not found and return status 404", async () => {
-    // Mock the behavior of findByIdAndDelete to resolve with null
-    jest.spyOn(Exam, 'findByIdAndDelete').mockResolvedValue(null);
-
-    // Send DELETE request to the endpoint with mock exam ID
-    const response = await request.delete("/api/exam/deleteExam/mockId");
-
-    // Check status code
-    expect(response.status).toBe(404);
-
-    // Check error message in response body
-    expect(response.body.message).toBe("Exam not found");
-  });
-
-  it("should handle errors and return status 500", async () => {
-    // Mock error message
-    const errorMessage = "Error deleting exam";
-
-    // Mock the behavior of findByIdAndDelete to reject with an error
-    jest.spyOn(Exam, 'findByIdAndDelete').mockRejectedValue(new Error(errorMessage));
-
-    // Send DELETE request to the endpoint with mock exam ID
-    const response = await request.delete("/api/exam/deleteExam/mockId");
-
-    // Check status code
-    expect(response.status).toBe(500);
-
-    // Check error message in response body
-    expect(response.body.message).toBe(errorMessage);
-  });
-});
-
-describe("PUT api/Exams/updateExam/:id", () => {
-  const mockExamId = "65f279e02eb8ae573af106bb";
-  const updatedData = {
-
-    name: "guitarre",
-    startDate: "2024-03-14T04:15:28.527Z",
-    duration: "90 ",
-    type: "exam",
-    teacher: "John Doe",
-    students: ["student1", "student2"],
-    classe: "A3"
-
-  };
-
-  it("should update an Exam and return 200 status", async () => {
-    Exam.findByIdAndUpdate.mockResolvedValue({
-      _id: mockExamId,
-      ...updatedData,
-    });
-
-    const response = await request
-        .put(`/api/exam/updateExam/${mockExamId}`)
+      const response = await request
+        .put(`/api/events/updateEvent/${mockEventId}`)
         .send(updatedData);
 
-    expect(response.status).toBe(200);
-    //   expect(response.body).toHaveProperty("title", updatedData.title);
-    expect(Exam.findByIdAndUpdate).toHaveBeenCalledWith(
-        mockExamId,
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("title", updatedData.title);
+      expect(Event.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockEventId,
         updatedData,
         { new: true }
-    );
-  });
+      );
+    });
 
-  it("should return 404 when Exam to update is not found", async () => {
-    Exam.findByIdAndUpdate.mockResolvedValue(null);
+    it("should return 404 when event to update is not found", async () => {
+      Event.findByIdAndUpdate.mockResolvedValue(null);
 
-    const response = await request
-        .put(`/api/exam/updateExam/${mockExamId}`)
+      const response = await request
+        .put(`/api/events/updateEvent/${mockEventId}`)
         .send(updatedData);
 
-    expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty("message", "Exam not found");
-  });
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("message", "Event not found");
+    });
 
-  it("should handle errors and return 500 status", async () => {
-    const errorMessage = "Error updating Exam";
-    Exam.findByIdAndUpdate.mockRejectedValue(new Error(errorMessage));
+    it("should handle errors and return 500 status", async () => {
+      const errorMessage = "Error updating event";
+      Event.findByIdAndUpdate.mockRejectedValue(new Error(errorMessage));
 
-    const response = await request
-        .put(`/api/exam/updateExam/${mockExamId}`)
+      const response = await request
+        .put(`/api/events/updateEvent/${mockEventId}`)
         .send(updatedData);
 
-    expect(response.status).toBe(500);
-    expect(response.body).toHaveProperty("message", errorMessage);
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty("message", errorMessage);
+    });
+  });
+
+  describe("PATCH api/events/archiveEvent/:id", () => {
+    const mockEventId = "65f1859a85b360993d9cfc51";
+
+    it("should archive an event and return 200 status", async () => {
+      const archivedEventData = {
+        isArchived: true,
+        status: "Archived",
+      };
+
+      Event.findByIdAndUpdate.mockResolvedValue({
+        _id: mockEventId,
+        ...archivedEventData,
+      });
+
+      const response = await request
+        .patch(`/api/events//archiveEvent/${mockEventId}`)
+        .send(archivedEventData);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("_id", mockEventId);
+      expect(response.body).toHaveProperty("isArchived", true);
+      expect(response.body).toHaveProperty("status", "Archived");
+      expect(Event.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockEventId,
+        { $set: archivedEventData },
+        { new: true }
+      );
+    });
+
+    it("should return 404 when event to archive is not found", async () => {
+      Event.findByIdAndUpdate.mockResolvedValue(null);
+
+      const response = await request
+        .patch(`/api/events/archiveEvent/${mockEventId}`)
+        .send({});
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("message", "Event not found");
+    });
+
+    it("should handle errors and return 500 status", async () => {
+      const errorMessage = "Error archiving event";
+      Event.findByIdAndUpdate.mockRejectedValue(new Error(errorMessage));
+
+      const response = await request
+        .patch(`/api/events/archiveEvent/${mockEventId}`)
+        .send({});
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty("message", errorMessage);
+    });
+  });
+  describe("GET /api/events/archived", () => {
+    it("should list archived events", async () => {
+      const mockArchivedEvents = [
+        { title: "Archived Event 1", isArchived: true },
+        { title: "Archived Event 2", isArchived: true },
+      ];
+      Event.find.mockResolvedValue(mockArchivedEvents);
+
+      const response = await request.get("/api/events/archived");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockArchivedEvents);
+      expect(Event.find).toHaveBeenCalledWith({ isArchived: true });
+    });
+
+    it("should handle errors when listing archived events", async () => {
+      const errorMessage = "Error fetching archived events";
+      Event.find.mockRejectedValue(new Error(errorMessage));
+
+      const response = await request.get("/api/events/archived");
+
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe(errorMessage);
+    });
+  });
+
+  describe("PATCH /api/events/restoreEvent/:id", () => {
+    const mockEventId = "65f1859a85b360993d9cfc51";
+    const mockEventData = {
+      _id: mockEventId,
+      title: "Archived Event",
+      isArchived: false,
+      status: "Active",
+    };
+
+    it("should restore an archived event", async () => {
+      Event.findByIdAndUpdate.mockResolvedValue(mockEventData);
+
+      const response = await request.patch(
+        `/api/events/restoreEvent/${mockEventId}`
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockEventData);
+      expect(Event.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockEventId,
+        { $set: { isArchived: false, status: "Active" } },
+        { new: true }
+      );
+    });
+
+    it("should return 404 if the event to restore is not found", async () => {
+      Event.findByIdAndUpdate.mockResolvedValue(null);
+
+      const response = await request.patch(
+        `/api/events/restoreEvent/${mockEventId}`
+      );
+
+      expect(response.status).toBe(404);
+      expect(response.body.message).toBe("Event not found");
+    });
+
+    it("should handle errors during the restoration of an event", async () => {
+      const errorMessage = "Error restoring event";
+      Event.findByIdAndUpdate.mockRejectedValue(new Error(errorMessage));
+
+      const response = await request.patch(
+        `/api/events/restoreEvent/${mockEventId}`
+      );
+
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe(errorMessage);
+    });
   });
 });
