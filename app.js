@@ -42,7 +42,7 @@ connect();
     swaggerDoc(app);
     app.use(cors());
 const examRoutes = require("./routes/examRoutes");
-const classRoutes = require("./routes/classRoutes");
+const classRoutes = require("./routes/classRoutes/classRoutes");
 const morgan = require("morgan");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
@@ -101,7 +101,7 @@ app.use("/api/reservations", reservationRoutes);
 
 
 app.use("/api/exam", examRoutes);
-app.use("/api/class", classRoutes);
+app.use("/api/classes", classRoutes);
 app.use(bodyParser.json());
 
 // Increase the limit for EventEmitter instance
