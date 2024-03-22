@@ -22,7 +22,6 @@ const courseSchema = new mongoose.Schema({
     },
     startDate: Date,
     endDate: Date,
-    maxStudents: Number,
     isArchived: {
         type: Boolean,
         default: false

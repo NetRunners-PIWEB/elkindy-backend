@@ -9,15 +9,12 @@ const classSchema = new mongoose.Schema({
     },
     date: {
         type: Date,
-        required: true
     },
     startTime: {
         type: Date,
-        required: true
     },
     endTime: {
         type: Date,
-        required: true
     },
     teacher: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -44,6 +41,11 @@ const classSchema = new mongoose.Schema({
     assignments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Assignment'
+    }],
+    maxStudents: Number,
+    students: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users'
     }],
 
 });

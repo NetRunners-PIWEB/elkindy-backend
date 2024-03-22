@@ -7,6 +7,8 @@ const classController = require('../../controllers/classController/classControll
 
 router.get('/by-course', classController.getClassesByCourseId);
 router.put('/:classId/teachers', classController.updateClassTeachers);
+router.post('/generate', classController.generateClassesForCourse);
+//router.get('/by-teacher', classController.getClassesByTeacherId);
 
 router.post('/', classController.createClass);
 router.get('/:id', classController.getClass);

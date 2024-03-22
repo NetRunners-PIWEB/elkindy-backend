@@ -1,4 +1,5 @@
 const Class = require('../../models/class');
+const Course = require('../../models/course');
 /*
 
 module.exports = {
@@ -137,3 +138,33 @@ exports.updateClassTeachers = async (req, res) => {
     }
 };
 
+exports.generateClassesForCourse = async (req, res) => {
+    try {
+        const { courseId, maxStudentsPerClass } = req.body;
+        const course = await Course.findById(courseId).populate('students');
+
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        // Determine the number of classes needed, at least 1
+        const numberOfClasses = Math.max(1, Math.ceil(course.students.length / maxStudentsPerClass));
+        let classesCreated = [];
+
+        for (let i = 0; i < numberOfClasses; i++) {
+            // Slice the students array to get students for this class
+            const studentsForClass = course.students.slice(i * maxStudentsPerClass, (i + 1) * maxStudentsPerClass);
+            const newClass = new Class({
+                name: `Class ${i + 1}`,
+                courseId: course._id,
+                students: studentsForClass.map(student => student._id),
+            });
+            const savedClass = await newClass.save();
+            classesCreated.push(savedClass);
+        }
+
+        res.status(201).json(classesCreated);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to generate classes', error: error.message });
+    }
+};
