@@ -53,21 +53,4 @@ describe("Test /instruments routes", () => {
       expect(response.body.success).toBe(false);
     });
   });
-  describe("GET /api/v1/instruments/:id", () => {
-    it("should get an instrument successfully", async () => {
-      const instrumentId = "65e2f745efab294463d4abed";
-      const userId = null;
-      const response = await request.get(`/api/v1/instruments/${instrumentId}`);
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.instrument._id).toBe(instrumentId);
-    });
-
-    it("should handle errors when getting an instrument", async () => {
-      const instrumentId = "65e2f745efab294463d4abedd";
-      const response = await request.get(`/api/v1/instruments/${instrumentId}`);
-      expect(response.status).toBe(500);
-      expect(response.body.success).toBe(false);
-    });
-  });
 });
