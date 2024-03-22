@@ -30,8 +30,19 @@ app.use(express.json());
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require("./routes/courseRoutes/courseRoutes");
 const authRoutes = require("./routes/authRoutes");
+const { userVerification } = require("./middlewares/authJWT");
+// ==============================================
+
+
+connect();
+
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(bodyParser.json());
+    swaggerDoc(app);
+    app.use(cors());
 const examRoutes = require("./routes/examRoutes");
-const classRoutes = require("./routes/classRoutes");
+const classRoutes = require("./routes/classRoutes/classRoutes");
 const morgan = require("morgan");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
@@ -46,17 +57,17 @@ app.use(morgan("dev"));
 connect();
 
 // Cors
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "*");
-  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
-app.use(
-  cors({
-    origin: "http://localhost:3001",
-  })
-);
+app.use(cors({
+  origin: "http://localhost:3001",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
 app.use("/api/v1/instruments", instrumentRouter);
 
@@ -90,7 +101,7 @@ app.use("/api/reservations", reservationRoutes);
 
 
 app.use("/api/exam", examRoutes);
-app.use("/api/class", classRoutes);
+app.use("/api/classes", classRoutes);
 app.use(bodyParser.json());
 
 // Increase the limit for EventEmitter instance

@@ -13,14 +13,7 @@ class InstrumentController {
     const size = req.query.pageSize || 10;
     try {
       let instruments = await Instrument.aggregate(
-        allInstrumentsPipeline(
-          req.user?.id,
-          status,
-          sortBy,
-          null,
-          pageIndex,
-          size
-        )
+        allInstrumentsPipeline(req.user?.id, status, sortBy, null)
       ).exec();
       res.status(200).json({
         success: true,
@@ -39,7 +32,6 @@ class InstrumentController {
       const { title, type, brand, details, condition, price, status } =
         req.body;
       const author = req.user?.id;
-      console.log(author);
       const instrument = new Instrument({
         author,
         title,
@@ -154,6 +146,26 @@ class InstrumentController {
       res.status(500).json({
         success: false,
       });
+    }
+  }
+  static async deleteInstrument(req, res, next) {
+    try {
+      const instrumentId = req.params.id;
+      const instrument = await Instrument.findByIdAndDelete(instrumentId);
+      if (!instrument) {
+        return next(new ErrorResponse("Instrument not found", 404));
+      }
+      // if (instrument.author !== req.user.id) {
+      //   return next(
+      //     new ErrorResponse("Not authorized to delete this instrument", 403)
+      //   );
+      // }
+      res.status(200).json({
+        success: true,
+        data: {},
+      });
+    } catch (err) {
+      next(err);
     }
   }
 }

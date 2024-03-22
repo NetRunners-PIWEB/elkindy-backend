@@ -8,9 +8,7 @@ router
   .get(authenticate(), InstrumentController.getAllInstruments)
   .post(authenticate(), InstrumentController.addInstrument);
 
-router
-  .route("/search")
-  .get(authenticate(), InstrumentController.searchInstrument);
+router.route("/search").get(InstrumentController.searchInstrument);
 
 router
   .route("/:id/like")
@@ -21,5 +19,7 @@ router.route("/:id").get(InstrumentController.getInstrument);
 router
   .route("/user/instruments")
   .get(authenticate(), InstrumentController.getUserInstruments);
+
+router.delete("/:id", InstrumentController.deleteInstrument);
 
 module.exports = router;

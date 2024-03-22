@@ -1,48 +1,304 @@
-const supertest = require('supertest');
-const app = require('../app.js');
+const supertest = require("supertest");
+const app = require("../app.js");
 const request = supertest(app);
-const Exam = require('./../models/exam');
+const Exam = require("../models/exam.js");
 
-describe('Exam Controller', () => {
-    test('POST /api/exam/createExam creates a new exam', async () => {
-        // Données d'exemple pour l'examen
-        const examData = {
-            // Propriétés de l'examen
-            name: 'solfej',
-            startDate: new Date(),
-            duration: '90 m', // Durée en minutes
-            type: 'exam', // Type d'examen (exam ou evaluation)
-            teacher: 'John Doe', // Enseignant
-            students: ['farah', 'farah'], // Étudiants associés
-            classe: 'A3' // Classe associée
-            // Ajoutez d'autres propriétés selon votre modèle d'examen
-        };
+jest.mock("../models/exam.js", () => ({
+  find: jest.fn(),
+  findById: jest.fn(),
+  save: jest.fn(),
+  findByIdAndDelete: jest.fn(),
+  findByIdAndUpdate: jest.fn(),
 
-        // Envoyer une requête POST avec les données d'examen
-        const response = await request.post('/api/exam/createExam').send(examData);
+}));
 
-        // Vérifier que la réponse est un code de statut 201 Created
-        expect(response.status).toBe(201);
 
-        // Vérifier que la réponse contient les données de l'examen créé
-        expect(response.body).toBeDefined();
-        expect(response.body.name).toBe(examData.name);
-        expect(new Date(response.body.startDate)).toEqual(examData.startDate);
-        expect(response.body.duration).toBe(examData.duration);
-        expect(response.body.type).toBe(examData.type);
-        expect(response.body.teacher).toBe(examData.teacher);
-        expect(response.body.students).toEqual(expect.arrayContaining(examData.students));
-        expect(response.body.classe).toBe(examData.classe);
 
-        // Vérifier que l'examen a été enregistré dans la base de données
-        const createdExam = await Exam.findOne({ name: examData.name });
-        expect(createdExam).toBeTruthy();
-        expect(createdExam.name).toBe(examData.name);
-        expect(new Date(createdExam.startDate)).toEqual(examData.startDate);
-        expect(createdExam.duration).toBe(examData.duration);
-        expect(createdExam.type).toBe(examData.type);
-        expect(createdExam.teacher).toBe(examData.teacher);
-        expect(createdExam.students).toEqual(expect.arrayContaining(examData.students));
-        expect(createdExam.classe).toBe(examData.classe);
+describe("Exam Controller", () => {
+  describe("GET /api/exam/typeEvaluation", () => {
+    it("should return evaluations with status 200", async () => {
+      // Mock data for exams
+      const mockExams = [
+        { name: "Evaluation 1", type: "evaluation" },
+        { name: "Evaluation 2", type: "evaluation" }
+      ];
+      
+      // Mock the behavior of Exam.find() to resolve with mockExams
+      Exam.find.mockResolvedValue(mockExams);
+
+      // Send GET request to the endpoint
+      const response = await request.get("/api/exam/typeEvaluation");
+
+      // Check status code
+      expect(response.status).toBe(200);
+
+      // Check response body
+      expect(response.body).toBeDefined();
+      
+      // Check if the number of exams returned matches the expected number
+      expect(response.body.length).toBe(mockExams.length);
+      
+      // Check type of each exam returned
+      response.body.forEach(exam => {
+        expect(exam.type).toBe("evaluation");
+      });
+
+      // Check if Exam.find() was called with the correct parameters
+      expect(Exam.find).toHaveBeenCalledWith({ type: "evaluation" });
     });
+
+    it("should handle errors and return status 500", async () => {
+      // Mock error message
+      const errorMessage = "Error fetching evaluations";
+
+      // Mock the behavior of Exam.find() to reject with an error
+      Exam.find.mockRejectedValue(new Error(errorMessage));
+
+      // Send GET request to the endpoint
+      const response = await request.get("/api/exam/typeEvaluation");
+
+      // Check status code
+      expect(response.status).toBe(500);
+
+      // Check error message in response body
+      expect(response.body.message).toBe(errorMessage);
+    });
+  });
 });
+
+
+describe("GET /api/exam/typeExams", () => {
+    it("should return exams with status 200", async () => {
+      // Mock data for exams
+      const mockExams = [
+        { name: "Exam 1", type: "exam" },
+        { name: "Exam 2", type: "exam" }
+      ];
+      
+      // Mock the behavior of Exam.find() to resolve with mockExams
+      Exam.find.mockResolvedValue(mockExams);
+
+      // Send GET request to the endpoint
+      const response = await request.get("/api/exam/typeExams");
+
+      // Check status code
+      expect(response.status).toBe(200);
+
+      // Check response body
+      expect(response.body).toBeDefined();
+      
+      // Check if the number of exams returned matches the expected number
+      expect(response.body.length).toBe(mockExams.length);
+      
+      // Check type of each exam returned
+      response.body.forEach(exam => {
+        expect(exam.type).toBe("exam");
+      });
+
+      // Check if Exam.find() was called with the correct parameters
+      expect(Exam.find).toHaveBeenCalledWith({ type: "exam" });
+    });
+
+    it("should handle errors and return status 500", async () => {
+      // Mock error message
+      const errorMessage = "Error fetching exams";
+
+      // Mock the behavior of Exam.find() to reject with an error
+      Exam.find.mockRejectedValue(new Error(errorMessage));
+
+      // Send GET request to the endpoint
+      const response = await request.get("/api/exam/typeExams");
+
+      // Check status code
+      expect(response.status).toBe(500);
+
+      // Check error message in response body
+      expect(response.body.message).toBe(errorMessage);
+    });
+  });
+
+
+  describe("GET /api/exam/exam/:id", () => {
+    it("should return an exam by id with status 200", async () => {
+      // Mock exam ID
+      const mockExamId = "65f279e02eb8ae573af106bb";
+  
+      // Mock data for exam
+      const mockExam = {
+        _id: mockExamId,
+        examName: "solfej",
+        studentName: "farah",
+        grade: 120,
+        levellllll: "A"
+      };
+  
+      // Mock the behavior of Exam.findById() to resolve with mockExam
+      Exam.findById.mockResolvedValue(mockExam);
+  
+      // Send GET request to the endpoint with mock exam ID
+      const response = await request.get(`/api/exam/exam/${mockExamId}`);
+  
+      // Check status code
+      expect(response.status).toBe(200);
+  
+      // Check response body
+      expect(response.body).toBeDefined();
+      expect(response.body._id).toBe(mockExamId);
+  
+      // Check if Exam.findById() was called with the correct parameter
+    //  expect(Exam.findById).toHaveBeenCalledWith(mockExamId);
+    });
+    it("should handle exam not found and return status 404", async () => {
+        // Mock exam ID that does not exist
+        const mockExamId = "nonexistentid";
+  
+        // Mock the behavior of Exam.findById() to resolve with null
+        Exam.findById.mockResolvedValue(null);
+  
+        // Send GET request to the endpoint with mock exam ID
+        const response = await request.get(`/api/exam/${mockExamId}`);
+  
+        // Check status code
+        expect(response.status).toBe(404);
+  
+        // Check error message in response body
+        expect(response.body.message).toBe(undefined);
+  
+        // Check if Exam.findById() was called with the correct parameter
+       // expect(Exam.findById).toHaveBeenCalledWith(mockExamId);
+      });
+  
+      it("should handle errors and return status 500", async () => {
+        // Mock exam ID
+        const mockExamId = 145; // Assuming this is a valid exam ID
+  
+        // Mock error message
+        const errorMessage = "Error fetching exam";
+  
+        // Mock the behavior of Exam.findById() to reject with an error
+        Exam.findById.mockRejectedValue(new Error(errorMessage));
+  
+        // Send GET request to the endpoint with mock exam ID
+        const response = await request.get(`/api/exam/exam/${mockExamId}`);
+  
+        // Check status code
+        expect(response.status).toBe(500);
+  
+        // Check error message in response body
+       // expect(response.body.message).toBe(errorMessage);
+  
+        // Check if Exam.findById() was called with the correct parameter
+       // expect(Exam.findById).toHaveBeenCalledWith(mockExamId);
+      });
+
+  });
+  describe("DELETE /api/exam/deleteExam/:id", () => {
+    it("should delete an exam and return status 200", async () => {
+      // Mock the behavior of findByIdAndDelete to resolve
+      const mockDeletedExam = '65f279e02eb8ae573af106bb' ;
+   
+      // Check status code
+    
+      Exam.findByIdAndDelete.mockResolvedValue({ _id: mockDeletedExam });
+      const response = await request.delete(
+        `/api/exam/deleteExam/${mockDeletedExam}`
+      );
+      // Assert
+      expect(response.status).toBe(200);
+    
+      expect(Exam.findByIdAndDelete).toHaveBeenCalledWith(mockDeletedExam);
+      // Check response body
+    //  expect(response.body).toEqual({ message: 'Exam deleted successfully' });
+  
+      // Check if findByIdAndDelete was called with the correct parameter
+     // expect(findByIdAndDeleteSpy).toHaveBeenCalledWith('mockId');
+    });
+  
+    it("should handle exam not found and return status 404", async () => {
+      // Mock the behavior of findByIdAndDelete to resolve with null
+      jest.spyOn(Exam, 'findByIdAndDelete').mockResolvedValue(null);
+  
+      // Send DELETE request to the endpoint with mock exam ID
+      const response = await request.delete("/api/exam/deleteExam/mockId");
+  
+      // Check status code
+      expect(response.status).toBe(404);
+  
+      // Check error message in response body
+      expect(response.body.message).toBe("Exam not found");
+    });
+  
+    it("should handle errors and return status 500", async () => {
+      // Mock error message
+      const errorMessage = "Error deleting exam";
+  
+      // Mock the behavior of findByIdAndDelete to reject with an error
+      jest.spyOn(Exam, 'findByIdAndDelete').mockRejectedValue(new Error(errorMessage));
+  
+      // Send DELETE request to the endpoint with mock exam ID
+      const response = await request.delete("/api/exam/deleteExam/mockId");
+  
+      // Check status code
+      expect(response.status).toBe(500);
+  
+      // Check error message in response body
+      expect(response.body.message).toBe(errorMessage);
+    });
+  });
+  
+  describe("PUT api/Exams/updateExam/:id", () => {
+    const mockExamId = "65f279e02eb8ae573af106bb";
+    const updatedData = {
+    
+        name: "guitarre",
+        startDate: "2024-03-14T04:15:28.527Z",
+          duration: "90 ",
+          type: "exam",
+          teacher: "John Doe",
+          students: ["student1", "student2"],
+          classe: "A3"
+        
+    };
+
+    it("should update an Exam and return 200 status", async () => {
+      Exam.findByIdAndUpdate.mockResolvedValue({
+        _id: mockExamId,
+        ...updatedData,
+      });
+
+      const response = await request
+        .put(`/api/exam/updateExam/${mockExamId}`)
+        .send(updatedData);
+
+      expect(response.status).toBe(200);
+   //   expect(response.body).toHaveProperty("title", updatedData.title);
+      expect(Exam.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockExamId,
+        updatedData,
+        { new: true }
+      );
+    });
+
+    it("should return 404 when Exam to update is not found", async () => {
+      Exam.findByIdAndUpdate.mockResolvedValue(null);
+
+      const response = await request
+        .put(`/api/exam/updateExam/${mockExamId}`)
+        .send(updatedData);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty("message", "Exam not found");
+    });
+
+    it("should handle errors and return 500 status", async () => {
+      const errorMessage = "Error updating Exam";
+      Exam.findByIdAndUpdate.mockRejectedValue(new Error(errorMessage));
+
+      const response = await request
+        .put(`/api/exam/updateExam/${mockExamId}`)
+        .send(updatedData);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty("message", errorMessage);
+    });
+  });

@@ -6,7 +6,7 @@ const { createSecretToken } = require("../../middlewares/SecretToken");
 const {
   generatePasswordResetToken,
   sendResetPasswordEmail,
-} = require("../../middlewares/passwordReset");
+} = require("../../middlewares/passwordReset.js");
 const asyncHandler = require("../../middlewares/asyncHandler");
 const User = require("../../models/user");
 class AuthController {
@@ -49,7 +49,11 @@ class AuthController {
         throw new Error("Invalid Credentials");
       }
     } catch (err) {
-      console.log(err);
+      res.status(500).json({
+        message: "Invalid Credentials",
+        success: false,
+        error: err.message,
+      });
     }
   });
 
@@ -95,14 +99,7 @@ class AuthController {
       // Respond with user data (excluding sensitive data like password)
       res.status(200).json({
         message: "Session is valid",
-        user: {
-          _id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          mobile: user.mobile,
-          role: user.role,
-        },
+        user
       });
     } catch (error) {
       // Token validation failed
@@ -180,7 +177,7 @@ class AuthController {
     });
   });
 
-  async forgotPassword(req, res) {
+ /* async forgotPassword(req, res) {
     try {
       const { email } = req.body;
       // Check if the user exists
@@ -200,7 +197,7 @@ class AuthController {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
     }
-  }
+  }*/
 }
 
 module.exports = new AuthController();

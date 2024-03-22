@@ -22,14 +22,25 @@ getUserById = asyncHandler(async (req, res) => {
     res.status(200).json(user);
 });
 
-updateUser = asyncHandler(async (req, res) => {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+const updateUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    let updatedUser;
+
+    if (req.body.password) {
+        // Hash the new password if it's provided
+        const hashedPassword = await bcrypt.hash(req.body.password, 12);
+        updatedUser = await User.findByIdAndUpdate(id, { ...req.body, password: hashedPassword }, { new: true, runValidators: true });
+    } else {
+        // Update the user without modifying the password
+        updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    }
+
     if (!updatedUser) {
         return res.status(404).json({ message: 'User not found' });
     }
+
     res.status(200).json(updatedUser);
 });
-
 
 deleteUser = asyncHandler(async (req, res) => {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
