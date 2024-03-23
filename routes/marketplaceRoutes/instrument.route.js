@@ -1,6 +1,6 @@
 const { Router } = require("express");
-const InstrumentController = require("../controllers/instrument.controller.js");
-const { authenticate } = require("../middlewares/auth.js");
+const InstrumentController = require("../../controllers/marketplaceController/instrument.controller.js");
+const { authenticate } = require("../../middlewares/auth.js");
 
 const router = Router();
 router
