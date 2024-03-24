@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Exchange = require("../../models/exchange.js");
-
+const { formatSort } = require("../../utils/formatQueries.js");
+const { allExchangesPipeline } = require("../../utils/exchangePipeline.js");
 class ExchangeController {
   static async createExchange(req, res, next) {
     try {
@@ -13,7 +14,9 @@ class ExchangeController {
         receiverInstrument: data.receiverInstrument,
       });
       if (exist) {
-        return res.status(409).json({ error: "Exchange already exists" });
+        return res
+          .status(409)
+          .json({ error: "This exchange request has already been sent" });
       }
       data.sender = senderId;
       const exchange = new Exchange(data);
@@ -29,8 +32,13 @@ class ExchangeController {
   static async findExchangesReceivedByUser(req, res, next) {
     try {
       const userId = req.user.id;
-      const exchangesReceived = await Exchange.find({ receiver: userId });
-      res.status(200).json({ success: true, exchangesReceived });
+      const sortBy = formatSort(req.query.sort);
+      const status = req.query.status;
+      const itemId = req.params.id;
+      let receivedExchanges = await Exchange.aggregate(
+        allExchangesPipeline(userId,itemId, status, sortBy)
+      ).exec();
+      res.status(200).json({ success: true, receivedExchanges });
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -38,6 +46,7 @@ class ExchangeController {
       next(error);
     }
   }
+
   static async findExchangesSentByUser(req, res, next) {
     try {
       const userId = req.user.id;

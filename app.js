@@ -1,14 +1,6 @@
 // BASE SETUP
 // ==============================================
-const express = require("express");
-const http = require("http");
-const app = express();
-const server = http.createServer(app);
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "*",
-  },
-});
+const { io,server, app } = require("./socket/socket.js");
 const { connect } = require("./config/mongoose.js");
 const corsMiddleware = require("./middlewares/cors.js");
 var bodyParser = require("body-parser");
@@ -21,14 +13,6 @@ app.use(bodyParser.json());
 const { EventEmitter } = require("events");
 const instrumentRouter = require("./routes/marketplaceRoutes/instrument.route.js");
 const exchangeRouter = require("./routes/marketplaceRoutes/exchange.route.js");
-
-app.use(express.json());
-// const io = new ioS.Server({
-//   cors: {
-//     origin: "http://localhost:3000",
-//   },
-// });
-
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require("./routes/courseRoutes/courseRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -37,8 +21,6 @@ const { userVerification } = require("./middlewares/authJWT");
 
 connect();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 swaggerDoc(app);
 app.use(cors());
@@ -79,47 +61,6 @@ app.use(
 
 app.use("/api/instruments", instrumentRouter);
 app.use("/api/exchanges", exchangeRouter);
-let users = [];
-
-// SOCKET CONNECTION
-const getUser = (userId) => {
-  return users.find((user) => user.userId === userId);
-};
-const removeUser = (socketId) => {
-  users = users.filter((user) => user.socketId !== socketId);
-};
-io.on("connection", (socket) => {
-  const userId = socket.handshake.query.userId;
-  console.log("new connection", userId);
-  if (userId != "undefined") {
-    // userSocketMap[userId] = socket.id;
-    !users.some((user) => user.userId === userId) &&
-      users.push({ userId: userId, socketId: socket.id });
-  }
-  socket.on(
-    "sendNotification",
-    ({ senderId, receiverId, instrument, message }) => {
-      const user = getUser(receiverId);
-      const receiverSocketId = user.socketId;
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit("getNotification", {
-          senderId,
-          instrument,
-          message,
-        });
-        console.log("emit notification");
-      } else {
-        console.log("Receiver socket not found.");
-      }
-    }
-  );
-
-  socket.on("disconnect", () => {
-    console.log("disconnect of the socket");
-    removeUser(socket.id);
-  });
-});
-
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);

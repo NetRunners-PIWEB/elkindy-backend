@@ -4,6 +4,10 @@ const { authenticate } = require("../../middlewares/auth.js");
 const router = express.Router();
 
 router.post("/create", authenticate(), ExchangeController.createExchange);
-router.get("/received", ExchangeController.findExchangesReceivedByUser);
+router.get(
+  "/received/:id",
+  authenticate(),
+  ExchangeController.findExchangesReceivedByUser
+);
 router.get("/sent", authenticate(), ExchangeController.findExchangesSentByUser);
 module.exports = router;
