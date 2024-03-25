@@ -1,5 +1,6 @@
 const Class = require('../../models/class');
 const Course = require('../../models/course');
+const Session = require('../../models/session');
 /*
 
 module.exports = {
@@ -122,21 +123,6 @@ exports.getClassesByCourseId = async (req, res) => {
 };
 
 
-exports.updateClassTeachers = async (req, res) => {
-    try {
-        const { classId } = req.params;
-        const { teacherIds } = req.body;
-
-        const updatedClass = await Class.findByIdAndUpdate(classId, { $set: { teacher: teacherIds }}, { new: true }).populate('teacher');
-        if (!updatedClass) {
-            return res.status(404).json({ message: 'Class not found' });
-        }
-
-        res.json(updatedClass);
-    } catch (error) {
-        res.status(500).json({ message: "Failed to update class teachers", error: error.message });
-    }
-};
 
 exports.generateClassesForCourse = async (req, res) => {
     try {
@@ -168,3 +154,156 @@ exports.generateClassesForCourse = async (req, res) => {
         res.status(500).json({ message: 'Failed to generate classes', error: error.message });
     }
 };
+
+exports.updateClassSchedule = async (req, res) => {
+    const { classId, start, end, teacherId } = req.body;
+    try {
+        const updatedClass = await Class.findByIdAndUpdate(
+            classId,
+            {
+                start: new Date(start),
+                end: new Date(end),
+                teacher: teacherId
+            },
+            { new: true }
+        );
+        if (!updatedClass) {
+            return res.status(404).json({ message: 'Class not found' });
+        }
+        res.status(200).json(updatedClass);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update class schedule', error: error.message });
+    }
+};
+exports.assignTeachersToClass = async (req, res) => {
+    const { classId } = req.params;
+    const { teacherIds } = req.body;
+
+    try {
+        const classToUpdate = await Class.findById(classId);
+
+        if (!classToUpdate) {
+            return res.status(404).json({ message: 'Class not found' });
+        }
+
+        classToUpdate.teacher = teacherIds;
+
+        await classToUpdate.save();
+
+        res.status(200).json({ message: 'Teachers assigned successfully', class: classToUpdate });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to assign teachers', error });
+    }
+};
+
+exports.getTeachersByClassId = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const course = await Class.findById(classId).populate('teacher');
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+        res.json(course.teacher);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching teachers', error });
+    }
+};
+exports.createSessionForClass = async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const { teacherId, date, startTime, endTime } = req.body;
+
+        const foundClass = await Class.findById(classId);
+        if (!foundClass) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+
+        const newSession = new Session({
+            date,
+            startTime: new Date(date + 'T' + startTime),
+            endTime: new Date(date + 'T' + endTime),
+            teacher: teacherId
+        });
+
+        const savedSession = await newSession.save();
+
+        foundClass.sessions.push(savedSession._id);
+        await foundClass.save();
+
+        res.status(201).json({ message: "Session created and added to the class successfully", session: savedSession });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to create session', error: error.message });
+    }
+};
+
+
+exports.getUpcomingSessionsForTeacher = async (req, res) => {
+    try {
+        const { teacherId } = req.params;
+        const currentDate = new Date();
+
+        const nextSession = await Session.findOne({
+            teacher: teacherId,
+            startTime: { $gte: currentDate }
+        }).populate('classId').sort('startTime');
+
+        if (nextSession) {
+            res.status(200).json(nextSession);
+        } else {
+            res.status(404).json({ message: "No upcoming sessions found for this teacher" });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to retrieve the next session', error: error.message });
+    }
+};
+
+exports.markAttendance = async (req, res) => {
+    try {
+        const { sessionId, studentId, status } = req.body;
+
+        const session = await Session.findById(sessionId);
+        if (!session) {
+            return res.status(404).json({ message: "Session not found" });
+        }
+
+        const attendanceIndex = session.attendance.findIndex(att => att.student.toString() === studentId);
+        if (attendanceIndex > -1) {
+            session.attendance[attendanceIndex].status = status;
+        } else {
+            session.attendance.push({ student: studentId, status: status });
+        }
+
+        await session.save();
+        res.status(200).json({ message: "Attendance marked successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to mark attendance', error: error.message });
+    }
+};
+
+exports.addStudentsToClass = async (req, res) => {
+    const { classId } = req.params;
+    const { studentIds } = req.body;
+
+    try {
+        const classToUpdate = await Class.findById(classId);
+        if (!classToUpdate) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+
+        // Merge the existing student IDs with the new ones
+        // Make sure there are no duplicate entries
+        const updatedStudentIds = [...new Set([...classToUpdate.students.map(id => id.toString()), ...studentIds])];
+
+        classToUpdate.students = updatedStudentIds;
+        await classToUpdate.save();
+
+        res.status(200).json({ message: "Students added successfully", class: classToUpdate });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add students to class', error: error.message });
+    }
+};
+
