@@ -307,3 +307,59 @@ exports.addStudentsToClass = async (req, res) => {
     }
 };
 
+exports.getSessionsByClassId = async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const sessions = await Session.find({ classId }).populate('teacher');
+        res.json(sessions);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to fetch sessions for the class', error: error.message });
+    }
+};
+
+exports.getStudentsByClassId = async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const classInfo = await Class.findById(classId).populate('students');
+        res.json(classInfo.students);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to fetch students for the class', error: error.message });
+    }
+};
+
+exports.manageAttendanceForSession = async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const { attendance } = req.body;
+
+        if (!attendance || !Array.isArray(attendance)) {
+            return res.status(400).json({ message: 'Invalid attendance data' });
+        }
+
+        const session = await Session.findById(sessionId);
+        if (!session) {
+            return res.status(404).json({ message: 'Session not found' });
+        }
+
+        attendance.forEach(att => {
+            if (!att.student || !att.status) {
+                throw new Error('Attendance record is missing student or status');
+            }
+            const attendanceIndex = session.attendance.findIndex(a => a.student.equals(att.student));
+            if (attendanceIndex > -1) {
+                session.attendance[attendanceIndex].status = att.status;
+            } else {
+                session.attendance.push({ student: att.student, status: att.status });
+            }
+        });
+
+        await session.save();
+        res.status(200).json({ message: 'Attendance updated successfully', session });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to manage attendance for the session', error: error.message });
+    }
+};
+
