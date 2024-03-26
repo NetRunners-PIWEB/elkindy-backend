@@ -23,7 +23,6 @@ const removeUser = (socketId) => {
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
   if (userId != "undefined") {
-    // userSocketMap[userId] = socket.id;
     !users.some((user) => user.userId === userId) &&
       users.push({ userId: userId, socketId: socket.id });
   }
@@ -38,12 +37,22 @@ io.on("connection", (socket) => {
           instrument,
           message,
         });
-        console.log("emit notification",message);
+        console.log("emit notification", message);
       } else {
         console.log("Receiver socket not found.");
       }
     }
   );
+  socket.on("sendTradeStatus", ({ receiverId, status }) => {
+    const user = getUser(receiverId);
+    const receiverSocketId = user.socketId;
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("getTradeStatus", { status });
+      console.log("Sent trade status:", status);
+    } else {
+      console.log("Receiver socket not found.");
+    }
+  });
 
   socket.on("disconnect", () => {
     removeUser(socket.id);

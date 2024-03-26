@@ -10,4 +10,7 @@ router.get(
   ExchangeController.findExchangesReceivedByUser
 );
 router.get("/sent", authenticate(), ExchangeController.findExchangesSentByUser);
+router.get("/recent", authenticate(), ExchangeController.findLatestTrades);
+router.put("/:id", authenticate(), ExchangeController.updateTradeStatus);
+
 module.exports = router;
