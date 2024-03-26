@@ -12,8 +12,6 @@ const io = require("socket.io")(server, {
 });
 
 let users = [];
-
-// SOCKET CONNECTION
 const getUser = (userId) => {
   return users.find((user) => user.userId === userId);
 };
