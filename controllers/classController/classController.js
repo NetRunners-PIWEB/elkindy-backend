@@ -1,6 +1,7 @@
 const Class = require('../../models/class');
 const Course = require('../../models/course');
 const Session = require('../../models/session');
+const User = require('../../models/user')
 /*
 
 module.exports = {
@@ -198,7 +199,7 @@ exports.assignTeachersToClass = async (req, res) => {
 
 exports.getTeachersByClassId = async (req, res) => {
     try {
-        const { courseId } = req.params;
+        const { classId } = req.params;
         const course = await Class.findById(classId).populate('teacher');
         if (!course) {
             return res.status(404).json({ message: 'Course not found' });
@@ -363,3 +364,110 @@ exports.manageAttendanceForSession = async (req, res) => {
     }
 };
 
+exports.getClassesForTeacher = async (req, res) => {
+    try {
+        const { teacherId } = req.params;
+        const classes = await Class.find({ teacher: teacherId }).populate('courseId', 'name');
+
+        if (!classes) {
+            return res.status(404).json({ message: "No classes found for this teacher." });
+        }
+
+        res.json(classes);
+    } catch (error) {
+        console.error('Failed to fetch classes for the teacher:', error);
+        res.status(500).json({ message: 'Failed to fetch classes for the teacher', error: error.message });
+    }
+};
+
+exports.getClassStats = async (req, res) => {
+    try {
+        const classId = req.params.classId;
+        const classInfo = await Class.findById(classId).populate('students');
+
+        if (!classInfo) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+
+        const studentIds = classInfo.students.map(student => student._id);
+
+        const genderCount = await User.aggregate([
+            { $match: { _id: { $in: studentIds } } },
+            { $group: { _id: '$gender', count: { $sum: 1 } } }
+        ]);
+
+        let maleCount = 0;
+        let femaleCount = 0;
+        genderCount.forEach(gender => {
+            if (gender._id === 'male') maleCount = gender.count;
+            if (gender._id === 'female') femaleCount = gender.count;
+        });
+
+        const totalCount = maleCount + femaleCount;
+        const malePercentage = (maleCount / totalCount * 100).toFixed(2);
+        const femalePercentage = (femaleCount / totalCount * 100).toFixed(2);
+
+        res.status(200).json({
+            totalCount,
+            malePercentage,
+            femalePercentage,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to get class stats', error: error.message });
+    }
+};
+
+exports.getSessionByTeacherId = async (req, res) => {
+    try {
+        const { teacherId } = req.params;
+        const sessions = await Session.find({ teacher: teacherId })
+            .populate('classId')
+            .exec();
+
+        res.json(sessions);
+    } catch (error) {
+        console.error(`Failed to fetch sessions for teacher ID ${teacherId}:`, error);
+        res.status(500).json({ message: 'Failed to fetch sessions for the teacher.', error: error.message });
+    }
+};
+
+exports.createRepeatingSession = async (req, res) => {
+    const { classId, room, teacher, startDate, startTime, endTime, repeatCount } = req.body;
+
+    try {
+        const classData = await Class.findById(classId);
+        if (!classData) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+
+        const sessionsToCreate = [];
+        let sessionDate = new Date(startDate);
+
+        for (let i = 0; i < repeatCount; i++) {
+            sessionsToCreate.push({
+                classId,
+                room,
+                teacher,
+                date: new Date(sessionDate),
+                startTime: combineDateAndTime(sessionDate, startTime),
+                endTime: combineDateAndTime(sessionDate, endTime),
+            });
+
+            sessionDate.setDate(sessionDate.getDate() + 7);
+        }
+
+        const createdSessions = await Session.insertMany(sessionsToCreate);
+
+        res.status(201).json({ message: "Sessions created successfully", sessions: createdSessions });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to create sessions", error: error.message });
+    }
+};
+
+function combineDateAndTime(date, time) {
+    const [hours, minutes] = time.split(':').map(Number);
+    const newDate = new Date(date);
+    newDate.setHours(hours, minutes, 0, 0);
+    return newDate;
+}
