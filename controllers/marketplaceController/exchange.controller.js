@@ -21,8 +21,13 @@ class ExchangeController {
           .status(409)
           .json({ error: "This exchange request has already been sent" });
       }
-      data.sender = senderId;
-      const exchange = new Exchange(data);
+      const exchangeData = {
+        sender: senderId,
+        receiver: data.receiver,
+        senderInstrument: data.senderInstrument,
+        receiverInstrument: data.receiverInstrument,
+      };
+      const exchange = new Exchange(exchangeData);
       await exchange.save();
       return res.status(201).json({ success: true, exchange });
     } catch (error) {
@@ -80,7 +85,7 @@ class ExchangeController {
   static async updateTradeStatus(req, res, next) {
     try {
       const { id } = req.params;
-      console.log(id)
+      console.log(id);
       const { status } = req.body;
       if (!["accepted", "rejected"].includes(status)) {
         return res.status(400).json({ error: "Invalid status" });

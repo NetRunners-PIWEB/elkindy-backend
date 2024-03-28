@@ -1,12 +1,13 @@
 // BASE SETUP
 // ==============================================
-const { io,server, app } = require("./socket/socket.js");
+const { io, server, app } = require("./socket/socket.js");
 const { connect } = require("./config/mongoose.js");
 const corsMiddleware = require("./middlewares/cors.js");
 var bodyParser = require("body-parser");
 const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
 const cors = require("cors");
+const cloudinary = require("cloudinary").v2;
 
 app.use(bodyParser.json());
 
@@ -20,6 +21,12 @@ const { userVerification } = require("./middlewares/authJWT");
 // ==============================================
 
 connect();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 app.use(bodyParser.json());
 swaggerDoc(app);

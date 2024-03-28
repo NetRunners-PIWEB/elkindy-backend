@@ -3,7 +3,7 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 const io = require("socket.io")(server, {
   cors: {
@@ -28,6 +28,7 @@ io.on("connection", (socket) => {
     "sendNotification",
     ({ senderId, receiverId, instrument, message }) => {
       const user = getUser(receiverId);
+      console.log(user);
       const receiverSocketId = user.socketId;
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("getNotification", {

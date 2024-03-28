@@ -5,6 +5,8 @@ const {
 } = require("../../utils/pipelines.js");
 const { formatSort } = require("../../utils/formatQueries.js");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
+
 class InstrumentController {
   static async getAllInstruments(req, res, next) {
     const sortBy = formatSort(req.query.sort);
@@ -31,7 +33,12 @@ class InstrumentController {
     try {
       const { title, type, brand, details, condition, price, status } =
         req.body;
+      let { img } = req.body;
       const author = req.user?.id;
+      if (img) {
+        const uploadedResponse = await cloudinary.uploader.upload(img);
+        img = uploadedResponse.secure_url;
+      }
       const instrument = new Instrument({
         author,
         title,
@@ -41,8 +48,8 @@ class InstrumentController {
         price,
         condition,
         status,
+        img,
       });
-
       await instrument.save();
 
       res.status(201).json({
@@ -88,7 +95,13 @@ class InstrumentController {
       const instrumentId = req.params.id
         ? new mongoose.Types.ObjectId(req.params.id)
         : "";
-      const instrument = await Instrument.findById(instrumentId);
+      const userId = new mongoose.Types.ObjectId(req.user._id);
+      const aggregate = await Instrument.aggregate(
+        instrumentPipeline(instrumentId, userId)
+      );
+      const [instrument] = await Instrument.populate(aggregate, {
+        path: "",
+      });
       if (!instrument) {
         return res
           .status(404)
@@ -133,7 +146,7 @@ class InstrumentController {
   }
   static async getUserInstruments(req, res, next) {
     try {
-     const userId = req.user.id;
+      const userId = req.user.id;
       const instruments = await Instrument.find({ author: userId });
       res.status(200).json({
         success: true,

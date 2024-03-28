@@ -14,7 +14,7 @@ router
   .route("/:id/like")
   .patch(authenticate(), InstrumentController.addUserLike);
 
-router.route("/:id").get(InstrumentController.getInstrument);
+router.route("/:id").get(authenticate(), InstrumentController.getInstrument);
 
 router
   .route("/user/instruments")
