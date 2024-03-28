@@ -155,7 +155,40 @@ exports.getAssignedTeachers = async (req, res) => {
     }
 };
 
+exports.getTopThreeCourses = async (req, res) => {
+    try {
+        const courses = await Course.find()
+            .sort({ 'students': -1 })
+            .limit(3);
+        res.status(200).json(courses);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 
+exports.addStudentsToCourse = async (req, res) => {
+    const { courseId } = req.params;
+    const { studentIds } = req.body;
 
+    try {
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+
+        const validStudentIds = studentIds.filter(studentId =>
+            !course.students.includes(studentId)
+        );
+
+        course.students.push(...validStudentIds);
+        await course.save();
+
+        res.status(200).json({ message: "Students added successfully", course });
+    } catch (error) {
+        console.error(error); // Log the error
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
 

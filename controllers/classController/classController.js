@@ -471,3 +471,5 @@ function combineDateAndTime(date, time) {
     newDate.setHours(hours, minutes, 0, 0);
     return newDate;
 }
+
+
