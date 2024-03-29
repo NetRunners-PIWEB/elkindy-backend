@@ -8,7 +8,6 @@
     "test:jest": "cross-env NODE_ENV=dev jest --config=tests/jest.config.js --detectOpenHandles",
     "test:mocha": "cross-env NODE_ENV=test mocha tests/course.test.js --timeout 10000 --exit",
     "test": "cross-env NODE_ENV=test npm run test:mocha && npm run test:jest"
-
   },
   "engines": {
     "node": "12.8.0"
@@ -18,6 +17,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.19.0",
+    "cloudinary": "^2.0.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
