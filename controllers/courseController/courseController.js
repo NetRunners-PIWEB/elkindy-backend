@@ -1,6 +1,7 @@
 const Course = require('../../models/course');
 
 exports.createCourse = async (req, res) => {
+    console.log(req.body);
     try {
         const newCourse = new Course(req.body);
         const savedCourse = await newCourse.save();
