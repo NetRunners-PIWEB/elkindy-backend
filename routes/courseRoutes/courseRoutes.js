@@ -4,6 +4,8 @@ const router = express.Router();
 const courseController = require('../../controllers/courseController/courseController');
 
 router.get('/popular', courseController.getTopThreeCourses);
+router.get('/students-stats', courseController.getStudentStats);
+router.get('/teachers-stats',courseController.getTeacherStats );
 
 router.get('/category/:category', courseController.listCoursesByCategory);
 

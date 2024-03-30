@@ -1,4 +1,5 @@
 const Course = require('../../models/course');
+const User = require('../../models/user');
 
 exports.createCourse = async (req, res) => {
     console.log(req.body);
@@ -187,8 +188,66 @@ exports.addStudentsToCourse = async (req, res) => {
 
         res.status(200).json({ message: "Students added successfully", course });
     } catch (error) {
-        console.error(error); // Log the error
+        console.error(error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+exports.getTeacherStats = async (req, res) => {
+    try {
+        const genderCount = await User.aggregate([
+            { $match: { role: 'teacher'} },
+            { $group: { _id: '$gender', count: { $sum: 1 } } } // Group by gender and count
+        ]);
+
+        let maleCount = 0;
+        let femaleCount = 0;
+
+        genderCount.forEach(gender => {
+            if (gender._id === 'male') maleCount = gender.count;
+            if (gender._id === 'female') femaleCount = gender.count;
+        });
+
+        const totalCount = maleCount + femaleCount;
+        const malePercentage = totalCount ? ((maleCount / totalCount) * 100).toFixed(2) : 0;
+        const femalePercentage = totalCount ? ((femaleCount / totalCount) * 100).toFixed(2) : 0;
+
+        res.status(200).json({
+            totalCount,
+            malePercentage,
+            femalePercentage,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to get teacher stats', error: error.message });
+    }
+};
+
+exports.getStudentStats = async (req, res) => {
+    try {
+        const genderCount = await User.aggregate([
+            { $match: { role: 'student', isDeleted: false } },
+            { $group: { _id: '$gender', count: { $sum: 1 } } }
+        ]);
+
+        let maleCount = 0;
+        let femaleCount = 0;
+        genderCount.forEach(gender => {
+            if (gender._id === 'male') maleCount = gender.count;
+            if (gender._id === 'female') femaleCount = gender.count;
+        });
+
+        const totalCount = maleCount + femaleCount;
+        const malePercentage = totalCount ? ((maleCount / totalCount) * 100).toFixed(2) : 0;
+        const femalePercentage = totalCount ? ((femaleCount / totalCount) * 100).toFixed(2) : 0;
+
+        res.status(200).json({
+            totalCount,
+            malePercentage,
+            femalePercentage,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to get student stats', error: error.message });
     }
 };
 
