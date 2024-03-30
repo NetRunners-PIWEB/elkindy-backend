@@ -85,8 +85,7 @@ class ExchangeController {
   static async updateTradeStatus(req, res, next) {
     try {
       const { id } = req.params;
-      console.log(id);
-      const { status } = req.body;
+      const { status, declineReason, rating } = req.body;
       if (!["accepted", "rejected"].includes(status)) {
         return res.status(400).json({ error: "Invalid status" });
       }
@@ -95,6 +94,11 @@ class ExchangeController {
         return res.status(404).json({ error: "Exchange not found" });
       }
       exchange.status = status;
+      if (status === "rejected") {
+        exchange.declineReason = declineReason;
+      } else if (status === "accepted") {
+        if (rating) exchange.rating = rating;
+      }
       await exchange.save();
       res
         .status(200)

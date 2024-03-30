@@ -16,7 +16,7 @@ const allExchangesPipeline = (userId, itemId, statuses, sortingObj) => {
   return reusableExchangePipeline(match, sortingObj);
 };
 
-const latestTradesPipeline = (userId, statuses) => {
+const latestTradesPipeline = (userId, statuses, sort) => {
   const match = {
     $match: {
       $or: [
@@ -27,7 +27,7 @@ const latestTradesPipeline = (userId, statuses) => {
     },
   };
 
-  return reusableExchangePipeline(match);
+  return reusableExchangePipeline(match, sort);
 };
 
 module.exports = { allExchangesPipeline, latestTradesPipeline };
@@ -71,6 +71,7 @@ const reusableExchangePipeline = (match, sort) => {
         receiverInstrument: { $arrayElemAt: ["$receiverInstrumentDetails", 0] },
         status: 1,
         createdAt: 1,
+        declineReason:1
       },
     },
   ];
@@ -86,7 +87,7 @@ const reusableExchangePipeline = (match, sort) => {
     });
   }
   const res = sort
-    ? [match, sort, ...pipelineArray]
-    : [match, ...pipelineArray];
+    ? [match, sort].concat(pipelineArray)
+    : [match].concat(pipelineArray);
   return Exchange.aggregate(res).pipeline();
 };
