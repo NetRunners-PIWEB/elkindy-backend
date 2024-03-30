@@ -45,7 +45,7 @@ const userSchema = new Schema({
   updatedAt: Date,
   role: {
     type: String,
-    enum: ["admin", "teacher", "student"],
+    enum: ["admin", "teacher", "user"],
     required: true,
   },
   status: {
@@ -60,6 +60,21 @@ const userSchema = new Schema({
   },
   preferedInstrument :[String],
   resetToken:{type:String,required:false},
+  courses: [{
+    courseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Course'
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'rejected'],
+      default: 'pending'
+    }
+  }],
+  students: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Student'
+  }]
 });
 
 
