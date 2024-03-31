@@ -5,7 +5,10 @@ const classSchema = new Schema({
     name: String,
     duration: Date,
     capacity: Number,
-    students:[String]
+    students: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users'
+    }],
 });
 
 module.exports = mongoose.model("Class", classSchema);

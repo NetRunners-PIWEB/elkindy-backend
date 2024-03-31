@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 const user = require("./user");
+const { string } = require("yup");
 const Schema = mongoose.Schema;
 
 const examSchema = new Schema({
     name: String, // Le nom de l'examen
     startDate: Date, // Date de début de l'examen
     duration: String, // Durée de l'examen en minutes
-     
+    startHour : String,
     type: {
         type: String,
         enum: ["exam", "evaluation"],

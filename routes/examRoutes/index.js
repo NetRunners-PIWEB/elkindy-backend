@@ -13,7 +13,7 @@ router.delete('/deleteExam/:id', ExamController.deleteExam);
 router.get('/typeEvaluation', ExamController.getTypeEvaluations);
 router.get('/evaluationsStudent/:userName', ExamController.getEvaluationByStudent);
 router.get('/showgrades', ExamController.getGrades);
-
+router.post('/sendEmail/:name', ExamController.sendEmail);
 
 
 
