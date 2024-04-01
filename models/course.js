@@ -30,6 +30,10 @@ const courseSchema = new mongoose.Schema({
     isInternship: {
         type: Boolean,
         default: false
+    },
+    image: {
+        type: String,
+        default: ''
     }
 });
 

@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const courseController = require('../../controllers/courseController/courseController');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 router.get('/popular', courseController.getTopThreeCourses);
 router.get('/students-stats', courseController.getStudentStats);
@@ -19,7 +21,7 @@ router.put('/:id', courseController.updateCourse);
 router.delete('/:id', courseController.deleteCourse);
 router.patch('/:courseId/add-students', courseController.addStudentsToCourse);
 
-
+router.patch('/:courseId/upload-image', upload.single('image'), courseController.uploadImageToCourse);
 
 router.put('/details/:courseId/teachers', courseController.updateCourseTeachers);
 router.get('/details/:courseId/teachers', courseController.getAssignedTeachers);
