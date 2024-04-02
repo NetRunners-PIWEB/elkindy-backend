@@ -71,7 +71,9 @@ const reusableExchangePipeline = (match, sort) => {
         receiverInstrument: { $arrayElemAt: ["$receiverInstrumentDetails", 0] },
         status: 1,
         createdAt: 1,
-        declineReason:1
+        declineReason:1,
+        moneyProposed:1
+
       },
     },
   ];

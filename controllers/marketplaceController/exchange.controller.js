@@ -27,6 +27,9 @@ class ExchangeController {
         senderInstrument: data.senderInstrument,
         receiverInstrument: data.receiverInstrument,
       };
+      if (data.moneyProposed) {
+        exchangeData.moneyProposed = data.moneyProposed;
+      }
       const exchange = new Exchange(exchangeData);
       await exchange.save();
       return res.status(201).json({ success: true, exchange });

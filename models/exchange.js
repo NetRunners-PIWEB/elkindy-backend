@@ -27,6 +27,10 @@ const exchangeSchema = new mongoose.Schema(
       enum: ["requested", "accepted", "rejected"],
       default: "requested",
     },
+    moneyProposed: {
+      type: Number,
+      default: 0,
+    },
     declineReason: {
       type: String,
     },
