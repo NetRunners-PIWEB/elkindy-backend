@@ -1,5 +1,6 @@
 const Course = require('../../models/course');
 const User = require('../../models/user');
+const cloudinary = require('../../cloudinaryConfig');
 
 exports.createCourse = async (req, res) => {
     console.log(req.body);
@@ -248,6 +249,28 @@ exports.getStudentStats = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Failed to get student stats', error: error.message });
+    }
+};
+
+exports.uploadImageToCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+
+        const result = await cloudinary.uploader.upload(req.file.path);
+
+        const updatedCourse = await Course.findByIdAndUpdate(
+            courseId,
+            { image: result.secure_url }
+        );
+
+        if (!updatedCourse) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        res.json(updatedCourse);
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        res.status(500).json({ message: 'Failed to upload image', error: error.message });
     }
 };
 

@@ -367,7 +367,7 @@ exports.manageAttendanceForSession = async (req, res) => {
 exports.getClassesForTeacher = async (req, res) => {
     try {
         const { teacherId } = req.params;
-        const classes = await Class.find({ teacher: teacherId }).populate('courseId', 'name');
+        const classes = await Class.find({ teacher: teacherId }).populate('courseId', 'title');
 
         if (!classes) {
             return res.status(404).json({ message: "No classes found for this teacher." });
@@ -422,7 +422,6 @@ exports.getSessionByTeacherId = async (req, res) => {
     try {
         const { teacherId } = req.params;
         const sessions = await Session.find({ teacher: teacherId })
-            .populate('classId')
             .exec();
 
         res.json(sessions);

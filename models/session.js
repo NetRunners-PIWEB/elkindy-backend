@@ -33,7 +33,7 @@ const sessionSchema = new mongoose.Schema({
         },
         status: {
             type: String,
-            enum: ['Present', 'Absent', 'Excused', 'Late'],
+            enum: ['Present', 'Absent', '-', 'Late'],
             required: true
         }
     }],
