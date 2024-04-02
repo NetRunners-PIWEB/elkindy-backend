@@ -9,15 +9,12 @@ const classSchema = new mongoose.Schema({
     },
     date: {
         type: Date,
-        required: true
     },
     startTime: {
         type: Date,
-        required: true
     },
     endTime: {
         type: Date,
-        required: true
     },
     teacher: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -30,20 +27,31 @@ const classSchema = new mongoose.Schema({
         },
         note: Number
     }],
-    attendance: [{
-        student: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Users'
-        },
-        status: {
-            type: String,
-            enum: ['Present', 'Absent', 'Excused'],
-            required: true
-        }
-    }],
     assignments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Assignment'
+    }],
+    maxStudents: Number,
+    students: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users'
+    }],
+    schedule: [{
+        start: Date,
+        end: Date,
+    }],
+    recurring: {
+        type: Boolean,
+        default: false
+    },
+    recurringType: {
+        type: String,
+        enum: ['Daily', 'Weekly', 'Monthly'],
+    },
+    recurringEnd: Date,
+    sessions:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Session'
     }],
 
 });

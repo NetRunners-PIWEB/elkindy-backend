@@ -1,4 +1,6 @@
 const Course = require('../../models/course');
+const User = require('../../models/user');
+const cloudinary = require('../../cloudinaryConfig');
 
 exports.createCourse = async (req, res) => {
     console.log(req.body);
@@ -155,6 +157,120 @@ exports.getAssignedTeachers = async (req, res) => {
     }
 };
 
+exports.getTopThreeCourses = async (req, res) => {
+    try {
+        const courses = await Course.find()
+            .sort({ 'students': -1 })
+            .limit(3);
+        res.status(200).json(courses);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 
+exports.addStudentsToCourse = async (req, res) => {
+    const { courseId } = req.params;
+    const { studentIds } = req.body;
+
+    try {
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+
+        const validStudentIds = studentIds.filter(studentId =>
+            !course.students.includes(studentId)
+        );
+
+        course.students.push(...validStudentIds);
+        await course.save();
+
+        res.status(200).json({ message: "Students added successfully", course });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+exports.getTeacherStats = async (req, res) => {
+    try {
+        const genderCount = await User.aggregate([
+            { $match: { role: 'teacher'} },
+            { $group: { _id: '$gender', count: { $sum: 1 } } } // Group by gender and count
+        ]);
+
+        let maleCount = 0;
+        let femaleCount = 0;
+
+        genderCount.forEach(gender => {
+            if (gender._id === 'male') maleCount = gender.count;
+            if (gender._id === 'female') femaleCount = gender.count;
+        });
+
+        const totalCount = maleCount + femaleCount;
+        const malePercentage = totalCount ? ((maleCount / totalCount) * 100).toFixed(2) : 0;
+        const femalePercentage = totalCount ? ((femaleCount / totalCount) * 100).toFixed(2) : 0;
+
+        res.status(200).json({
+            totalCount,
+            malePercentage,
+            femalePercentage,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to get teacher stats', error: error.message });
+    }
+};
+
+exports.getStudentStats = async (req, res) => {
+    try {
+        const genderCount = await User.aggregate([
+            { $match: { role: 'student', isDeleted: false } },
+            { $group: { _id: '$gender', count: { $sum: 1 } } }
+        ]);
+
+        let maleCount = 0;
+        let femaleCount = 0;
+        genderCount.forEach(gender => {
+            if (gender._id === 'male') maleCount = gender.count;
+            if (gender._id === 'female') femaleCount = gender.count;
+        });
+
+        const totalCount = maleCount + femaleCount;
+        const malePercentage = totalCount ? ((maleCount / totalCount) * 100).toFixed(2) : 0;
+        const femalePercentage = totalCount ? ((femaleCount / totalCount) * 100).toFixed(2) : 0;
+
+        res.status(200).json({
+            totalCount,
+            malePercentage,
+            femalePercentage,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to get student stats', error: error.message });
+    }
+};
+
+exports.uploadImageToCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+
+        const result = await cloudinary.uploader.upload(req.file.path);
+
+        const updatedCourse = await Course.findByIdAndUpdate(
+            courseId,
+            { image: result.secure_url }
+        );
+
+        if (!updatedCourse) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        res.json(updatedCourse);
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        res.status(500).json({ message: 'Failed to upload image', error: error.message });
+    }
+};
 
