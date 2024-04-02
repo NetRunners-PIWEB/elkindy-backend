@@ -1,6 +1,6 @@
 const { Router } = require("express");
-const InstrumentController = require("../controllers/instrument.controller.js");
-const { authenticate } = require("../middlewares/auth.js");
+const InstrumentController = require("../../controllers/marketplaceController/instrument.controller.js");
+const { authenticate } = require("../../middlewares/auth.js");
 
 const router = Router();
 router
@@ -14,7 +14,7 @@ router
   .route("/:id/like")
   .patch(authenticate(), InstrumentController.addUserLike);
 
-router.route("/:id").get(InstrumentController.getInstrument);
+router.route("/:id").get(authenticate(), InstrumentController.getInstrument);
 
 router
   .route("/user/instruments")

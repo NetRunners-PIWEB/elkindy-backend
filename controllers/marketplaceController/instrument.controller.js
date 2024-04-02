@@ -1,10 +1,12 @@
-const Instrument = require("../models/instrument.js");
+const Instrument = require("../../models/instrument.js");
 const {
   allInstrumentsPipeline,
   instrumentPipeline,
-} = require("../utils/pipelines.js");
-const { formatSort } = require("../utils/formatQueries.js");
+} = require("../../utils/pipelines.js");
+const { formatSort } = require("../../utils/formatQueries.js");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
+
 class InstrumentController {
   static async getAllInstruments(req, res, next) {
     const sortBy = formatSort(req.query.sort);
@@ -31,7 +33,12 @@ class InstrumentController {
     try {
       const { title, type, brand, details, condition, price, status } =
         req.body;
+      let { img } = req.body;
       const author = req.user?.id;
+      if (img) {
+        const uploadedResponse = await cloudinary.uploader.upload(img);
+        img = uploadedResponse.secure_url;
+      }
       const instrument = new Instrument({
         author,
         title,
@@ -41,8 +48,8 @@ class InstrumentController {
         price,
         condition,
         status,
+        img,
       });
-
       await instrument.save();
 
       res.status(201).json({
@@ -88,16 +95,21 @@ class InstrumentController {
       const instrumentId = req.params.id
         ? new mongoose.Types.ObjectId(req.params.id)
         : "";
-      const userId = new mongoose.Types.ObjectId("65d517bddf2aa46349809694");
+      const userId = new mongoose.Types.ObjectId(req.user._id);
       const aggregate = await Instrument.aggregate(
-        instrumentPipeline(instrumentId, null)
+        instrumentPipeline(instrumentId, userId)
       );
       const [instrument] = await Instrument.populate(aggregate, {
-        path: "comments",
+        path: "",
       });
+      if (!instrument) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Instrument not found" });
+      }
       res.status(200).json({
         success: true,
-        instrument: { ...instrument, author: instrument.author[0] },
+        instrument: instrument,
       });
     } catch (err) {
       res.status(500).json({
@@ -135,7 +147,7 @@ class InstrumentController {
   static async getUserInstruments(req, res, next) {
     try {
       const userId = req.user.id;
-      const instruments = await Instrument.find({ author: userId }).exec();
+      const instruments = await Instrument.find({ author: userId });
       res.status(200).json({
         success: true,
         instruments,
