@@ -96,6 +96,8 @@ class InstrumentController {
         ? new mongoose.Types.ObjectId(req.params.id)
         : "";
       const userId = new mongoose.Types.ObjectId(req.user._id);
+
+
       const aggregate = await Instrument.aggregate(
         instrumentPipeline(instrumentId, userId)
       );
