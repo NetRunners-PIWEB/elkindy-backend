@@ -22,7 +22,6 @@ const courseSchema = new mongoose.Schema({
     },
     startDate: Date,
     endDate: Date,
-    maxStudents: Number,
     isArchived: {
         type: Boolean,
         default: false
@@ -31,6 +30,10 @@ const courseSchema = new mongoose.Schema({
     isInternship: {
         type: Boolean,
         default: false
+    },
+    image: {
+        type: String,
+        default: ''
     }
 });
 

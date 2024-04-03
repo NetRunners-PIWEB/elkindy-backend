@@ -12,8 +12,9 @@ const allInstrumentsPipeline = (
   const match = {
     $match: {
       status: {
-        $in: ["exchange", "maintenance", "available for borrow", "buy"],
+        $in: ["exchange", "maintenance", "available for borrow", "sell"],
       },
+      itemStatus: "active",
     },
   };
   if (status) {
@@ -56,7 +57,7 @@ const reusableInstrumentPipeline = (
     { $addFields: { v: 0 } },
     {
       $lookup: {
-        from: "user",
+        from: "users",
         localField: "author",
         foreignField: "_id",
         as: "author",
@@ -65,8 +66,10 @@ const reusableInstrumentPipeline = (
     {
       $project: {
         _id: 1,
-        "author.lastName": 1,
+        "author._id": 1,
         "author.firstName": 1,
+        "author.lastName": 1,
+        "author.phoneNumber": 1,
         title: 1,
         type: 1,
         brand: 1,
@@ -74,6 +77,10 @@ const reusableInstrumentPipeline = (
         condition: 1,
         status: 1,
         likeScore: 1,
+        img: 1,
+        createdAt: 1,
+        price: 1,
+        itemStatus: 1,
       },
     },
   ];
@@ -113,19 +120,6 @@ const reusableInstrumentPipeline = (
   if (userId) {
     pipelineArray[2].$project.liked = liked;
   }
-
-
-  // if (pageNumber && pageSize) {
-  //   const skip = (pageNumber - 1) * pageSize;
-  //   console.log(pageNumber);
-  //   pipelineArray.push({
-  //     $skip: skip,
-  //   });
-  //   pipelineArray.push({
-  //     $limit: parseInt(pageSize),
-  //   });
-
-  // }
 
   const res = sort
     ? [match, sort].concat(pipelineArray)

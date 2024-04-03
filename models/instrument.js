@@ -12,6 +12,9 @@ const instrumentSchema = new mongoose.Schema(
       required: true,
     },
 
+    img: {
+      type: String,
+    },
     type: {
       type: String,
       required: false,
@@ -35,10 +38,15 @@ const instrumentSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["exchange", "maintenance", "available for borrow", "buy"],
+      enum: ["exchange", "maintenance", "available for borrow", "sell"],
+    },
+    itemStatus: {
+      type: String,
+      required: true,
+      enum: ["active", "deleted", "traded"],
+      default: "active", 
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-
     likeScore: {
       type: Number,
       default: 0,
