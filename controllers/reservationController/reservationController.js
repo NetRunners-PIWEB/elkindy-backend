@@ -30,7 +30,6 @@ const createPDF = async (reservation, pdfPath) => {
 
   doc.lineWidth(2).rect(50, 50, 530, 200).stroke();
 
-  // Add images
   doc.image(path.join(__dirname, "..", "..", "images", "Kindy.png"), 460, 60, {
     width: 100,
   });
