@@ -14,6 +14,7 @@ const allInstrumentsPipeline = (
       status: {
         $in: ["exchange", "maintenance", "available for borrow", "sell"],
       },
+      itemStatus: "active",
     },
   };
   if (status) {
@@ -77,8 +78,9 @@ const reusableInstrumentPipeline = (
         status: 1,
         likeScore: 1,
         img: 1,
-        createdAt:1, 
-        price:1
+        createdAt: 1,
+        price: 1,
+        itemStatus: 1,
       },
     },
   ];
