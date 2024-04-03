@@ -68,10 +68,13 @@ const eventSchema = new Schema({
       ref: "Ticket",
     },
   ],
-  numberOfTickets: {
-    type: Number,
-    //required: true,
-  },
+ 
+  reservations: [
+    {
+        type: Schema.Types.ObjectId,
+        ref: "Reservation",
+    },
+],
   participants: [
     {
       type: Schema.Types.ObjectId,
