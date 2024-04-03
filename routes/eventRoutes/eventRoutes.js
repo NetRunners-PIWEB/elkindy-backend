@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const eventController = require("../../controllers/eventController/eventController");
-const upload = require('../../config/multerConfig.js'); 
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 
 // Routes for Events CRUD operations
-router.post('/createEvent', eventController.createEvent);
-// router.post('/createEvent', upload, eventController.createEvent);
-// router.post('/createEvent', upload.single('image'), eventController.createEvent);
+// router.post('/createEvent', eventController.createEvent);
+router.post('/createEvent', upload.single('image'), eventController.createEvent);
 router.get('/', eventController.listEvents);
 router.get('/archived', eventController.listArchivedEvents); 
 router.get('/monthlyEventCount', eventController.getMonthlyEventCount);

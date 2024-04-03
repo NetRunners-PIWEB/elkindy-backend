@@ -52,7 +52,8 @@ const eventSchema = new Schema({
   },
   image: {
     type: String,
-  },
+    default: ''
+},
   eventType: {
     type: String,
     enum: ["Charity Concert", "Final Year Party", "Other"],
