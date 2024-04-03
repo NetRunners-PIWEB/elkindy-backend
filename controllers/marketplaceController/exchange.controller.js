@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Exchange = require("../../models/exchange.js");
+const Instrument = require("../../models/instrument.js");
+
 const { formatSort } = require("../../utils/formatQueries.js");
 const {
   allExchangesPipeline,
@@ -100,6 +102,16 @@ class ExchangeController {
       if (status === "rejected") {
         exchange.declineReason = declineReason;
       } else if (status === "accepted") {
+        const senderInstrument = await Instrument.findById(
+          exchange.senderInstrument
+        );
+        const receiverInstrument = await Instrument.findById(
+          exchange.receiverInstrument
+        );
+        senderInstrument.itemStatus = "traded";
+        receiverInstrument.itemStatus = "traded";
+        await senderInstrument.save();
+        await receiverInstrument.save();
         if (rating) exchange.rating = rating;
       }
       await exchange.save();
