@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const ErrorResponse = require('../utils/ErrorResponse');
-const User = require('../models/user');
+const jwt = require("jsonwebtoken");
+const ErrorResponse = require("../utils/ErrorResponse");
+const User = require("../models/user");
 const { access_token_secret, env } = require("../config/vars");
 
 function authenticate(roles = []) {
@@ -12,15 +12,13 @@ function authenticate(roles = []) {
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
-
     }
     if (!token) {
       return next(new ErrorResponse("Not Authenticated", 401));
     }
     try {
       const payload = jwt.verify(token, process.env.TOKEN_KEY);
-
-      const user = await User.findById(payload.id);
+      const user = await User.findById(payload.userId);
       if (!user) {
         return next(new ErrorResponse("User Not Found", 404));
       }
