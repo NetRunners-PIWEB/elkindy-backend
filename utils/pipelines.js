@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const allInstrumentsPipeline = (
   userId,
   status,
+  age,
   sortingObj,
   searchQuery,
   pageNumber,
@@ -19,6 +20,9 @@ const allInstrumentsPipeline = (
   };
   if (status) {
     match.$match.status = status;
+  }
+  if (age) {
+    match.$match.age = age;
   }
 
   return reusableInstrumentPipeline(
@@ -81,6 +85,7 @@ const reusableInstrumentPipeline = (
         createdAt: 1,
         price: 1,
         itemStatus: 1,
+        age:1
       },
     },
   ];
