@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { listTeachers } = require('../../controllers/userController/userController');
-
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 router.get('/teachers', listTeachers);
 const UserController = require('../../controllers/userControllers/index');
 
@@ -21,4 +22,5 @@ router.get('/teachers', listTeachers);
 router.get('/Students' ,getAllStudents)
 router.post('/:id/addAvailability', addAvailability);
 router.get('/:id/availability', UserController.getUserAvailability);
+router.patch('/:userId/upload-image', upload.single('image'), UserController.uploadUserProfilePicture);
 module.exports = router;

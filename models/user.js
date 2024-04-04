@@ -35,12 +35,14 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
+  
   image: {
     type: String,
+    default: ''
   },
+
   gender: String,
   address: String,
-  image: String,
   createdAt: {
     type: Date,
     default: new Date(),
