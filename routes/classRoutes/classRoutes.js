@@ -22,7 +22,7 @@ router.post('/sessions/:sessionId/attendance', classController.manageAttendanceF
 
 router.get('/teachers/:teacherId/sessions', classController.getSessionByTeacherId);
 
-router.put('/:classId/teachers', classController.updateClassTeachers);
+//router.put('/:classId/teachers', classController.updateClassTeachers);
 
 
 router.get('/:id', classController.getClass);
