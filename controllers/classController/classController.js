@@ -151,7 +151,7 @@ exports.generateClassesForCourse = async (req, res) => {
 };
 
 
-        const updatedClass = await Class.findByIdAndUpdate(classId, { $set: { teacher: teacherIds } }, { new: true }).populate('teacher');
+//updatedClass = await Class.findByIdAndUpdate(classId, { $set: { teacher: teacherIds } }, { new: true }).populate('teacher');
 
 exports.updateClassSchedule = async (req, res) => {
     const { classId, start, end, teacherId } = req.body;

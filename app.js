@@ -16,6 +16,7 @@ const instrumentRouter = require("./routes/marketplaceRoutes/instrument.route.js
 const exchangeRouter = require("./routes/marketplaceRoutes/exchange.route.js");
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require("./routes/courseRoutes/courseRoutes");
+const classRoutes = require("./routes/classRoutes/classRoutes.js");
 const authRoutes = require("./routes/authRoutes");
 const { userVerification } = require("./middlewares/authJWT");
 // ==============================================
@@ -32,7 +33,7 @@ app.use(bodyParser.json());
 swaggerDoc(app);
 app.use(cors());
 const examRoutes = require("./routes/examRoutes");
-const classRoutes = require("./routes/classRoutes/classRoutes");
+//const classRoutes = require("./routes/classRoutes/classRoutes.js");
 const morgan = require("morgan");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
