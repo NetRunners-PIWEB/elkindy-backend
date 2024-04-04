@@ -20,6 +20,14 @@ router
   .route("/user/instruments")
   .get(authenticate(), InstrumentController.getUserInstruments);
 
+router
+  .route("/addusersearch")
+  .post(authenticate(), InstrumentController.addUserSearch);
+router
+  .route("/user/usersearches")
+  .get(authenticate(), InstrumentController.getUserSearches);
+router.delete("/user/usersearches/:id", InstrumentController.deleteUserSearch);
+
 router.delete("/:id", InstrumentController.deleteInstrument);
 
 module.exports = router;
