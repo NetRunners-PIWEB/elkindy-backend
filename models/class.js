@@ -31,11 +31,14 @@ const classSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Assignment'
     }],
+
     maxStudents: Number,
+
     students: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users'
     }],
+
     schedule: [{
         start: Date,
         end: Date,
