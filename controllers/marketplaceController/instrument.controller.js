@@ -1,4 +1,6 @@
 const Instrument = require("../../models/instrument.js");
+const UserSearch = require("../../models/userSearch.js");
+
 const {
   allInstrumentsPipeline,
   instrumentPipeline,
@@ -11,12 +13,18 @@ class InstrumentController {
   static async getAllInstruments(req, res, next) {
     const sortBy = formatSort(req.query.sort);
     const status = req.query.status;
+    const age = req.query.age;
     const pageIndex = req.query.pageNumber;
     const size = req.query.pageSize || 10;
     try {
-      let instruments = await Instrument.aggregate(
-        allInstrumentsPipeline(req.user?.id, status, sortBy, null)
+      let allInstruments = await Instrument.aggregate(
+        allInstrumentsPipeline(req.user?.id, status, age, sortBy, null)
       ).exec();
+
+      const instruments = allInstruments.filter(
+        (instrument) =>
+          instrument.author[0]._id.toString() !== req.user._id.toString()
+      );
       res.status(200).json({
         success: true,
         instruments,
@@ -31,7 +39,7 @@ class InstrumentController {
   }
   static async addInstrument(req, res, next) {
     try {
-      const { title, type, brand, details, condition, price, status } =
+      const { title, type, brand, details, condition, price, status, age } =
         req.body;
       let { img } = req.body;
       const author = req.user?.id;
@@ -39,6 +47,7 @@ class InstrumentController {
         const uploadedResponse = await cloudinary.uploader.upload(img);
         img = uploadedResponse.secure_url;
       }
+      console.log(req.body)
       const instrument = new Instrument({
         author,
         title,
@@ -49,6 +58,8 @@ class InstrumentController {
         condition,
         status,
         img,
+        itemStatus: "active",
+        age,
       });
       await instrument.save();
 
@@ -97,7 +108,6 @@ class InstrumentController {
         : "";
       const userId = new mongoose.Types.ObjectId(req.user._id);
 
-
       const aggregate = await Instrument.aggregate(
         instrumentPipeline(instrumentId, userId)
       );
@@ -126,10 +136,13 @@ class InstrumentController {
       const searchQuery = req.query.query;
       const sortBy = formatSort(req.query.sort);
       const status = req.query.status;
+      const age = req.query.age;
+
       let instruments = await Instrument.aggregate(
         allInstrumentsPipeline(
           req.user?.id || null,
           status,
+          age,
           sortBy,
           searchQuery
         )
@@ -165,19 +178,60 @@ class InstrumentController {
   static async deleteInstrument(req, res, next) {
     try {
       const instrumentId = req.params.id;
-      const instrument = await Instrument.findByIdAndDelete(instrumentId);
+      let instrument = await Instrument.findById(instrumentId);
+
       if (!instrument) {
         return next(new ErrorResponse("Instrument not found", 404));
       }
-      // if (instrument.author !== req.user.id) {
-      //   return next(
-      //     new ErrorResponse("Not authorized to delete this instrument", 403)
-      //   );
-      // }
+      instrument.itemStatus = "deleted";
+      await instrument.save();
+
       res.status(200).json({
         success: true,
-        data: {},
       });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async addUserSearch(req, res, next) {
+    try {
+      const { searchQuery, status, age } = req.body;
+      const userId = req.user?.id;
+      const search = new UserSearch({ userId, searchQuery, status, age });
+      await search.save();
+      res.status(201).json({
+        success: true,
+        userSearch: search,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  static async getUserSearches(req, res, next) {
+    try {
+      const userId = req.user._id;
+      const searches = await UserSearch.find({ userId: userId });
+      res.status(200).json({
+        success: true,
+        data: searches,
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+  static async deleteUserSearch(req, res, next) {
+    try {
+      const searchId = req.params.id;
+      const search = await UserSearch.findById(searchId);
+      if (!search) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Search not found" });
+      }
+      await UserSearch.findByIdAndDelete(searchId);
+      res.status(200).json({ success: true });
     } catch (err) {
       next(err);
     }
