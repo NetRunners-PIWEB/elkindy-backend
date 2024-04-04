@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ages = ["3-5", "4-5", "4-6", "5-7", "7-9", "9-12", "Adult"];
+const ages = ["3-5", "4-5", "4-6", "5-7", "7-9", "9-12", "adult"];
 const instrumentSchema = new mongoose.Schema(
   {
     author: {
