@@ -1,6 +1,7 @@
 const exam = require('../../models/exam');
 const classes = require('../../models/class');
 const grade = require('../../models/grades');
+const user = require('../../models/user');
 let ejs = require("ejs") ;
 let pdf = require("html-pdf") ;
 const nodemailer = require( "nodemailer");
@@ -242,7 +243,22 @@ module.exports = {
               console.log('Error:', error);
               return res.status(500).json({ message: 'Internal server error' });
             }
-          }
+          },
+
+
+          async getExamsTeacher(req, res) {
+            try {
+
+              const Teacher = await user.findById(req.params.id)
+                const exams = await exam.find({
+                    type:"exam",
+                    teacher : Teacher.username
+                });
+                res.status(200).json(exams);
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+        },
           
     
 
