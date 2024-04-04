@@ -4,8 +4,8 @@ const request = supertest(app);
 const Instrument = require("./../models/instrument");
 const jwt = require("jsonwebtoken");
 
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.TOKEN_KEY, { expiresIn: "1h" });
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.TOKEN_KEY, { expiresIn: "1h" });
 };
 
 describe("Test /instruments routes", () => {

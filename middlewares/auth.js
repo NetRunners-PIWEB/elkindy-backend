@@ -18,7 +18,7 @@ function authenticate(roles = []) {
     }
     try {
       const payload = jwt.verify(token, process.env.TOKEN_KEY);
-      const user = await User.findById(payload.userId);
+      const user = await User.findById(payload.id);
       if (!user) {
         return next(new ErrorResponse("User Not Found", 404));
       }

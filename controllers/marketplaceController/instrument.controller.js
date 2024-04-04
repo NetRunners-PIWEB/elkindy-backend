@@ -14,9 +14,14 @@ class InstrumentController {
     const pageIndex = req.query.pageNumber;
     const size = req.query.pageSize || 10;
     try {
-      let instruments = await Instrument.aggregate(
+      let allInstruments = await Instrument.aggregate(
         allInstrumentsPipeline(req.user?.id, status, sortBy, null)
       ).exec();
+
+      const instruments = allInstruments.filter(
+        (instrument) =>
+          instrument.author[0]._id.toString() !== req.user._id.toString()
+      );
       res.status(200).json({
         success: true,
         instruments,
