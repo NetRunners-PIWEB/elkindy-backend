@@ -35,9 +35,14 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
+  
+  image: {
+    type: String,
+    default: ''
+  },
+
   gender: String,
   address: String,
-  image: String,
   createdAt: {
     type: Date,
     default: new Date(),
@@ -45,12 +50,12 @@ const userSchema = new Schema({
   updatedAt: Date,
   role: {
     type: String,
-    enum: ["admin", "teacher", "user"],
+    enum: ["admin", "teacher", "user","student"],
     required: true,
   },
   status: {
     type: String,
-    enum: ["active", "inactive", "deleted", "suspended","offboarded","archived"],
+    enum: ["Active", "Inactive", "deleted", "Suspended","Offboarded","archived"],
     default: "active",
   },
 
@@ -70,7 +75,12 @@ const userSchema = new Schema({
       enum: ['pending', 'accepted', 'rejected'],
       default: 'pending'
     }
+   
   }],
+  availability: {
+    type: [Date], // Array of Date objects
+    default: [], // Default empty array
+  },
   students: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student'
