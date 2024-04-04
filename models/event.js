@@ -52,7 +52,8 @@ const eventSchema = new Schema({
   },
   image: {
     type: String,
-  },
+    default: ''
+},
   eventType: {
     type: String,
     enum: ["Charity Concert", "Final Year Party", "Other"],
@@ -68,10 +69,13 @@ const eventSchema = new Schema({
       ref: "Ticket",
     },
   ],
-  numberOfTickets: {
-    type: Number,
-    //required: true,
-  },
+ 
+  reservations: [
+    {
+        type: Schema.Types.ObjectId,
+        ref: "Reservation",
+    },
+],
   participants: [
     {
       type: Schema.Types.ObjectId,
