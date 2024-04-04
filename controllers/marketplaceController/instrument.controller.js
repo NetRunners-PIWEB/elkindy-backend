@@ -49,6 +49,7 @@ class InstrumentController {
         condition,
         status,
         img,
+        itemStatus: "active",
       });
       await instrument.save();
 
@@ -96,6 +97,7 @@ class InstrumentController {
         ? new mongoose.Types.ObjectId(req.params.id)
         : "";
       const userId = new mongoose.Types.ObjectId(req.user._id);
+
       const aggregate = await Instrument.aggregate(
         instrumentPipeline(instrumentId, userId)
       );
@@ -163,18 +165,16 @@ class InstrumentController {
   static async deleteInstrument(req, res, next) {
     try {
       const instrumentId = req.params.id;
-      const instrument = await Instrument.findByIdAndDelete(instrumentId);
+      let instrument = await Instrument.findById(instrumentId);
+
       if (!instrument) {
         return next(new ErrorResponse("Instrument not found", 404));
       }
-      // if (instrument.author !== req.user.id) {
-      //   return next(
-      //     new ErrorResponse("Not authorized to delete this instrument", 403)
-      //   );
-      // }
+      instrument.itemStatus = "deleted";
+      await instrument.save();
+
       res.status(200).json({
         success: true,
-        data: {},
       });
     } catch (err) {
       next(err);
