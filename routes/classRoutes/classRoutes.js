@@ -13,6 +13,8 @@ router.get('/by-course', classController.getClassesByCourseId);
 router.post('/generate', classController.generateClassesForCourse);
 router.post('/session-generates', classController.createRepeatingSession);
 
+router.get('/attendance/student/:studentId', classController.getStudentAttendance);
+
 router.get('/teachers/:teacherId/sessions/upcoming', classController.getUpcomingSessionsForTeacher);
 router.get('/teacher/:teacherId', classController.getClassesForTeacher);
 
