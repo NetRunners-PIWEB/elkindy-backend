@@ -63,9 +63,44 @@ listTeachers = asyncHandler(async (req, res) => {
   
 });
 
+
+ addAvailability = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { availability } = req.body;
+  
+    try {
+      const user = await User.findById(id);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Update user's availability
+      user.availability = availability;
+      await user.save();
+  
+      res.status(200).json({ message: 'Availability updated successfully', user });
+    } catch (error) {
+      console.error('Error adding availability:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+   getUserAvailability = asyncHandler(async (req, res) => {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+  
+    // Assuming availability is stored as a property in the user document
+    const availability = user.availability;
+    res.status(200).json({ availability });
+  });
+
 module.exports = {
 
-    createUser,getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents
+    createUser,getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents,addAvailability,getUserAvailability
 
 }
 

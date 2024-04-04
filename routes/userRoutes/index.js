@@ -19,5 +19,6 @@ router.delete('/deleteUser/:id',deleteUser);
 router.get('/teachers', listTeachers);
 // router.get('/Students',authMiddleware ,getAllStudents);
 router.get('/Students' ,getAllStudents)
-
+router.post('/:id/addAvailability', addAvailability);
+router.get('/:id/availability', UserController.getUserAvailability);
 module.exports = router;
