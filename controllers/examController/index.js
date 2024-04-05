@@ -45,43 +45,6 @@ module.exports = {
 
 
 
-      async deleteGrade(req, res) {
-        try {
-            const deletedGrade = await grade.findByIdAndDelete(req.params.id);
-            if (!deletedGrade) {
-                return res.status(404).json({ message: 'Exam not found' });
-            }
-            res.status(200).json({ message: 'Exam deleted successfully' });
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
-
-
-     
-
-      async getGrades(req, res) {
-        try {
-            const grades = await grade.find();
-            res.status(200).json(grades);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
-
-
-      async createGrade(req, res) {
-        try {
-          const gradeData = req.body;
-          console.log(req.body);
-          const newGrade = new grade(gradeData);
-          await newGrade.save();
-          res.status(201).json(newGrade);
-        } catch (error) {
-          res.status(500).json({ message: error.message });
-        }
-
-      },
 
       async getTypeExams(req, res) {
         try {
@@ -134,7 +97,7 @@ module.exports = {
 
 
   
-        // Function to send the password reset email
+       
         async sendEmail(req, res) {
             const ejsFilePath = path.resolve(__dirname, 'emploitemplate.ejs');
             console.log(ejsFilePath);
@@ -260,7 +223,7 @@ module.exports = {
             }
         },
           
-    
+        
 
 
           
