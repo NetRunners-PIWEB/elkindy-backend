@@ -29,13 +29,13 @@ const forgotPassword = async (req, res) => {
         port: 465,
         secure: true,
         auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
+            user: process.env.GMAIL_USERNAME,
+            pass: process.env.GMAIL_PASSWORD
         }
     });
 
     var mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: 'ramiwali009@gmail.com',
         to: email,
         subject: "Reset Password",
         html: `
