@@ -18,5 +18,6 @@ router.post('/sendEmail/:name', ExamController.sendEmail);
 router.get('/studentExams/:id', GradeController.getExamsGrades);
 router.get('/studentgrades/:id', GradeController.getExamGrades);
 router.get('/studentEvalgrades/:id', GradeController.getEvalGrades);
+router.get('/ExamsstudentsGrades/:id', GradeController.getExamsstudentsGrades);
 router.put('/updateEvalGrades', GradeController.updateEvalGrades);
 module.exports = router;

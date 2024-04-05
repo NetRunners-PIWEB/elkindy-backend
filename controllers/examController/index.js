@@ -149,6 +149,7 @@ module.exports = {
             });
           
             try {
+              console.log( process.env.EMAIL_USER);
               ejs.renderFile(ejsFilePath, { exams: exams, groupedExams: groupedExams }, (err, data) => {
                 if (err) {
                   console.log(err);
@@ -165,19 +166,21 @@ module.exports = {
                       res.send(err);
                     } else {
                       const transporter = nodemailer.createTransport({
-                        service: 'Gmail',
+                        service: 'gmail',
                         auth: {
-                          user: 'farah.metoui@esprit.tn', // Your Gmail email address
-                          pass: '201JFT2629' ,// Your Gmail password
+                          user:  process.env.EMAIL_USER, // Your Gmail email address
+                          pass:  process.env.EMAIL_PASS,// Your Gmail password
                           // secure: true,
                           //  type: "OAuth2",
                           
-                        }
+                        },tls: {
+                          rejectUnauthorized: false,
+                        },
                       });
           
                       // Email message options
                       const mailOptions = {
-                        from: 'farah.metoui@esprit.tn',
+                        from:  process.env.EMAIL_USER,
                         to: studentEmails.join(','),
                         subject: 'TimeTable Exams',
                         text: 'Your can check here your TimeTable',
