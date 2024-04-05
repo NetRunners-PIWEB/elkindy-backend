@@ -47,10 +47,12 @@ module.exports = {
       async getExamsGrades(req, res) {
         try {
            const student = await user.findById(req.params.id);
+           console.log(student);
             const grades = await grade.find({
                 studentName: student.username ,
                 type:'evaluation'
             });
+            console.log(grades);
             res.status(200).json(grades);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -62,10 +64,12 @@ module.exports = {
     async getExamGrades(req, res) {
         try {
            const student = await user.findById(req.params.id);
+           console.log(student);
             const grades = await grade.find({
                 studentName: student.username ,
                 type:'exam'
             });
+            console.log(grades);
             res.status(200).json(grades);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -77,6 +81,18 @@ module.exports = {
             const grades = await grade.find({
                 studentName: req.params.id ,
                 type:'evaluation'
+            });
+            res.status(200).json(grades);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+    async getExamsstudentsGrades(req, res) {
+        try {
+         //  const student = await user.findById(req.params.id);
+            const grades = await grade.find({
+                examName: req.params.id ,
+                type:'exam'
             });
             res.status(200).json(grades);
         } catch (error) {
