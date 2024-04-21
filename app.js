@@ -18,6 +18,8 @@ const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require("./routes/courseRoutes/courseRoutes");
 const classRoutes = require("./routes/classRoutes/classRoutes.js");
 const authRoutes = require("./routes/authRoutes");
+const messageRoutes = require("./routes/messageRoutes/message.route.js");
+
 const { userVerification } = require("./middlewares/authJWT");
 // ==============================================
 
@@ -49,7 +51,7 @@ connect();
 
 // Cors
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+  res.header("Access-Control-Allow-Origin", "http://localhost:3001,http://192.168.167.23:3001");
   res.header("Access-Control-Allow-Methods", "*");
   res.header(
     "Access-Control-Allow-Headers",
@@ -60,7 +62,7 @@ app.use(function (req, res, next) {
 
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: ["http://localhost:3001", "http://192.168.167.23:3001"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -75,7 +77,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/reservations", reservationRoutes);
-
+app.use("/api/chat", messageRoutes);
 app.use("/api/exam", examRoutes);
 app.use("/api/classes", classRoutes);
 app.use(bodyParser.json());
@@ -92,6 +94,7 @@ EventEmitter.defaultMaxListeners = 20;
 //   app.listen(port, () => console.log(`Server running on port ${port}`));
 //   io.listen(5000);
 // }
+const ip = "192.168.167.23";
 app.listen(port);
 io.listen(5000);
 console.log("Magic happens on port " + port);
