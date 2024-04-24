@@ -1,6 +1,7 @@
 const Conversation = require("../../models/conversation.js");
 const Message = require("../../models/message.js");
-const { getRecipientSocketId } = require("../../socket/socket.js");
+const { getRecipientSocketId,io } = require("../../socket/socket.js");
+const cloudinary = require("cloudinary").v2;
 
 class MessageController {
   static async getMessages(req, res) {
@@ -71,10 +72,10 @@ class MessageController {
         await conversation.save();
       }
 
-      // if (img) {
-      // 	const uploadedResponse = await cloudinary.uploader.upload(img);
-      // 	img = uploadedResponse.secure_url;
-      // }
+      if (img) {
+      	const uploadedResponse = await cloudinary.uploader.upload(img);
+      	img = uploadedResponse.secure_url;
+      }
 
       const newMessage = new Message({
         conversationId: conversation._id,
@@ -93,13 +94,14 @@ class MessageController {
         }),
       ]);
 
-      // const recipientSocketId = getRecipientSocketId(recipientId);
-      // if (recipientSocketId) {
-      // 	io.to(recipientSocketId).emit("newMessage", newMessage);
-      // }
+      const recipientSocketId = getRecipientSocketId(recipientId);
+      if (recipientSocketId) {
+      	io.to(recipientSocketId).emit("newMessage", newMessage);
+      }
 
       res.status(201).json(newMessage);
     } catch (error) {
+      console.log(error)
       res.status(500).json({ error: error.message });
     }
   }
