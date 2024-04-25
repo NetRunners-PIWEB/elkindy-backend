@@ -9,7 +9,6 @@ jest.mock("../models/exam.js", () => ({
   save: jest.fn(),
   findByIdAndDelete: jest.fn(),
   findByIdAndUpdate: jest.fn(),
-
 }));
 
 

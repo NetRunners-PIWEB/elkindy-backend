@@ -1,4 +1,5 @@
 const Class = require('../../models/class');
+
 const Course = require('../../models/course');
 const Session = require('../../models/session');
 const User = require('../../models/user')
@@ -16,14 +17,7 @@ module.exports = {
         }
       },
 
-      async getAllClasses(req, res) {
-        try {
-            const classe = await classes.find();
-            res.status(200).json(classe);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+     
 
     async getClassById(req, res) {
         try {
@@ -124,7 +118,6 @@ exports.getClassesByCourseId = async (req, res) => {
 };
 
 
-
 exports.generateClassesForCourse = async (req, res) => {
     try {
         const { courseId, maxStudentsPerClass } = req.body;
@@ -138,6 +131,10 @@ exports.generateClassesForCourse = async (req, res) => {
             return res.status(200).json(existingClasses);
         }
 
+        const existingClasses = await Class.find({ courseId: courseId });
+        if (existingClasses.length > 0) {
+            return res.status(200).json(existingClasses);
+        }
         // Determine the number of classes needed, at least 1
         const numberOfClasses = Math.max(1, Math.ceil(course.students.length / maxStudentsPerClass));
         let classesCreated = [];
@@ -160,6 +157,9 @@ exports.generateClassesForCourse = async (req, res) => {
     }
 };
 
+
+//updatedClass = await Class.findByIdAndUpdate(classId, { $set: { teacher: teacherIds } }, { new: true }).populate('teacher');
+
 exports.updateClassSchedule = async (req, res) => {
     const { classId, start, end, teacherId } = req.body;
     try {
@@ -172,6 +172,7 @@ exports.updateClassSchedule = async (req, res) => {
             },
             { new: true }
         );
+
         if (!updatedClass) {
             return res.status(404).json({ message: 'Class not found' });
         }
@@ -384,6 +385,73 @@ exports.getClassesForTeacher = async (req, res) => {
     }
 };
 
+
+exports.getClasses = async (req, res) => {
+    try {
+        const classe = await Class.find();
+        res.status(200).json(classe);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.getStudentsAndClass = async (req, res) => {
+    try {
+        // Rechercher les classes où l'enseignant est référencé
+        const classrooms = await Class.find({ teacher: req.params.teacherId }).populate('students');
+
+        if (!classrooms || classrooms.length === 0) {
+            return res.status(404).json({ message: "Aucune classe trouvée pour cet enseignant." });
+        }
+
+        const studentsWithClasses = {};
+
+        // Parcourir chaque classe
+        for (const classroom of classrooms) {
+            const className = classroom.name;
+            // Parcourir chaque étudiant de la classe
+            for (const student of classroom.students) {
+                const { username } = student;
+                // Vérifier si l'étudiant existe déjà dans studentsWithClasses
+                if (!studentsWithClasses[username]) {
+                    // S'il n'existe pas, initialiser un tableau vide pour stocker les classes
+                    studentsWithClasses[username] = [className];
+                } else {
+                    // S'il existe, ajouter la classe à son tableau de classes
+                    studentsWithClasses[username].push(className);
+                }
+            }
+        }
+
+        // Convertir l'objet studentsWithClasses en tableau d'objets
+        const studentsWithClassesArray = Object.entries(studentsWithClasses).map(([username, classes]) => ({
+            username,
+            classes: classes.join(', ')
+        }));
+
+        return res.status(200).json({ studentsWithClasses: studentsWithClassesArray });
+    } catch (error) {
+        console.error("Error retrieving students and class name by teacher ID:", error);
+        return res.status(500).json({ message: "Erreur lors de la récupération des étudiants et du nom de la classe par l'ID de l'enseignant." });
+    }
+};
+
+exports.getStudentsByClass = async (req, res) => {
+    try {
+        
+        const classe = await Class.findOne({ name: req.params.name }).populate('students');
+         if (!classe) {
+            return res.status(404).json({ message: "Classe non trouvée" });
+        }
+
+        const students = classe.students.map(student => student.username);
+
+        res.status(200).json({ students });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.getClassStats = async (req, res) => {
     try {
         const classId = req.params.classId;
@@ -476,3 +544,35 @@ function combineDateAndTime(date, time) {
 }
 
 
+exports.getStudentAttendance = async (req, res) => {
+    const { studentId } = req.params;
+
+    try {
+        const sessions = await Session.find({
+            'attendance.student': studentId
+        }).populate({
+            path: 'classId',
+            populate: {
+                path: 'courseId',
+                model: 'Course'
+            }
+        }).populate('attendance.student', 'username')
+
+        const attendanceRecords = sessions.map(session => {
+            const attendance = session.attendance.find(att => att.student._id.toString() === studentId);
+            return {
+                date: session.date,
+                startTime: session.startTime,
+                endTime: session.endTime,
+                class: session.classId.name,
+                course: session.classId.courseId.title,
+                status: attendance ? attendance.status : '-',
+            };
+        });
+
+        res.json({ studentId, attendanceRecords });
+    } catch (error) {
+        console.error('Error fetching attendance data:', error);
+        res.status(500).json({ message: 'Failed to fetch attendance data', error: error.message });
+    }
+};

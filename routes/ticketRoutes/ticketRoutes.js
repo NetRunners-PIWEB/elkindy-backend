@@ -9,5 +9,7 @@ router.get('/', ticketController.listTickets);
 router.get('/:id', ticketController.getTicketById);
 router.put('/updateTicket/:id', ticketController.updateTicket);
 router.delete('/deleteTicket/:id', ticketController.deleteTicket);
+router.get('/event/:eventId', ticketController.listTicketsByEventId);
+
 
 module.exports = router;

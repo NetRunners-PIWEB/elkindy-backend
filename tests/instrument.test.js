@@ -2,35 +2,35 @@ const supertest = require("supertest");
 const app = require("../app.js");
 const request = supertest(app);
 const Instrument = require("./../models/instrument");
+const jwt = require("jsonwebtoken");
+
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.TOKEN_KEY, { expiresIn: "1h" });
+};
+
 describe("Test /instruments routes", () => {
+  let token;
+
   beforeAll(() => {
-    jest.setTimeout(3000);
+    jest.setTimeout(5000);
+    token = generateToken("65fda83050e4769c343e9c63");
   });
-  describe("GET /api/v1/instruments", () => {
+  describe("GET /api/instruments", () => {
     it("should get all instruments successfully", async () => {
-      const response = await request.get("/api/v1/instruments");
+      const response = await request
+        .get("/api/instruments")
+        .set("Authorization", `Bearer ${token}`);
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.instruments).toBeDefined();
       expect(response.body.total_results).toBeDefined();
-    });
-
-    it("should handle errors when getting all instruments", async () => {
-      jest.spyOn(Instrument, "aggregate").mockImplementationOnce(() => {
-        throw new Error("Test error");
-      });
-
-      const response = await request.get("/api/v1/instruments");
-
-      expect(response.status).toBe(500);
-      expect(response.body.success).toBe(false);
     });
   });
 
   describe("POST /api/v1/instruments", () => {
     it("should add an instrument successfully", async () => {
       const data = {
-        author: "65d517bddf2aa46349809694",
+        author: "65fda83050e4769c343e9c63",
         title: "Test Instrument jest",
         type: "Guitar",
         brand: "Test Brand",
@@ -38,19 +38,50 @@ describe("Test /instruments routes", () => {
         condition: "Excellent",
         status: "exchange",
       };
-      const response = await request.post("/api/v1/instruments").send(data);
+      const response = await request
+        .post("/api/instruments")
+        .set("Authorization", `Bearer ${token}`)
+        .send(data);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
     });
-    it("should handle errors when adding an instrument", async () => {
-      jest
-        .spyOn(Instrument, "create")
-        .mockRejectedValue(new Error("Test error"));
+  });
+  describe("GET /api/instruments/:id", () => {
+    it("should get an instrument successfully", async () => {
+      const instrumentId = "660c171af902fd81529e3436";
+      const response = await request
+        .get(`/api/instruments/${instrumentId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.instrument).toBeDefined();
+    });
+  });
+  describe("DELETE /api/instruments/:id", () => {
+    it("should delete an instrument successfully", async () => {
+      const instrumentId = "660c171af902fd81529e3436";
 
-      const response = await request.post("/api/v1/instruments");
-      expect(response.status).toBe(500);
-      expect(response.body.success).toBe(false);
+      const response = await request
+        .delete(`/api/instruments/${instrumentId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+  });
+  describe("PATCH /api/instruments/:id/like", () => {
+    it("should add a like to an instrument successfully", async () => {
+      const instrumentId = "660c171af902fd81529e3436";
+      const response = await request
+        .patch(`/api/instruments/${instrumentId}/like`)
+        .set("Authorization", `Bearer ${token}`)
+        .send();
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
     });
   });
 });

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ages = ["3-5", "4-5", "4-6", "5-7", "7-9", "9-12", "adult"];
 const instrumentSchema = new mongoose.Schema(
   {
     author: {
@@ -39,6 +40,17 @@ const instrumentSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["exchange", "maintenance", "available for borrow", "sell"],
+    },
+    itemStatus: {
+      type: String,
+      required: true,
+      enum: ["active", "deleted", "traded"],
+      default: "active",
+    },
+    age: {
+      type: String,
+      required: true,
+      enum: ages,
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     likeScore: {
