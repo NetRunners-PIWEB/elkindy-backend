@@ -133,6 +133,10 @@ exports.generateClassesForCourse = async (req, res) => {
         if (!course) {
             return res.status(404).json({ message: 'Course not found' });
         }
+        const existingClasses = await Class.find({ courseId: courseId });
+        if (existingClasses.length > 0) {
+            return res.status(200).json(existingClasses);
+        }
 
         // Determine the number of classes needed, at least 1
         const numberOfClasses = Math.max(1, Math.ceil(course.students.length / maxStudentsPerClass));
