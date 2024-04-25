@@ -19,6 +19,7 @@ const courseRoutes = require("./routes/courseRoutes/courseRoutes");
 const classRoutes = require("./routes/classRoutes/classRoutes.js");
 const authRoutes = require("./routes/authRoutes");
 const { userVerification } = require("./middlewares/authJWT");
+
 // ==============================================
 
 connect();
