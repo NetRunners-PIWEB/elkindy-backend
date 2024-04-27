@@ -35,7 +35,7 @@ class MessageController {
         participants: userId,
       }).populate({
         path: "participants",
-        select: "username",
+        select: "username image",
       });
       conversations.forEach((conversation) => {
         conversation.participants = conversation.participants.filter(
@@ -73,6 +73,7 @@ class MessageController {
       }
 
       if (img) {
+        console.log(img)
       	const uploadedResponse = await cloudinary.uploader.upload(img);
       	img = uploadedResponse.secure_url;
       }

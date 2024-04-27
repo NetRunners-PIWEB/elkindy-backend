@@ -8,6 +8,7 @@ const swaggerDoc = require("./docs/swaggerDoc");
 const { port, env } = require("./config/vars");
 const cors = require("cors");
 const cloudinary = require("cloudinary").v2;
+const job = require("./cron/cron.js");
 
 app.use(bodyParser.json());
 
@@ -24,7 +25,7 @@ const { userVerification } = require("./middlewares/authJWT");
 // ==============================================
 
 connect();
-
+// job.start();
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -51,7 +52,10 @@ connect();
 
 // Cors
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3001,http://192.168.167.23:3001");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "http://localhost:3001,http://192.168.167.23:3001"
+  );
   res.header("Access-Control-Allow-Methods", "*");
   res.header(
     "Access-Control-Allow-Headers",
