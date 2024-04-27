@@ -9,6 +9,8 @@ const {
 } = require("../../middlewares/passwordReset.js");
 const asyncHandler = require("../../middlewares/asyncHandler");
 const User = require("../../models/user");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 class AuthController {
   loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
@@ -56,6 +58,57 @@ class AuthController {
       });
     }
   });
+
+  async  googleLogin(req, res) {
+    const  token  =req.body;  // Google ID token passed from the frontend
+    console.log("Received token:", req.body.token);
+    try {
+        // Verify the ID token and get the user's info from it.
+        const ticket = await client.verifyIdToken({
+            idToken: token.credential,
+            audience: process.env.GOOGLE_CLIENT_ID,  // This should be your app's client ID from Google.
+        });
+
+        const { email,picture } = ticket.getPayload();
+
+        // Find user by email returned from Google
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        else {
+          // If the user exists but doesn't have an image, update their record
+          if (!user.image) {
+              user.image = picture;
+              await user.save();
+          }
+        }
+     
+        // Generate a JWT for the user
+      
+        const { firstName, lastName, _id, mobile, role } = user;
+        // Return the token and user data
+        res.status(200).json({
+          message: "User logged in successfully",
+          success: true,
+          user: {
+            _id,
+            firstName,
+            lastName,
+            email,
+            mobile,
+            role,
+            token: generateToken(_id),
+          },
+        });
+    } catch (error) {
+        console.error('Error during Google login:', error);
+        res.status(500).json({
+            message: "Authentication with Google failed",
+            error: error.toString()
+        });
+    }
+}
 
   logout = asyncHandler(async (req, res) => {
     const cookie = req.refreshToken;
