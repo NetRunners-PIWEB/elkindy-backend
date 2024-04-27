@@ -45,43 +45,6 @@ module.exports = {
 
 
 
-      async deleteGrade(req, res) {
-        try {
-            const deletedGrade = await grade.findByIdAndDelete(req.params.id);
-            if (!deletedGrade) {
-                return res.status(404).json({ message: 'Exam not found' });
-            }
-            res.status(200).json({ message: 'Exam deleted successfully' });
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
-
-
-     
-
-      async getGrades(req, res) {
-        try {
-            const grades = await grade.find();
-            res.status(200).json(grades);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
-
-
-      async createGrade(req, res) {
-        try {
-          const gradeData = req.body;
-          console.log(req.body);
-          const newGrade = new grade(gradeData);
-          await newGrade.save();
-          res.status(201).json(newGrade);
-        } catch (error) {
-          res.status(500).json({ message: error.message });
-        }
-
-      },
 
       async getTypeExams(req, res) {
         try {
@@ -134,7 +97,7 @@ module.exports = {
 
 
   
-        // Function to send the password reset email
+       
         async sendEmail(req, res) {
             const ejsFilePath = path.resolve(__dirname, 'emploitemplate.ejs');
             console.log(ejsFilePath);
@@ -186,6 +149,7 @@ module.exports = {
             });
           
             try {
+              console.log( process.env.EMAIL_USER);
               ejs.renderFile(ejsFilePath, { exams: exams, groupedExams: groupedExams }, (err, data) => {
                 if (err) {
                   console.log(err);
@@ -202,19 +166,21 @@ module.exports = {
                       res.send(err);
                     } else {
                       const transporter = nodemailer.createTransport({
-                        service: 'Gmail',
+                        service: 'gmail',
                         auth: {
-                          user: 'farah.metoui@esprit.tn', // Your Gmail email address
-                          pass: '201JFT2629' ,// Your Gmail password
+                          user:  process.env.EMAIL_USER, // Your Gmail email address
+                          pass:  process.env.EMAIL_PASS,// Your Gmail password
                           // secure: true,
                           //  type: "OAuth2",
                           
-                        }
+                        },tls: {
+                          rejectUnauthorized: false,
+                        },
                       });
           
                       // Email message options
                       const mailOptions = {
-                        from: 'farah.metoui@esprit.tn',
+                        from:  process.env.EMAIL_USER,
                         to: studentEmails.join(','),
                         subject: 'TimeTable Exams',
                         text: 'Your can check here your TimeTable',
@@ -260,7 +226,7 @@ module.exports = {
             }
         },
           
-    
+        
 
 
           
