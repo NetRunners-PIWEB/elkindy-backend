@@ -95,8 +95,8 @@ EventEmitter.defaultMaxListeners = 20;
 //   io.listen(5000);
 // }
 const ip = "192.168.167.23";
-app.listen(port);
-io.listen(5000);
+server.listen(port);
+io.listen(server);
 console.log("Magic happens on port " + port);
 
 module.exports = app;
