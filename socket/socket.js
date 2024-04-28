@@ -120,7 +120,9 @@ const notifyUsers = async (instrument) => {
 };
 const getRecipientSocketId = (recipientId) => {
   const user = getUser(recipientId);
-  return (receiverSocketId = user.socketId);
+  if (user) {
+    return (receiverSocketId = user.socketId);
+  }
 };
 
 module.exports = { io, server, app, notifyUsers, getRecipientSocketId };

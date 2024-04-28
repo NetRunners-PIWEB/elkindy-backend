@@ -1,6 +1,8 @@
 const Conversation = require("../../models/conversation.js");
 const Message = require("../../models/message.js");
-const { getRecipientSocketId,io } = require("../../socket/socket.js");
+const User = require("../../models/user.js");
+const Course = require("../../models/course.js");
+const { getRecipientSocketId, io } = require("../../socket/socket.js");
 const cloudinary = require("cloudinary").v2;
 
 class MessageController {
@@ -28,7 +30,6 @@ class MessageController {
 
   static async getConversations(req, res) {
     const userId = req.user._id;
-    console.log(userId)
     try {
       console.log(userId);
       const conversations = await Conversation.find({
@@ -54,9 +55,6 @@ class MessageController {
       const { recipientId, message } = req.body;
       let { img } = req.body;
       const senderId = req.user._id;
-      console.log(senderId);
-      console.log(recipientId);
-
       let conversation = await Conversation.findOne({
         participants: { $all: [senderId, recipientId] },
       });
@@ -73,9 +71,8 @@ class MessageController {
       }
 
       if (img) {
-        console.log(img)
-      	const uploadedResponse = await cloudinary.uploader.upload(img);
-      	img = uploadedResponse.secure_url;
+        const uploadedResponse = await cloudinary.uploader.upload(img);
+        img = uploadedResponse.secure_url;
       }
 
       const newMessage = new Message({
@@ -97,12 +94,31 @@ class MessageController {
 
       const recipientSocketId = getRecipientSocketId(recipientId);
       if (recipientSocketId) {
-      	io.to(recipientSocketId).emit("newMessage", newMessage);
+        io.to(recipientSocketId).emit("newMessage", newMessage);
       }
 
       res.status(201).json(newMessage);
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  static async getUsersBasedOnRole(req, res) {
+    try {
+      const requesterId = req.user._id;
+      const requester = await User.findById(requesterId);
+      const requesterRole = requester.role;
+
+      switch (requesterRole) {
+        case "teacher":
+          const admins = await User.find({ role: "admin" });
+          return res.status(200).json(admins);
+        default:
+          res.status(400).json("Invalid requester role");
+      }
+    } catch (error) {
+      console.error("Error:", error);
       res.status(500).json({ error: error.message });
     }
   }
