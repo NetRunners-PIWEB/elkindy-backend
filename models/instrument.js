@@ -4,7 +4,7 @@ const instrumentSchema = new mongoose.Schema(
   {
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Users",
       required: true,
     },
 
@@ -39,7 +39,7 @@ const instrumentSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["exchange", "maintenance", "available for borrow", "sell"],
+      enum: ["exchange", "maintenance", "available for borrow", "sell",''],
     },
     itemStatus: {
       type: String,
