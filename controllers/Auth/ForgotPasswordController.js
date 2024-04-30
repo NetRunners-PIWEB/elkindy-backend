@@ -41,7 +41,7 @@ const forgotPassword = async (req, res) => {
         html: `
         <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
         <div style="background-color: white; padding: 20px; text-align: center; border-radius: 10px;">
-            <h1 style="color: #333;">Reset Your Password</h1>
+            <h1 style="color: #333;">Reset Your Password !</h1>
             <p style="color: #555; font-size: 16px;">You have requested to reset your password. Click the button below to proceed.</p>
             <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; margin: 20px 0; text-decoration: none; display: inline-block; border-top-left-radius: 15px; border-bottom-right-radius: 15px;">Reset Password</a>
             <p style="color: #777; font-size: 14px;">If you did not request this, please ignore this email.</p>
