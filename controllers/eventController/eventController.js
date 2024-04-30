@@ -11,13 +11,29 @@ module.exports = {
     try {
       console.log("Received file:", req.file);
       const eventData = req.body;
-      const newEvent = new Event(eventData);
+    // Assuming participant IDs are passed as an array of strings in the request body
+      const participantIds = req.body.participants || [];
+
+     
+    const newEvent = new Event({
+      ...eventData,
+      participants: participantIds, // Add participant IDs directly to the new event
+    });
 
       if (req.file) {
         const result = await cloudinary.uploader.upload(req.file.path);
         newEvent.image = result.secure_url;
       }
+      
+ // Optionally, validate participant IDs against the database
+ const validParticipants = await User.find({
+  '_id': { $in: participantIds },
+  'status': 'active' // Ensuring only active users are added
+});
 
+if (validParticipants.length !== participantIds.length) {
+  return res.status(400).json({ message: "Some participants are invalid or inactive." });
+}
       await newEvent.save();
       // Retrieve only active users
       const activeUsers = await User.find({ status: "active" });
