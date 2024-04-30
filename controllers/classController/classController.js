@@ -449,6 +449,18 @@ exports.getStudentsByClass = async (req, res) => {
     }
 };
 
+exports.getClassesByTeacher = async (req, res) => {
+    try {
+        const teacher2 = await User.findById(req.params.id);
+        const uniqueClassNames = await Class.distinct('name', { teacher: { $in: [teacher2] } });
+        const uniqueClasses = uniqueClassNames.map(name => ({ name }));
+        res.status(200).json(uniqueClasses);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
 exports.getClassStats = async (req, res) => {
     try {
         const classId = req.params.classId;

@@ -95,5 +95,6 @@ EventEmitter.defaultMaxListeners = 20;
 app.listen(port);
 io.listen(5000);
 console.log("Magic happens on port " + port);
-
+//variable global pour socket partout
+global.io=io;
 module.exports = app;
