@@ -4,6 +4,7 @@ const User = require("../../models/user.js");
 const Course = require("../../models/course.js");
 const { getRecipientSocketId, io } = require("../../socket/socket.js");
 const cloudinary = require("cloudinary").v2;
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 class MessageController {
   static async getMessages(req, res) {
@@ -120,6 +121,23 @@ class MessageController {
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ error: error.message });
+    }
+  }
+  static async startQuizAndGenerateQuestions(req, res) {
+    try {
+      const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const topic = req.query.topic;
+      const prompt = `Generate quiz of 5 questions with choices and answers for the topic in json form: ${topic}`;
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      const jsonString = text.replace(/```json\n|```|\\n/g, '')
+      const reply = JSON.parse(jsonString);
+      res.status(200).json({ reply });
+    } catch (error) {
+      console.error("Error generating content:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 }

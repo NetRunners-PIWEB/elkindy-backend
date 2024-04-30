@@ -94,6 +94,66 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("start-playing", (receiverId) => {
+    console.log("emit notif")
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("start-playing");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
+
+  socket.on("queue", (receiverId) => {
+    console.log("emit notif")
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("queue");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
+
+  socket.on("accept-invite", (receiverId) => {
+    console.log("emit notif")
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("accept-invite");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
+
+  socket.on("decline-invite", (receiverId) => {
+    console.log("emit notif")
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("decline-invite");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
+
   socket.on("disconnect", () => {
     removeUser(socket.id);
     const userIds = users.map((user) => user.userId);
