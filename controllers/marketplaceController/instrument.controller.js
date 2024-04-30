@@ -1,6 +1,6 @@
 const Instrument = require("../../models/instrument.js");
 const UserSearch = require("../../models/userSearch.js");
-
+const { notifyUsers } = require("../../socket/socket.js");
 const {
   allInstrumentsPipeline,
   instrumentPipeline,
@@ -47,7 +47,7 @@ class InstrumentController {
         const uploadedResponse = await cloudinary.uploader.upload(img);
         img = uploadedResponse.secure_url;
       }
-      console.log(req.body)
+      console.log(req.body);
       const instrument = new Instrument({
         author,
         title,
@@ -62,7 +62,7 @@ class InstrumentController {
         age,
       });
       await instrument.save();
-
+      await notifyUsers(instrument);
       res.status(201).json({
         success: true,
       });
