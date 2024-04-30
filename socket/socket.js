@@ -95,7 +95,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("start-playing", (receiverId) => {
-    console.log("emit notif")
     const user = getUser(receiverId);
     if (user) {
       const receiverSocketId = user.socketId;
@@ -110,7 +109,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("queue", (receiverId) => {
-    console.log("emit notif")
     const user = getUser(receiverId);
     if (user) {
       const receiverSocketId = user.socketId;
@@ -125,7 +123,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("accept-invite", (receiverId) => {
-    console.log("emit notif")
     const user = getUser(receiverId);
     if (user) {
       const receiverSocketId = user.socketId;
@@ -140,7 +137,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("decline-invite", (receiverId) => {
-    console.log("emit notif")
     const user = getUser(receiverId);
     if (user) {
       const receiverSocketId = user.socketId;
