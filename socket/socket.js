@@ -2,8 +2,8 @@ const express = require("express");
 const http = require("http");
 const app = express();
 const server = http.createServer(app);
+const UserSearch = require("../models/userSearch");
 const { createObs } = require('../controllers/examController/observationController');
-
 
 
 app.use(express.json({ limit: "50mb" }));
@@ -18,9 +18,9 @@ const getUser = (userId) => {
   return users.find((user) => user.userId === userId);
 };
 const removeUser = (socketId) => {
-  console.log(users)
+ 
   users = users.filter((user) => user.socketId != socketId);
-  console.log(users)
+ 
 };
 
 global.users = users;
@@ -28,65 +28,110 @@ global.users = users;
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
   console.log("connecteedd")
-  if (userId != "undefined") {
-    !users.some((user) => user.userId === userId) &&
+  if (userId !== undefined) {
+    const existingUser = users.find((user) => user.userId === userId);
+    if (!existingUser) {
       users.push({ userId: userId, socketId: socket.id });
+    } else {
+      existingUser.socketId = socket.id;
+    }
   }
+  const userIds = users.map((user) => user.userId);
+  io.emit("getOnlineUsers", userIds);
+
   socket.on(
     "sendNotification",
     ({ senderId, receiverId, instrument, message }) => {
       const user = getUser(receiverId);
-      console.log(user);
-      const receiverSocketId = user.socketId;
-      if (receiverSocketId) {
-        
-        io.to(receiverSocketId).emit("getNotification", {
-          senderId,
-          instrument,
-          message,
-        });
-        console.log("emit notification", message);
+      if (user) {
+        const receiverSocketId = user.socketId;
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("getNotification", {
+            senderId,
+            instrument,
+            message,
+          });
+          console.log("emit notification", message);
+        } else {
+          console.log("Receiver socket not found.");
+        }
       } else {
-        console.log("Receiver socket not found.");
+        console.log("user not found.");
       }
     }
   );
   socket.on("sendTradeStatus", ({ receiverId, status }) => {
     const user = getUser(receiverId);
-    const receiverSocketId = user.socketId;
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("getTradeStatus", { status });
-      console.log("Sent trade status:", status);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("getTradeStatus", { status });
+        console.log("Sent trade status:", status);
+      } else {
+        console.log("Receiver socket not found.");
+      }
     } else {
-      console.log("Receiver socket not found.");
+      console.log("user not found.");
     }
   });
-  
-  // Lorsque vous ajoutez une nouvelle observation
+  socket.on("user-typing", (receiverId) => {
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("user-typing");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
 
+  socket.on("stop-typing", (receiverId) => {
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("stop-typing");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("disconnected");
     removeUser(socket.id);
+    const userIds = users.map((user) => user.userId);
+    io.emit("getOnlineUsers", userIds);
   });
 });
-/*
-io.on('addObservation', async (observation) => {
+
+const notifyUsers = async (instrument) => {
+  const { status, age } = instrument;
   try {
-    // Exécuter createObs de manière asynchrone
-    const result = await createObs(observation);
-    
-    // Envoie une notification à l'étudiant concerné
-    const studentSocket = io.sockets.sockets.get(observation.student);
-    if (studentSocket) {
-      studentSocket.emit('newObservation', result.description);
-    }
+    const matchingUsers = await UserSearch.find({
+      $or: [{ status: { $exists: false } }, { status }],
+      $or: [{ age: { $exists: false } }, { age }],
+    });
+    matchingUsers.forEach((user) => {
+      const socketId = getUser(user.userId)?.socketId;
+      if (socketId) {
+        io.to(socketId).emit("newInstrumentNotification", { instrument });
+      }
+    });
   } catch (error) {
-    console.error('Erreur lors de la création de l\'observation :', error);
+    console.error("Error notifying users:", error);
   }
-});*/
+};
+const getRecipientSocketId = (recipientId) => {
+  const user = getUser(recipientId);
+  if (user) {
+    return (receiverSocketId = user.socketId);
+  }
+};
 
-
-
-
-module.exports = { io, server, app,getUser };
+module.exports = { io, server, app, notifyUsers, getRecipientSocketId };

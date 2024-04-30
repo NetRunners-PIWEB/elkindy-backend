@@ -118,7 +118,6 @@ exports.getClassesByCourseId = async (req, res) => {
 };
 
 
-
 exports.generateClassesForCourse = async (req, res) => {
     try {
         const { courseId, maxStudentsPerClass } = req.body;
