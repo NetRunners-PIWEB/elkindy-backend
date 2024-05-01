@@ -32,7 +32,6 @@ class MessageController {
   static async getConversations(req, res) {
     const userId = req.user._id;
     try {
-      console.log(userId);
       const conversations = await Conversation.find({
         participants: userId,
       }).populate({
@@ -54,7 +53,8 @@ class MessageController {
   static async sendMessage(req, res) {
     try {
       const { recipientId, message } = req.body;
-      let { img } = req.body;
+      let { img, video } = req.body;
+      console.log(video)
       const senderId = req.user._id;
       let conversation = await Conversation.findOne({
         participants: { $all: [senderId, recipientId] },
@@ -75,12 +75,19 @@ class MessageController {
         const uploadedResponse = await cloudinary.uploader.upload(img);
         img = uploadedResponse.secure_url;
       }
+      if (video) {
+        const uploadedVideo = await cloudinary.uploader.upload(video, {
+          resource_type: "video",
+        });
+        video = uploadedVideo.secure_url;
+      }
 
       const newMessage = new Message({
         conversationId: conversation._id,
         sender: senderId,
         text: message,
         img: img || "",
+        video: video || "",
       });
 
       await Promise.all([
@@ -113,8 +120,17 @@ class MessageController {
 
       switch (requesterRole) {
         case "teacher":
-          const admins = await User.find({ role: "admin" });
-          return res.status(200).json(admins);
+          const adminsAsTeacher = await User.find({
+            role: "admin",
+            _id: { $ne: requesterId },
+          });
+          return res.status(200).json(adminsAsTeacher);
+        case "admin":
+          const adminsAsAdmin = await User.find({
+            role: "admin",
+            _id: { $ne: requesterId },
+          });
+          return res.status(200).json(adminsAsAdmin);
         default:
           res.status(400).json("Invalid requester role");
       }
@@ -132,7 +148,7 @@ class MessageController {
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      const jsonString = text.replace(/```json\n|```|\\n/g, '')
+      const jsonString = text.replace(/```json\n|```|\\n/g, "");
       const reply = JSON.parse(jsonString);
       res.status(200).json({ reply });
     } catch (error) {

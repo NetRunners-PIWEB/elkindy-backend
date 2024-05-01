@@ -8,6 +8,7 @@ const {
 const { formatSort } = require("../../utils/formatQueries.js");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
+const axios = require("axios");
 
 class InstrumentController {
   static async getAllInstruments(req, res, next) {
@@ -236,5 +237,20 @@ class InstrumentController {
       next(err);
     }
   }
+  static async callFlaskAPI(req, res) {
+    try {
+      const inputData = req.body;
+      const response = await axios.post(
+        "http://localhost:5000/predict",
+        inputData
+      );
+      console.log(response.data);
+      res.json({ prediction: response.data.prediction });
+    } catch (error) {
+      console.error("Error calling Flask API:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
 }
+
 module.exports = InstrumentController;

@@ -3,6 +3,9 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 const UserSearch = require("../models/userSearch");
+const User = require("../models/user.js");
+const nodemailer = require("nodemailer");
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 const io = require("socket.io")(server, {
@@ -164,12 +167,44 @@ const notifyUsers = async (instrument) => {
       $or: [{ status: { $exists: false } }, { status }],
       $or: [{ age: { $exists: false } }, { age }],
     });
-    matchingUsers.forEach((user) => {
+    matchingUsers.forEach(async (user) => {
+      const userToNotify = await User.findById(user.userId);
       const socketId = getUser(user.userId)?.socketId;
       if (socketId) {
         io.to(socketId).emit("newInstrumentNotification", { instrument });
       }
+      const userEmail = userToNotify.email;
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: userEmail,
+        subject: "Instrument Availability Notification",
+        html: `
+          <div style="font-family: Arial, sans-serif; color: #333; padding: 20px; text-align: center;">
+            <h2 style="color: #0056b3;">Instrument Availability Notification</h2>
+            <p>The instrument matching your preferences (${status}, ${age}) is now available in the store.</p>
+            <p>Thank you for using our service!</p>
+          </div>
+        `,
+      };
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.error("Error sending email:", error);
+        } else {
+          console.log("Email sent:", info.response);
+        }
+      });
     });
+    const emailList = matchingUsers.map((user) => user.email).join(", ");
   } catch (error) {
     console.error("Error notifying users:", error);
   }
