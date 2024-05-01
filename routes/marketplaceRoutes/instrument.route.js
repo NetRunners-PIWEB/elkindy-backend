@@ -26,6 +26,8 @@ router
 router
   .route("/user/usersearches")
   .get(authenticate(), InstrumentController.getUserSearches);
+
+router.route("/predict").post(InstrumentController.callFlaskAPI) ;
 router.delete("/user/usersearches/:id", InstrumentController.deleteUserSearch);
 
 router.delete("/:id", InstrumentController.deleteInstrument);
