@@ -583,7 +583,7 @@ exports.calculateAttendanceRate = async (req, res) => {
         sessions.forEach(session => {
             session.attendance.forEach(record => {
                 if (!attendanceData[record.student._id]) {
-                    
+
                     attendanceData[record.student._id] = { present: 0, total: 0 };
                 }
                 attendanceData[record.student._id].total += 1;

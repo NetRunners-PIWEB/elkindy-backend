@@ -6,6 +6,7 @@ const RegisterController = require("../../controllers/Auth/register");
 const { forgotPassword, resetPassword } = require('../../controllers/Auth/ForgotPasswordController');
 
 
+
 //login routes 
 
 router.post("/login", AuthController.loginUser);

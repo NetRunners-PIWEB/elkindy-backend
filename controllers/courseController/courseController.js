@@ -2,6 +2,7 @@ const Course = require('../../models/course');
 const User = require('../../models/user');
 const cloudinary = require('../../cloudinaryConfig');
 
+
 exports.createCourse = async (req, res) => {
     console.log(req.body);
     try {
@@ -273,4 +274,83 @@ exports.uploadImageToCourse = async (req, res) => {
         res.status(500).json({ message: 'Failed to upload image', error: error.message });
     }
 };
+
+const fetch = require('node-fetch');
+
+exports.fetchInstrumentData = async (req, res) => {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    const targetUrl = 'https://www.musiciansfriend.com/';
+
+    try {
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(targetUrl)}`, {
+            method: 'GET'
+        });
+        if (!response.ok) throw new Error('Failed to fetch data from ScrapingBee');
+
+        const html = await response.text();
+        const data = parseInstrumentData(html);
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching instrument data:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+function parseInstrumentData(html) {
+    // Example parsing logic (you'll need to adjust this based on the actual HTML structure)
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(html);
+    const instruments = [];
+
+    $('.instrument').each(function() {
+        const name = $(this).find('.name').text().trim();
+        const popularity = parseInt($(this).find('.popularity').text(), 10);
+        instruments.push({ name, popularity });
+    });
+    console.log(html);
+    return instruments;
+}
+const cheerio = require('cheerio');
+
+
+exports.scrapeData = async (req, res) => {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    const url = 'https://www.musiciansfriend.com/hot-and-trending#N=3020615&pageName=collection-page&Nao=0&recsPerPage=90&Ns=bS';
+    const searchTerm = req.query.searchTerm || "guitar";
+
+    try {
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render_js=true`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const body = await response.text();
+        const $ = cheerio.load(body);
+        let products = [];
+        $('.product-card').each((index, element) => {
+            const name = $(element).find('.product-card-title a').text().trim();
+            const price = $(element).find('.product-card-price .sale-price').first().text().trim().replace('$', '');
+
+            if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                const numericPrice = parseFloat(price.replace(/[,]/g, ''));  // Convert price to float, handling commas
+                if (!isNaN(numericPrice)) {  // Ensure number
+                    products.push({ name, price: numericPrice });
+                }
+            }
+        });
+
+        if (products.length === 0) {
+            return res.status(404).json({ message: "No products found for the given search term." });
+        }
+
+        // Calculate average price of filtered products
+        const total = products.reduce((acc, product) => acc + product.price, 0);
+        const averagePrice = total / products.length;
+
+        res.json({ products, averagePrice });
+    } catch (error) {
+        console.error('Error scraping data:', error);
+        res.status(500).json({ message: 'Failed to scrape data', error: error.toString() });
+    }
+};
+
+
 

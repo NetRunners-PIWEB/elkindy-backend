@@ -84,7 +84,7 @@ const userSchema = new Schema({
   students: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student'
-  }]
+  }],
 });
 
 
