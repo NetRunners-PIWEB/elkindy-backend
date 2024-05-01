@@ -353,4 +353,35 @@ exports.scrapeData = async (req, res) => {
 };
 
 
+exports.getInstrumentPopularity = async (req, res) => {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    const url = 'https://www.musiciansfriend.com/hot-and-trending';
+    const instruments = req.body.instruments || [];
+
+    try {
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render_js=true`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const body = await response.text();
+        const $ = cheerio.load(body);
+        let popularityData = instruments.reduce((acc, instrument) => ({ ...acc, [instrument]: 0 }), {});
+
+        $('.product-card').each((_, element) => {
+            const title = $(element).find('.product-card-title a').text().toLowerCase();
+            instruments.forEach(instrument => {
+                if (title.includes(instrument.toLowerCase())) {
+                    popularityData[instrument]++;
+                }
+            });
+        });
+
+        res.json(popularityData);
+    } catch (error) {
+        console.error('Error scraping data:', error);
+        res.status(500).json({ message: 'Failed to scrape data', error: error.toString() });
+    }
+};
+
+
+
 

@@ -56,6 +56,7 @@ router.post('/notes', async (req, res) => {
 });
 
 router.get('/instruments', courseController.scrapeData);
+router.get('/instruments/popularity', courseController.getInstrumentPopularity);
 
 
 router.get('/popular', courseController.getTopThreeCourses);
