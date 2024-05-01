@@ -355,8 +355,8 @@ exports.scrapeData = async (req, res) => {
 
 exports.getInstrumentPopularity = async (req, res) => {
     const apiKey = process.env.SCRAPINGBEE_API_KEY;
-    const url = 'https://www.musiciansfriend.com/hot-and-trending';
-    const instruments = req.body.instruments || [];
+    const url = 'https://www.musiciansfriend.com/hot-and-trending#N=3020615&pageName=collection-page&Nao=0&recsPerPage=90&Ns=bS';
+    const instruments = req.body.instruments || ['Guitar', 'Electric', 'Tone King'];
 
     try {
         const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render_js=true`);
@@ -382,6 +382,59 @@ exports.getInstrumentPopularity = async (req, res) => {
     }
 };
 
+exports.fetchAndCountWords = async () => {
+    try {
+        const url = 'https://www.musiciansfriend.com/hot-and-trending#N=3020615&pageName=collection-page&Nao=0&recsPerPage=90&Ns=bS';
+        const response = await fetch(url);
+        const body = await response.text();
+        const wordCount = extractAndCountWords(body);
+        return wordCount;
+    } catch (error) {
+        console.error("Error fetching page: ", error);
+        return null;
+    }
+}
 
 
+exports.fetchAndCountWords = async (req, res) => {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    const url = 'https://www.musiciansfriend.com/hot-and-trending#N=3020615&pageName=collection-page&Nao=0&recsPerPage=90&Ns=bS';
 
+    try {
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render_js=true`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const body = await response.text();
+        const wordCount = extractAndCountWords(body);
+        res.json(wordCount);
+    } catch (error) {
+        console.error("Error fetching page: ", error);
+        res.status(500).json({ message: "Failed to fetch page", error: error.toString() });
+    }
+}
+const relevantKeywords = new Set([
+    "guitar", "bass", "drums", "amplifier", "microphone", "keyboard",
+    "violin", "flute", "saxophone", "speaker", "mixer", "dj", "synthesizer",
+    "pedal", "effects", "electric", "acoustic", "ukelele", "mandolin", "banjo"
+]);
+
+function extractAndCountWords(html) {
+    const $ = cheerio.load(html);
+    const text = $('body').text();
+    const words = text.match(/\w+/g);
+
+    const wordCount = {};
+    if (words) {
+        words.forEach(word => {
+            const lowerWord = word.toLowerCase();
+            if (relevantKeywords.has(lowerWord)) {
+                if (!wordCount[lowerWord]) {
+                    wordCount[lowerWord] = 0;
+                }
+                wordCount[lowerWord]++;
+            }
+        });
+    }
+
+    return wordCount;
+}
