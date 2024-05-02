@@ -26,7 +26,7 @@ router.get('/studentExams/:id', GradeController.getExamsGrades);
 router.get('/studentgrades/:id', GradeController.getExamGrades);
 router.get('/studentEvalgrades/:id', GradeController.getEvalGrades);
 router.get('/ExamsstudentsGrades/:id', GradeController.getExamsstudentsGrades);
-//tesst
+//tessttt
 router.put('/updateEvalGrades', GradeController.updateEvalGrades);
 router.post('/sendSms/:phoneNumber', observationController.sendSms);
 module.exports = router;
