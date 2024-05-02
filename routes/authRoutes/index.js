@@ -13,7 +13,7 @@ router.post("/login", AuthController.loginUser);
 router.post("/logout", AuthController.logout);
 router.post('/forgot-password', forgotPassword); 
 router.post('/reset-Password', resetPassword); 
-
+router.post('/google-login', AuthController.googleLogin);
 router.get('/connection', AuthGoogle.loginGoogle);
 router.post('/Register', RegisterController.register);
 router.post('/RegisterEnroll', RegisterController.registerEnroll);

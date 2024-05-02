@@ -31,7 +31,10 @@ const forgotPassword = async (req, res) => {
         auth: {
             user: process.env.GMAIL_USERNAME,
             pass: process.env.GMAIL_PASSWORD
-        }
+        },
+        tls: {
+            rejectUnauthorized: false,
+          },
     });
 
     var mailOptions = {
