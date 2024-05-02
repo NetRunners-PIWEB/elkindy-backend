@@ -70,16 +70,16 @@ const userSchema = new Schema({
     default: false,
   },
   preferedInstrument: [String],
-  motherJob: {
+  Mjob: {
     type: String,
     enum: ["teacher", "health", "services", "at_home", "other"],
   },
-  fatherJob: {
+  Fjob: {
     type: String,
     enum: ["teacher", "health", "services", "at_home", "other"],
   },
   activity: String,
-  familySize: {
+  famsize: {
     type: String,
     enum: ["LE3", "GT3"],
   },

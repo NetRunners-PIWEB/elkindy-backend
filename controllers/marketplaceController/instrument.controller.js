@@ -242,72 +242,91 @@ class InstrumentController {
   static async callFlaskAPI(req, res) {
     try {
       const inputData = req.body;
-      const studentId = req.params.studentId;
-      const absenceCount = await getAbsenceCount(studentId);
-      inputData.absences = absenceCount;
-      const response = await axios.post(
-        "http://localhost:5000/predict",
-        inputData
+      const studentId = req.params.id;
+      const student = await User.findById(studentId, {
+        _id: 0,
+        Mjob: 1,
+        Fjob: 1,
+        famsize: 1,
+        Pstatus: 1,
+        Medu: 1,
+        Fedu: 1,
+        activities: 1,
+      });
+      if (!student) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+      const sessions = await Session.find({ "attendance.student": studentId });
+      let absenceCount = 0;
+      sessions.forEach((session) => {
+        session.attendance.forEach((record) => {
+          if (
+            record.student.toString() === studentId &&
+            record.status === "Absent"
+          ) {
+            absenceCount++;
+          }
+        });
+      });
+      const originalData = {
+        school: "GP",
+        sex: "F",
+        age: 15,
+        address: "U",
+        famsize: student.famsize,
+        Pstatus: student.Pstatus,
+        Medu: student.Medu,
+        Fedu: student.Fedu,
+        Mjob: student.Mjob,
+        Fjob: student.Fjob,
+        reason: "course",
+        guardian: "mother",
+        traveltime: 1,
+        studytime: 3,
+        failures: 3,
+        schoolsup: "no",
+        famsup: "yes",
+        paid: "no",
+        activities: student.activities.toLowerCase(),
+        nursery: "yes",
+        higher: "yes",
+        internet: "no",
+        romantic: "yes",
+        famrel: 5,
+        freetime: 3,
+        goout: 3,
+        Dalc: 5,
+        Walc: 5,
+        health: 1,
+        absences: absenceCount,
+      };
+      const flaskResponse = await axios.post(
+        "https://predictionlr.onrender.com/predict",
+        originalData
       );
-      console.log(response.data);
-      res.json({ prediction: response.data.prediction });
+      res.status(200).json(flaskResponse.data);
     } catch (error) {
       console.error("Error calling Flask API:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   }
-  static async getAbsenceCount(studentId) {
-    try {
-      const absenceCount = await Session.aggregate([
-        {
-          $match: {
-            "attendance.student": mongoose.Types.ObjectId(studentId),
-            "attendance.status": "Absent",
-          },
-        },
-        {
-          $group: {
-            _id: "$attendance.student",
-            totalAbsences: { $sum: 1 },
-          },
-        },
-      ]);
-      if (absenceCount.length === 0) {
-        return 0;
-      }
 
-      return absenceCount[0].totalAbsences;
-    } catch (error) {
-      console.error("Error fetching absence count:", error);
-      throw error;
-    }
-  }
   static async AddStudentDetails(req, res) {
     const { id } = req.params;
     console.log(id);
-    const {
-      motherJob,
-      fatherJob,
-      activity,
-      familySize,
-      Pstatus,
-      Medu,
-      Fedu,
-      activities,
-    } = req.body;
+    const { Mjob, Fjob, activities, famsize, Pstatus, Medu, Fedu } = req.body;
 
     try {
       const updatedStudent = await User.findByIdAndUpdate(
         id,
         {
-          motherJob,
-          fatherJob,
-          activity,
-          familySize,
+          Mjob,
+          Fjob,
+          activities,
+          famsize,
           Pstatus,
           Medu,
           Fedu,
-          activities,
         },
         { new: true }
       );
