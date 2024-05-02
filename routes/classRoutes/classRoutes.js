@@ -45,9 +45,9 @@ router.post('/:classId/add-students', classController.addStudentsToClass);
 
 
 router.delete('/:id', classController.deleteClass);
-router.get('/studentsClass/:teacher', classController.getStudentsAndClass);
+router.get('/studentsClass/:teacherId', classController.getStudentsAndClass);
 router.get('/StudentsByClass/:name', classController.getStudentsByClass);
-
+router.get('/classesTeacher/:id', classController.getClassesByTeacher);
 
 //router.get('/by-teacher', classController.getClassesByTeacherId);
 

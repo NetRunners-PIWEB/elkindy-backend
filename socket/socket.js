@@ -13,45 +13,41 @@ const io = require("socket.io")(server, {
     origin: "*",
   },
 });
-
 let users = [];
 const getUser = (userId) => {
   return users.find((user) => user.userId === userId);
 };
 const removeUser = (socketId) => {
-  users = users.filter((user) => user.socketId !== socketId);
+  console.log(users)
+  users = users.filter((user) => user.socketId != socketId);
+  console.log(users)
 };
+
+global.users = users;
+
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
-  if (userId !== undefined) {
-    const existingUser = users.find((user) => user.userId === userId);
-    if (!existingUser) {
+  console.log("connecteedd")
+  if (userId != "undefined") {
+    !users.some((user) => user.userId === userId) &&
       users.push({ userId: userId, socketId: socket.id });
-    } else {
-      existingUser.socketId = socket.id;
-    }
   }
-  const userIds = users.map((user) => user.userId);
-  io.emit("getOnlineUsers", userIds);
-
   socket.on(
     "sendNotification",
     ({ senderId, receiverId, instrument, message }) => {
       const user = getUser(receiverId);
-      if (user) {
-        const receiverSocketId = user.socketId;
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit("getNotification", {
-            senderId,
-            instrument,
-            message,
-          });
-          console.log("emit notification", message);
-        } else {
-          console.log("Receiver socket not found.");
-        }
+      console.log(user);
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        
+        io.to(receiverSocketId).emit("getNotification", {
+          senderId,
+          instrument,
+          message,
+        });
+        console.log("emit notification", message);
       } else {
-        console.log("user not found.");
+        console.log("Receiver socket not found.");
       }
     }
   );
@@ -154,9 +150,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    console.log("disconnected");
     removeUser(socket.id);
-    const userIds = users.map((user) => user.userId);
-    io.emit("getOnlineUsers", userIds);
   });
 });
 
@@ -206,14 +201,18 @@ const notifyUsers = async (instrument) => {
     });
     const emailList = matchingUsers.map((user) => user.email).join(", ");
   } catch (error) {
-    console.error("Error notifying users:", error);
+    console.error('Erreur lors de la création de l\'observation :', error);
   }
 };
-const getRecipientSocketId = (recipientId) => {
-  const user = getUser(recipientId);
-  if (user) {
-    return (receiverSocketId = user.socketId);
-  }
-};
+  const getRecipientSocketId = (recipientId) => {
+    const user = getUser(recipientId);
+    if (user) {
+      return (receiverSocketId = user.socketId);
+    }
+  };
 
-module.exports = { io, server, app, notifyUsers, getRecipientSocketId };
+
+
+
+
+module.exports = { io, server, app,getUser };
