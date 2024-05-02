@@ -20,10 +20,6 @@
             background-color: #f2f2f2;
         }
 
-        .page {
-            flex-direction: column;
-            padding: 20px;
-        }
         .title {
             color: #fff1cc;
             font-size: 60px;
@@ -32,20 +28,8 @@
             margin-top: 4px;
         }
 
-        .row {
-            flex-direction: row;
-        }
-
-        .cell {
-            width: 25%;
-            border-style: solid;
-            border-right-width: 1px;
-            border-bottom-width: 1px;
-            padding: 10px;
-        }
-
         .dateCell {
-            font-size: 20px;
+            font-size: 15px;
             background-color: #144b68;
             color: #fff1cc;
             text-align: center;
@@ -53,33 +37,27 @@
     </style>
 </head>
 <body>
-  
-  
     <table>
-      <h1 colspan="100%"class="title dateCell">EXAMS TIMETABLE</h1>
+        <h1 colspan="100%" class="title dateCell">EXAMS TIMETABLE</h1>
         <tr>
             <th class="dateCell">Date</th>
-            <% Array.from(new Set(exams.map((exam) => exam.classe))).forEach((classRoom) => { %>
-                <th class="dateCell"><%= classRoom %></th>
-            <% }); %>
+            <th class="dateCell">class  :<%= classInfo.name %></th>
         </tr>
         <% Object.keys(groupedExams).forEach((dateTime) => { %>
             <tr>
-                <td class="dateCell">
-                    <%= dateTime %>
+                <td class="dateCell"><%= dateTime %></td>
+                <td>
+                    <% if (Array.isArray(groupedExams[dateTime])) { %>
+                        <%= groupedExams[dateTime].join(',') %>
+                    <% } %>
                 </td>
-                <% Array.from(new Set(exams.map((exam) => exam.classe))).forEach((classRoom) => { %>
-                    <td>
-                        <% if (groupedExams[dateTime][classRoom]) { %>
-                            <%= groupedExams[dateTime][classRoom].join(',') %>
-                        <% } %>
-                    </td>
-                <% }); %>
             </tr>
         <% }); %>
     </table>
 </body>
 </html>
+
+
 
 
 

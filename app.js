@@ -113,5 +113,6 @@ const ip = "192.168.167.23";
 server.listen(port);
 io.listen(server);
 console.log("Magic happens on port " + port);
-
+//variable global pour socket partoutt
+global.io=io;
 module.exports = app;
