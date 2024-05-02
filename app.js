@@ -40,6 +40,7 @@ const examRoutes = require("./routes/examRoutes");
 const morgan = require("morgan");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes/feedbackRoutes.js");
 const reservationRoutes = require("./routes/reservationRoutes/reservationRoutes");
 
 // ==============================================
@@ -78,6 +79,7 @@ app.use("/api/exchanges", exchangeRouter);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/feedbacks",feedbackRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/reservations", reservationRoutes);
