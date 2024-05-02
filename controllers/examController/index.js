@@ -102,13 +102,15 @@ module.exports = {
             const ejsFilePath = path.resolve(__dirname, 'emploitemplate.ejs');
             console.log(ejsFilePath);
             
+            const classInfo = await classes.findOne({ name: req.params.name }).populate('students');
             // Assuming you're sending the email address in the request body
             const exams = await exam.find({
-              type: "exam"
+              type: "exam" ,
+              classe: classInfo.name
             });
 
            
-          const classInfo = await classes.findOne({ name: req.params.name }).populate('students');
+          
            
         
             // Récupérez la liste des étudiants de la classe
@@ -136,21 +138,22 @@ module.exports = {
             
                 // Créer la date et l'heure combinées
                 const examDateTime = `${formattedDate} , ${exam.startHour}`;
-
-              
-              if (!groupedExams[examDateTime]) {
-                groupedExams[examDateTime] = {};
-              }
-              if (!groupedExams[examDateTime][exam.classe]) {
-                groupedExams[examDateTime][exam.classe] = [];
-              }
-              groupedExams[examDateTime][exam.classe].push(exam.name);
-              console.log(exam.startDate.getFullYear());
+            
+                // Si l'entrée pour cette date et heure n'existe pas dans groupedExams, la créer comme un tableau vide
+                if (!groupedExams[examDateTime]) {
+                    groupedExams[examDateTime] = [];
+                }
+            
+                // Ajouter le nom de l'examen à la liste des examens pour cette date et heure
+                groupedExams[examDateTime].push(exam.name);
             });
+            
+            
+          
           
             try {
               console.log( process.env.EMAIL_USER);
-              ejs.renderFile(ejsFilePath, { exams: exams, groupedExams: groupedExams }, (err, data) => {
+              ejs.renderFile(ejsFilePath, { classInfo,exams: exams, groupedExams: groupedExams  }, (err, data) => {
                 if (err) {
                   console.log(err);
                   return res.status(500).send(err);
@@ -227,7 +230,7 @@ module.exports = {
         },
           
         
-
+             
 
           
   };

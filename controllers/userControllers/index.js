@@ -22,6 +22,7 @@ getUserById = asyncHandler(async (req, res) => {
     res.status(200).json(user);
 });
 
+
 const updateUser = asyncHandler(async (req, res) => {
     const { id } = req.params;
     let updatedUser;
@@ -62,6 +63,12 @@ listTeachers = asyncHandler(async (req, res) => {
     res.json(students);
   
 });
+
+getStudent = asyncHandler(async (req, res) => {
+    const students = await User.find({ role: 'student', username: req.params.username }).select('_id');
+    res.json(students);
+});
+
 
 
  addAvailability = asyncHandler(async (req, res) => {
