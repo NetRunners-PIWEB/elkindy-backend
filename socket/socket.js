@@ -2,10 +2,7 @@ const express = require("express");
 const http = require("http");
 const app = express();
 const server = http.createServer(app);
-const { createObs } = require('../controllers/examController/observationController');
-
-
-
+const UserSearch = require("../models/userSearch");
 const User = require("../models/user.js");
 const nodemailer = require("nodemailer");
 
