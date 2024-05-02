@@ -1,6 +1,8 @@
 const asyncHandler = require('../../middlewares/asyncHandler');
 const User = require('../../models/user');
 const bcrypt = require('bcrypt');
+const axios = require ('axios');
+const Course = require('../../models/course');
 const cloudinary = require('../../cloudinaryConfig'); // Ensure this is correctly set up for Cloudinary integration
 createUser= asyncHandler(async (req, res) => {
     const userData = req.body;
@@ -8,11 +10,11 @@ createUser= asyncHandler(async (req, res) => {
     await newUser.save();
     res.status(201).json(newUser);
   }
-);
-getAllUsers = asyncHandler(async (req, res) => {
-    const users = await User.find();
-    res.status(200).json(users);
-});
+    );
+    getAllUsers = asyncHandler(async (req, res) => {
+        const users = await User.find();
+        res.status(200).json(users);
+    });
 
 getUserById = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
@@ -132,11 +134,54 @@ listTeachers = asyncHandler(async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+const generatePayment = async (req, res) => {
+    const requestBody = {
+        app_token: "6d7dbb63-ae33-41c7-ab65-85be4e3e64c5",
+        app_secret: "67fc1290-3392-400a-853a-a06f9df9c3a9",
+        amount: 30500,
+        accept_card: true,
+        session_timeout_secs: 1200,
+        success_link: "https://example.website.com/success",
+        fail_link: "https://example.website.com/fail",
+        developer_tracking_id: "<your_internal_tracking_id>"
+    };
+
+    try {
+        const response = await axios.post('https://developers.flouci.com/api/generate_payment', requestBody);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error generating payment page:', error.response.data);
+        res.status(500).json({ error: 'Failed to generate payment page' });
+    }
+};
+const fetchAllCourses = async (userId) => {
+    try {
+        const user = await User.findById(userId).populate('courses.courseId');
+        if (!user) {
+            return { error: 'User not found' };
+        }
+
+        if (user.role === 'student') {
+            if (user.courses.length === 0) {
+                // Fetch all courses if the user is a student and not enrolled in any course
+                const courses = await Course.find();
+                return courses;
+            } else {
+                // Fetch only enrolled courses if the user is a student and already enrolled in some courses
+                const enrolledCourses = await Course.find({ _id: { $in: user.courses.map(course => course.courseId) } });
+                return enrolledCourses;
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching courses:', error);
+        return { error: 'Internal server error' };
+    }
+};
 
 
 module.exports = {
 
-    createUser,getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents,addAvailability,getUserAvailability,uploadUserProfilePicture
+    fetchAllCourses, generatePayment, createUser,getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents,addAvailability,getUserAvailability,uploadUserProfilePicture
 
 }
 

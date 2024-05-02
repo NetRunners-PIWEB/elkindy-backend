@@ -9,7 +9,7 @@ const { port, env } = require("./config/vars");
 const cors = require("cors");
 const cloudinary = require("cloudinary").v2;
 const job = require("./cron/cron.js");
-
+const axios = require('axios');
 app.use(bodyParser.json());
 
 const { EventEmitter } = require("events");
@@ -73,6 +73,7 @@ app.use(
     credentials: true,
   })
 );
+
 
 app.use("/api/instruments", instrumentRouter);
 app.use("/api/exchanges", exchangeRouter);
