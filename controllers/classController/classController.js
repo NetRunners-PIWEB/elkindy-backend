@@ -393,8 +393,14 @@ exports.getClasses = async (req, res) => {
 
 exports.getStudentsAndClass = async (req, res) => {
     try {
-        // Rechercher les classes où l'enseignant est référencé
-        const classrooms = await Class.find({ teacher: req.params.teacherId }).populate('students');
+        const teacher2 = await User.findById(req.params.teacherId);
+        console.log(teacher2)
+        console.log(req.params.teacherId);
+        // Rechercher les classes où l'enseignant est le professeur
+        const classrooms = await Class.find({ teacher: { $in: [teacher2] }}).populate('students');
+        console.log(classrooms);
+
+
 
         if (!classrooms || classrooms.length === 0) {
             return res.status(404).json({ message: "Aucune classe trouvée pour cet enseignant." });
@@ -427,8 +433,8 @@ exports.getStudentsAndClass = async (req, res) => {
 
         return res.status(200).json({ studentsWithClasses: studentsWithClassesArray });
     } catch (error) {
-        console.error("Error retrieving students and class name by teacher ID:", error);
-        return res.status(500).json({ message: "Erreur lors de la récupération des étudiants et du nom de la classe par l'ID de l'enseignant." });
+        console.error("Erreur lors de la récupération des étudiants et du nom de la classe par l'ID de l'enseignant :", error);
+        return res.status(500).json({ message: "Une erreur s'est produite lors de la récupération des étudiants et du nom de la classe par l'ID de l'enseignant." });
     }
 };
 
