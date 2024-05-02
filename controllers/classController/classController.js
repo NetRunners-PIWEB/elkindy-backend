@@ -489,12 +489,11 @@ exports.getClassStats = async (req, res) => {
 exports.getSessionByTeacherId = async (req, res) => {
     try {
         const { teacherId } = req.params;
-        const sessions = await Session.find({ teacher: teacherId })
-            .exec();
-
+        const sessions = await Session.find({ teacher: teacherId }).populate('classId');
+        //console.log('Populated Sessions:', sessions);
         res.json(sessions);
     } catch (error) {
-        console.error(`Failed to fetch sessions for teacher ID ${teacherId}:`, error);
+        console.error(`Failed to fetch sessions for teacher ID ${req.params.teacherId}:`, error);
         res.status(500).json({ message: 'Failed to fetch sessions for the teacher.', error: error.message });
     }
 };
