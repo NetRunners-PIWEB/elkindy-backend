@@ -17,5 +17,9 @@ router.put('/:feedbackId', feedbackController.updateFeedback);
 //delete a feedback
 router.delete('/:feedbackId', feedbackController.deleteFeedback);
 
+//get ALL feedbacks 
+router.get('/allFeedbacks', feedbackController.getAllFeedbacks);
+
+
 
 module.exports = router;

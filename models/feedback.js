@@ -1,61 +1,69 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const detailedSentimentsSchema = new Schema({
+    bestPart: { type: Number },
+    improvements: { type: Number },
+    finalComments: { type: Number }
+}, { _id: false });
+
 const feedbackSchema = new Schema({
-    event: {
-        type: Schema.Types.ObjectId,
-        ref: 'Event',
-        required: true
-    },
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'Users',
-    },
-    
-    // Ratings for overall event experience
-    entertainmentRating: Number,
-    inspirationRating: Number,
-    themeRelevance: Number, // How relevant was the theme to the conservatory's objectives?
-    valueForMoney: Number,
-    bestPart: String,
-    recommend: String,
+  event: {
+    type: Schema.Types.ObjectId,
+    ref: "Event",
+    required: true,
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: "Users",
+  },
 
-    // Specific feedback for student performances
-    performersQuality: {
-        overallQuality: Number, 
-        themeAlignment: Number, 
-        audienceEngagement: Number 
-    },
+  // Ratings for overall event experience
+  entertainmentRating: Number,
+  inspirationRating: Number,
+  themeRelevance: Number, // How relevant was the theme to the conservatory's objectives?
+  valueForMoney: Number,
+  bestPart: String,
+  recommend: String,
 
-    presentersFeedback: {
-        interesting: Number,
-        relevant: Number,
-        inspiring: Number
-    },
+  // Specific feedback for student performances
+  performersQuality: {
+    overallQuality: Number,
+    themeAlignment: Number,
+    audienceEngagement: Number,
+  },
 
-    // Venue and logistic feedback
-    venueSatisfaction: Boolean,
-    venueIssues: String,
-    foodQuality: Number,
-    foodSelection: String,
-    venueFeature: String,
+  presentersFeedback: {
+    interesting: Number,
+    relevant: Number,
+    inspiring: Number,
+  },
 
-    // Suggestions for improvement
-    improvements: String,
-    futureTopics: String,
-    finalComments: String,
+  // Venue and logistic feedback
+  venueSatisfaction: Boolean,
+  venueIssues: String,
+  foodQuality: Number,
+  foodSelection: String,
+  venueFeature: String,
 
-    // Optional contact details for follow-up
-    contactDetails: {
-        name: String,
-        email: String,
-        phone: String
-    },
+  // Suggestions for improvement
+  improvements: String,
+  futureTopics: String,
+  finalComments: String,
 
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
+  sentiment: Number,
+  detailedSentiments: detailedSentimentsSchema,
+
+  contactDetails: {
+    name: String,
+    email: String,
+    phone: String,
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
-  
+
 module.exports = mongoose.model("Feedback", feedbackSchema);
