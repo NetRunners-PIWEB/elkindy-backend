@@ -6,6 +6,7 @@ const RegisterController = require("../../controllers/Auth/register");
 const { forgotPassword, resetPassword } = require('../../controllers/Auth/ForgotPasswordController');
 
 
+
 //login routes 
 
 router.post("/login", AuthController.loginUser);
@@ -15,6 +16,7 @@ router.post('/reset-Password', resetPassword);
 
 router.get('/connection', AuthGoogle.loginGoogle);
 router.post('/Register', RegisterController.register);
+router.post('/RegisterEnroll', RegisterController.registerEnroll);
 router.get("/verifyTokenAndRole",AuthController.verifyTokenAndRole);
 router.get('/check-email/:email', AuthController.checkEmailExists);
 router.get('/check-phone/:phoneNumber', AuthController.checkPhoneNumberExists);

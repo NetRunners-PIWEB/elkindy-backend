@@ -9,6 +9,7 @@ const { port, env } = require("./config/vars");
 const cors = require("cors");
 const cloudinary = require("cloudinary").v2;
 
+
 app.use(bodyParser.json());
 
 const { EventEmitter } = require("events");
@@ -16,8 +17,10 @@ const instrumentRouter = require("./routes/marketplaceRoutes/instrument.route.js
 const exchangeRouter = require("./routes/marketplaceRoutes/exchange.route.js");
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require("./routes/courseRoutes/courseRoutes");
+const classRoutes = require("./routes/classRoutes/classRoutes.js");
 const authRoutes = require("./routes/authRoutes");
 const { userVerification } = require("./middlewares/authJWT");
+
 // ==============================================
 
 connect();
@@ -32,7 +35,7 @@ app.use(bodyParser.json());
 swaggerDoc(app);
 app.use(cors());
 const examRoutes = require("./routes/examRoutes");
-const classRoutes = require("./routes/classRoutes/classRoutes");
+//const classRoutes = require("./routes/classRoutes/classRoutes.js");
 const morgan = require("morgan");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
@@ -65,6 +68,10 @@ app.use(
     credentials: true,
   })
 );
+
+
+// Assuming you're using Express
+
 
 app.use("/api/instruments", instrumentRouter);
 app.use("/api/exchanges", exchangeRouter);
