@@ -27,15 +27,18 @@ module.exports = {
         
       });
        await newNotification.save();
-      const io = global.io;
-      
+      //const io = global.io;
+        const recipientSocketId = getRecipientSocketId(recipientId);
+        if (recipientSocketId) {
+            io.to(recipientSocketId).emit("newobs", newNotification);
+        }
       // const users = global.users;
-      const socketuser=global.users.find((user) => user.userId === observation.student);
+     /* const socketuser=global.users.find((user) => user.userId === observation.student);
        console.log('farah'+socketuser)
        
        if(socketuser){
       io.to(socketuser.socketId).emit('newobs', newNotification);
-       }
+       }*/
       // Maintenant, envoyez la notification à l'URL spécifiée (localhost:3001/student/exams/notification)
       // await axios.post('http://localhost:3001/student/exams', {
       //   observation: newObs,
