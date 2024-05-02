@@ -1,5 +1,7 @@
 const Instrument = require("../../models/instrument.js");
 const UserSearch = require("../../models/userSearch.js");
+const User = require("../../models/user.js");
+const Session = require("../../models/session.js");
 const { notifyUsers } = require("../../socket/socket.js");
 const {
   allInstrumentsPipeline,
@@ -8,6 +10,7 @@ const {
 const { formatSort } = require("../../utils/formatQueries.js");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
+const axios = require("axios");
 
 class InstrumentController {
   static async getAllInstruments(req, res, next) {
@@ -236,5 +239,108 @@ class InstrumentController {
       next(err);
     }
   }
+  static async callFlaskAPI(req, res) {
+    try {
+      const inputData = req.body;
+      const studentId = req.params.id;
+      const student = await User.findById(studentId, {
+        _id: 0,
+        Mjob: 1,
+        Fjob: 1,
+        famsize: 1,
+        Pstatus: 1,
+        Medu: 1,
+        Fedu: 1,
+        activities: 1,
+      });
+      if (!student) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+      const sessions = await Session.find({ "attendance.student": studentId });
+      let absenceCount = 0;
+      sessions.forEach((session) => {
+        session.attendance.forEach((record) => {
+          if (
+            record.student.toString() === studentId &&
+            record.status === "Absent"
+          ) {
+            absenceCount++;
+          }
+        });
+      });
+      const originalData = {
+        school: "GP",
+        sex: "F",
+        age: 15,
+        address: "U",
+        famsize: student.famsize,
+        Pstatus: student.Pstatus,
+        Medu: student.Medu,
+        Fedu: student.Fedu,
+        Mjob: student.Mjob,
+        Fjob: student.Fjob,
+        reason: "course",
+        guardian: "mother",
+        traveltime: 1,
+        studytime: 3,
+        failures: 3,
+        schoolsup: "no",
+        famsup: "yes",
+        paid: "no",
+        activities: student.activities.toLowerCase(),
+        nursery: "yes",
+        higher: "yes",
+        internet: "no",
+        romantic: "yes",
+        famrel: 5,
+        freetime: 3,
+        goout: 3,
+        Dalc: 5,
+        Walc: 5,
+        health: 1,
+        absences: absenceCount,
+      };
+      const flaskResponse = await axios.post(
+        "https://predictionlr.onrender.com/predict",
+        originalData
+      );
+      res.status(200).json(flaskResponse.data);
+    } catch (error) {
+      console.error("Error calling Flask API:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  static async AddStudentDetails(req, res) {
+    const { id } = req.params;
+    console.log(id);
+    const { Mjob, Fjob, activities, famsize, Pstatus, Medu, Fedu } = req.body;
+
+    try {
+      const updatedStudent = await User.findByIdAndUpdate(
+        id,
+        {
+          Mjob,
+          Fjob,
+          activities,
+          famsize,
+          Pstatus,
+          Medu,
+          Fedu,
+        },
+        { new: true }
+      );
+
+      if (!updatedStudent) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+
+      return res.status(200).json(updatedStudent);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
 }
+
 module.exports = InstrumentController;

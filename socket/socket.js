@@ -6,6 +6,9 @@ const { createObs } = require('../controllers/examController/observationControll
 
 
 
+const User = require("../models/user.js");
+const nodemailer = require("nodemailer");
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 const io = require("socket.io")(server, {
@@ -53,38 +56,164 @@ io.on("connection", (socket) => {
   );
   socket.on("sendTradeStatus", ({ receiverId, status }) => {
     const user = getUser(receiverId);
-    const receiverSocketId = user.socketId;
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("getTradeStatus", { status });
-      console.log("Sent trade status:", status);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("getTradeStatus", { status });
+        console.log("Sent trade status:", status);
+      } else {
+        console.log("Receiver socket not found.");
+      }
     } else {
-      console.log("Receiver socket not found.");
+      console.log("user not found.");
     }
   });
-  
-  // Lorsque vous ajoutez une nouvelle observation
+  socket.on("user-typing", (receiverId) => {
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("user-typing");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
 
+  socket.on("stop-typing", (receiverId) => {
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("stop-typing");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
+
+  socket.on("start-playing", (receiverId) => {
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("start-playing");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
+
+  socket.on("queue", (receiverId) => {
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("queue");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
+
+  socket.on("accept-invite", (receiverId) => {
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("accept-invite");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
+
+  socket.on("decline-invite", (receiverId) => {
+    const user = getUser(receiverId);
+    if (user) {
+      const receiverSocketId = user.socketId;
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("decline-invite");
+      } else {
+        console.log("Receiver socket not found.");
+      }
+    } else {
+      console.log("user not found.");
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("disconnected");
     removeUser(socket.id);
   });
 });
-/*
-io.on('addObservation', async (observation) => {
+
+const notifyUsers = async (instrument) => {
+  const { status, age } = instrument;
   try {
-    // Exécuter createObs de manière asynchrone
-    const result = await createObs(observation);
-    
-    // Envoie une notification à l'étudiant concerné
-    const studentSocket = io.sockets.sockets.get(observation.student);
-    if (studentSocket) {
-      studentSocket.emit('newObservation', result.description);
-    }
+    const matchingUsers = await UserSearch.find({
+      $or: [{ status: { $exists: false } }, { status }],
+      $or: [{ age: { $exists: false } }, { age }],
+    });
+    matchingUsers.forEach(async (user) => {
+      const userToNotify = await User.findById(user.userId);
+      const socketId = getUser(user.userId)?.socketId;
+      if (socketId) {
+        io.to(socketId).emit("newInstrumentNotification", { instrument });
+      }
+      const userEmail = userToNotify.email;
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: userEmail,
+        subject: "Instrument Availability Notification",
+        html: `
+          <div style="font-family: Arial, sans-serif; color: #333; padding: 20px; text-align: center;">
+            <h2 style="color: #0056b3;">Instrument Availability Notification</h2>
+            <p>The instrument matching your preferences (${status}, ${age}) is now available in the store.</p>
+            <p>Thank you for using our service!</p>
+          </div>
+        `,
+      };
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.error("Error sending email:", error);
+        } else {
+          console.log("Email sent:", info.response);
+        }
+      });
+    });
+    const emailList = matchingUsers.map((user) => user.email).join(", ");
   } catch (error) {
     console.error('Erreur lors de la création de l\'observation :', error);
   }
-});*/
+};
+  const getRecipientSocketId = (recipientId) => {
+    const user = getUser(recipientId);
+    if (user) {
+      return (receiverSocketId = user.socketId);
+    }
+  };
+
 
 
 

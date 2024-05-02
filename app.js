@@ -10,6 +10,7 @@ const cors = require("cors");
 const cloudinary = require("cloudinary").v2;
 const job = require("./cron/cron.js");
 
+
 app.use(bodyParser.json());
 
 const { EventEmitter } = require("events");
@@ -22,6 +23,7 @@ const authRoutes = require("./routes/authRoutes");
 const messageRoutes = require("./routes/messageRoutes/message.route.js");
 
 const { userVerification } = require("./middlewares/authJWT");
+
 // ==============================================
 
 connect();
@@ -40,6 +42,7 @@ const examRoutes = require("./routes/examRoutes");
 const morgan = require("morgan");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes/feedbackRoutes.js");
 const reservationRoutes = require("./routes/reservationRoutes/reservationRoutes");
 
 // ==============================================
@@ -66,18 +69,23 @@ app.use(function (req, res, next) {
 
 app.use(
   cors({
-    origin: ["http://localhost:3001", "http://192.168.167.23:3001"],
+    origin: ["http://localhost:3001", "http://192.168.167.23:3001","https://elkindy-frontend.vercel.app/"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
+
+// Assuming you're using Express
+
+
 app.use("/api/instruments", instrumentRouter);
 app.use("/api/exchanges", exchangeRouter);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/feedbacks",feedbackRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/reservations", reservationRoutes);

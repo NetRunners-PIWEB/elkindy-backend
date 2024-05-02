@@ -126,11 +126,11 @@ exports.generateClassesForCourse = async (req, res) => {
         if (!course) {
             return res.status(404).json({ message: 'Course not found' });
         }
-
         const existingClasses = await Class.find({ courseId: courseId });
         if (existingClasses.length > 0) {
             return res.status(200).json(existingClasses);
         }
+
         // Determine the number of classes needed, at least 1
         const numberOfClasses = Math.max(1, Math.ceil(course.students.length / maxStudentsPerClass));
         let classesCreated = [];
@@ -507,12 +507,11 @@ exports.getClassStats = async (req, res) => {
 exports.getSessionByTeacherId = async (req, res) => {
     try {
         const { teacherId } = req.params;
-        const sessions = await Session.find({ teacher: teacherId })
-            .exec();
-
+        const sessions = await Session.find({ teacher: teacherId }).populate('classId');
+        //console.log('Populated Sessions:', sessions);
         res.json(sessions);
     } catch (error) {
-        console.error(`Failed to fetch sessions for teacher ID ${teacherId}:`, error);
+        console.error(`Failed to fetch sessions for teacher ID ${req.params.teacherId}:`, error);
         res.status(500).json({ message: 'Failed to fetch sessions for the teacher.', error: error.message });
     }
 };
@@ -588,5 +587,36 @@ exports.getStudentAttendance = async (req, res) => {
     } catch (error) {
         console.error('Error fetching attendance data:', error);
         res.status(500).json({ message: 'Failed to fetch attendance data', error: error.message });
+    }
+};
+
+
+exports.calculateAttendanceRate = async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const sessions = await Session.find({ classId }).populate('attendance.student');
+        let attendanceData = {};
+
+        sessions.forEach(session => {
+            session.attendance.forEach(record => {
+                if (!attendanceData[record.student._id]) {
+
+                    attendanceData[record.student._id] = { present: 0, total: 0 };
+                }
+                attendanceData[record.student._id].total += 1;
+                if (record.status === 'Present') {
+                    attendanceData[record.student._id].present += 1;
+                }
+            });
+        });
+
+        for (let student in attendanceData) {
+            attendanceData[student].rate = attendanceData[student].present / attendanceData[student].total;
+        }
+
+        res.json(attendanceData);
+    } catch (error) {
+        console.error('Failed to calculate attendance rates', error);
+        res.status(500).json({ message: 'Failed to calculate attendance rates', error: error.message });
     }
 };

@@ -24,6 +24,9 @@ router.post('/sessions/:sessionId/attendance', classController.manageAttendanceF
 
 router.get('/teachers/:teacherId/sessions', classController.getSessionByTeacherId);
 
+router.get('/attendance-rate/:classId', classController.calculateAttendanceRate);
+
+
 //router.put('/:classId/teachers', classController.updateClassTeachers);
 
 
