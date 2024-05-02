@@ -40,6 +40,7 @@ const examRoutes = require("./routes/examRoutes");
 const morgan = require("morgan");
 const eventRoutes = require("./routes/eventRoutes/eventRoutes");
 const ticketRoutes = require("./routes/ticketRoutes/ticketRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes/feedbackRoutes.js");
 const reservationRoutes = require("./routes/reservationRoutes/reservationRoutes");
 
 // ==============================================
@@ -66,7 +67,7 @@ app.use(function (req, res, next) {
 
 app.use(
   cors({
-    origin: ["http://localhost:3001", "http://192.168.167.23:3001"],
+    origin: ["http://localhost:3001", "http://192.168.167.23:3001","https://elkindy-frontend-2r3gpwi3t-omar-adoulis-projects.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -78,6 +79,7 @@ app.use("/api/exchanges", exchangeRouter);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/feedbacks",feedbackRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/reservations", reservationRoutes);

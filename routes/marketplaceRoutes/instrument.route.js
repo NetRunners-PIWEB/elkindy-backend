@@ -15,6 +15,9 @@ router
   .patch(authenticate(), InstrumentController.addUserLike);
 
 router.route("/:id").get(authenticate(), InstrumentController.getInstrument);
+router
+  .route("/students/:id")
+  .put(authenticate(), InstrumentController.AddStudentDetails);
 
 router
   .route("/user/instruments")
@@ -26,8 +29,10 @@ router
 router
   .route("/user/usersearches")
   .get(authenticate(), InstrumentController.getUserSearches);
+
 router.delete("/user/usersearches/:id", InstrumentController.deleteUserSearch);
 
 router.delete("/:id", InstrumentController.deleteInstrument);
+router.route("/predict/:id").post(InstrumentController.callFlaskAPI);
 
 module.exports = router;
