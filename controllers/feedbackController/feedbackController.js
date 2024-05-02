@@ -2,6 +2,7 @@ const Feedback = require("../../models/feedback");
 const Event = require("../../models/event");
 const axios = require("axios");
 
+//merging flask with node.js
 const analyzeFeedback = async (feedbackData) => {
   try {
     const response = await axios.post(
