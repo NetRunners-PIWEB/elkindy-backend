@@ -76,7 +76,7 @@ router.get('/enrollments/pending', async (req, res) => {
         const usersWithPendingEnrollments = await User.find({
             "courses.status": "pending"
         }).populate('courses.courseId');  // Assuming you want course details too
-        
+        //push
         const pendingEnrollments = usersWithPendingEnrollments.map(user => ({
             userId: user._id,
             username: user.username,
