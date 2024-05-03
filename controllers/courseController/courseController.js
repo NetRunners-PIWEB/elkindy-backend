@@ -2,6 +2,7 @@ const Course = require('../../models/course');
 const User = require('../../models/user');
 const cloudinary = require('../../cloudinaryConfig');
 
+
 exports.createCourse = async (req, res) => {
     console.log(req.body);
     try {
@@ -308,3 +309,166 @@ exports.uploadImageToCourse = async (req, res) => {
     }
 };
 
+const fetch = require('node-fetch');
+
+exports.fetchInstrumentData = async (req, res) => {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    const targetUrl = 'https://www.musiciansfriend.com/';
+
+    try {
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(targetUrl)}`, {
+            method: 'GET'
+        });
+        if (!response.ok) throw new Error('Failed to fetch data from ScrapingBee');
+
+        const html = await response.text();
+        const data = parseInstrumentData(html);
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching instrument data:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+function parseInstrumentData(html) {
+    // Example parsing logic (you'll need to adjust this based on the actual HTML structure)
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(html);
+    const instruments = [];
+
+    $('.instrument').each(function() {
+        const name = $(this).find('.name').text().trim();
+        const popularity = parseInt($(this).find('.popularity').text(), 10);
+        instruments.push({ name, popularity });
+    });
+    console.log(html);
+    return instruments;
+}
+const cheerio = require('cheerio');
+
+
+exports.scrapeData = async (req, res) => {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    const url = 'https://www.musiciansfriend.com/hot-and-trending#N=3020615&pageName=collection-page&Nao=0&recsPerPage=90&Ns=bS';
+    const searchTerm = req.query.searchTerm || "guitar";
+
+    try {
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render_js=true`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const body = await response.text();
+        const $ = cheerio.load(body);
+        let products = [];
+        $('.product-card').each((index, element) => {
+            const name = $(element).find('.product-card-title a').text().trim();
+            const price = $(element).find('.product-card-price .sale-price').first().text().trim().replace('$', '');
+
+            if (name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                const numericPrice = parseFloat(price.replace(/[,]/g, ''));  // Convert price to float, handling commas
+                if (!isNaN(numericPrice)) {  // Ensure number
+                    products.push({ name, price: numericPrice });
+                }
+            }
+        });
+
+        if (products.length === 0) {
+            return res.status(404).json({ message: "No products found for the given search term." });
+        }
+
+        // Calculate average price of filtered products
+        const total = products.reduce((acc, product) => acc + product.price, 0);
+        const averagePrice = total / products.length;
+
+        res.json({ products, averagePrice });
+    } catch (error) {
+        console.error('Error scraping data:', error);
+        res.status(500).json({ message: 'Failed to scrape data', error: error.toString() });
+    }
+};
+
+
+exports.getInstrumentPopularity = async (req, res) => {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    const url = 'https://www.musiciansfriend.com/hot-and-trending#N=3020615&pageName=collection-page&Nao=0&recsPerPage=90&Ns=bS';
+    const instruments = req.body.instruments || ['Guitar', 'Electric', 'Tone King'];
+
+    try {
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render_js=true`);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        const body = await response.text();
+        const $ = cheerio.load(body);
+        let popularityData = instruments.reduce((acc, instrument) => ({ ...acc, [instrument]: 0 }), {});
+
+        $('.product-card').each((_, element) => {
+            const title = $(element).find('.product-card-title a').text().toLowerCase();
+            instruments.forEach(instrument => {
+                if (title.includes(instrument.toLowerCase())) {
+                    popularityData[instrument]++;
+                }
+            });
+        });
+
+        res.json(popularityData);
+    } catch (error) {
+        console.error('Error scraping data:', error);
+        res.status(500).json({ message: 'Failed to scrape data', error: error.toString() });
+    }
+};
+
+exports.fetchAndCountWords = async () => {
+    try {
+        const url = 'https://www.musiciansfriend.com/hot-and-trending#N=3020615&pageName=collection-page&Nao=0&recsPerPage=90&Ns=bS';
+        const response = await fetch(url);
+        const body = await response.text();
+        const wordCount = extractAndCountWords(body);
+        return wordCount;
+    } catch (error) {
+        console.error("Error fetching page: ", error);
+        return null;
+    }
+}
+
+
+exports.fetchAndCountWords = async (req, res) => {
+    const apiKey = process.env.SCRAPINGBEE_API_KEY;
+    const url = 'https://www.musiciansfriend.com/hot-and-trending#N=3020615&pageName=collection-page&Nao=0&recsPerPage=90&Ns=bS';
+
+    try {
+        const response = await fetch(`https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(url)}&render_js=true`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const body = await response.text();
+        const wordCount = extractAndCountWords(body);
+        res.json(wordCount);
+    } catch (error) {
+        console.error("Error fetching page: ", error);
+        res.status(500).json({ message: "Failed to fetch page", error: error.toString() });
+    }
+}
+const relevantKeywords = new Set([
+    "guitar", "bass", "drums", "amplifier", "microphone", "keyboard",
+    "violin", "flute", "saxophone", "speaker", "mixer", "dj", "synthesizer",
+    "pedal", "effects", "electric", "acoustic", "ukelele", "mandolin", "banjo"
+]);
+
+function extractAndCountWords(html) {
+    const $ = cheerio.load(html);
+    const text = $('body').text();
+    const words = text.match(/\w+/g);
+
+    const wordCount = {};
+    if (words) {
+        words.forEach(word => {
+            const lowerWord = word.toLowerCase();
+            if (relevantKeywords.has(lowerWord)) {
+                if (!wordCount[lowerWord]) {
+                    wordCount[lowerWord] = 0;
+                }
+                wordCount[lowerWord]++;
+            }
+        });
+    }
+
+    return wordCount;
+}

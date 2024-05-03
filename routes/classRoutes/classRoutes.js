@@ -24,6 +24,9 @@ router.post('/sessions/:sessionId/attendance', classController.manageAttendanceF
 
 router.get('/teachers/:teacherId/sessions', classController.getSessionByTeacherId);
 
+router.get('/attendance-rate/:classId', classController.calculateAttendanceRate);
+
+
 //router.put('/:classId/teachers', classController.updateClassTeachers);
 
 
@@ -42,9 +45,9 @@ router.post('/:classId/add-students', classController.addStudentsToClass);
 
 
 router.delete('/:id', classController.deleteClass);
-router.get('/studentsClass/:teacher', classController.getStudentsAndClass);
+router.get('/studentsClass/:teacherId', classController.getStudentsAndClass);
 router.get('/StudentsByClass/:name', classController.getStudentsByClass);
-
+router.get('/classesTeacher/:id', classController.getClassesByTeacher);
 
 //router.get('/by-teacher', classController.getClassesByTeacherId);
 

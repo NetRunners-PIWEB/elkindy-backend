@@ -329,7 +329,7 @@ module.exports = {
       res.status(500).json({ message: error.message });
     }
   },
-
+//A5NYPRMSU8C7EEXV2PH4NQ9N
   async getReservationsCountByEvent(req, res) {
     try {
       const eventId = req.params.eventId;

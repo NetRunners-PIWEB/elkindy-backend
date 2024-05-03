@@ -9,7 +9,6 @@ const { port, env } = require("./config/vars");
 const cors = require("cors");
 const cloudinary = require("cloudinary").v2;
 const job = require("./cron/cron.js");
-const axios = require('axios');
 app.use(bodyParser.json());
 
 const { EventEmitter } = require("events");
@@ -22,6 +21,7 @@ const authRoutes = require("./routes/authRoutes");
 const messageRoutes = require("./routes/messageRoutes/message.route.js");
 
 const { userVerification } = require("./middlewares/authJWT");
+
 // ==============================================
 
 connect();
@@ -67,13 +67,12 @@ app.use(function (req, res, next) {
 
 app.use(
   cors({
-    origin: ["http://localhost:3001", "http://192.168.167.23:3001","https://elkindy-frontend-2r3gpwi3t-omar-adoulis-projects.vercel.app"],
+    origin: ["http://localhost:3001", "http://192.168.167.23:3001","https://elkindy-frontend.vercel.app/"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
-
 
 app.use("/api/instruments", instrumentRouter);
 app.use("/api/exchanges", exchangeRouter);
@@ -105,5 +104,6 @@ const ip = "192.168.167.23";
 server.listen(port);
 io.listen(server);
 console.log("Magic happens on port " + port);
-
+//variable global pour socket partoutt
+global.io=io;
 module.exports = app;

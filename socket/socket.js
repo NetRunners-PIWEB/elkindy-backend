@@ -35,25 +35,25 @@ io.on("connection", (socket) => {
   io.emit("getOnlineUsers", userIds);
 
   socket.on(
-    "sendNotification",
-    ({ senderId, receiverId, instrument, message }) => {
-      const user = getUser(receiverId);
-      if (user) {
-        const receiverSocketId = user.socketId;
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit("getNotification", {
-            senderId,
-            instrument,
-            message,
-          });
-          console.log("emit notification", message);
+      "sendNotification",
+      ({ senderId, receiverId, instrument, message }) => {
+        const user = getUser(receiverId);
+        if (user) {
+          const receiverSocketId = user.socketId;
+          if (receiverSocketId) {
+            io.to(receiverSocketId).emit("getNotification", {
+              senderId,
+              instrument,
+              message,
+            });
+            console.log("emit notification", message);
+          } else {
+            console.log("Receiver socket not found.");
+          }
         } else {
-          console.log("Receiver socket not found.");
+          console.log("user not found.");
         }
-      } else {
-        console.log("user not found.");
       }
-    }
   );
   socket.on("sendTradeStatus", ({ receiverId, status }) => {
     const user = getUser(receiverId);
