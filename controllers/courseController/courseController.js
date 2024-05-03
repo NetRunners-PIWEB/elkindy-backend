@@ -193,6 +193,40 @@ exports.addStudentsToCourse = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
+exports.addStudentToCourse = async (req, res) => {
+    const { courseId } = req.params;
+    const studentId = req.body;
+    
+    try {
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+
+        const student = await User.findById(studentId);
+
+        if (!student) {
+            return res.status(404).json({ message: "Student not found", studentId });
+        }
+
+        if (student.courses.includes(courseId)) {
+            return res.status(400).json({ message: "Student is already enrolled in the course" });
+        }
+
+        student.courses.push(course);
+        await student.save();
+
+        res.status(200).json({ message: "Course added to student successfully", student });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+
 exports.getTeacherStats = async (req, res) => {
     try {
         const genderCount = await User.aggregate([

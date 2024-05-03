@@ -154,7 +154,7 @@ const generatePayment = async (req, res) => {
         res.status(500).json({ error: 'Failed to generate payment page' });
     }
 };
-const fetchAllCourses = async (userId) => {
+const fetchAllCourses = async (userId, status = null) => {
     try {
         const user = await User.findById(userId).populate('courses.courseId');
         if (!user) {
@@ -164,11 +164,19 @@ const fetchAllCourses = async (userId) => {
         if (user.role === 'student') {
             if (user.courses.length === 0) {
                 // Fetch all courses if the user is a student and not enrolled in any course
-                const courses = await Course.find();
-                return courses;
+                if (status) {
+                    const courses = await Course.find({ status });
+                    return courses;
+                } else {
+                    const courses = await Course.find();
+                    return courses;
+                }
             } else {
                 // Fetch only enrolled courses if the user is a student and already enrolled in some courses
-                const enrolledCourses = await Course.find({ _id: { $in: user.courses.map(course => course.courseId) } });
+                const enrolledCourses = await Course.find({ 
+                    _id: { $in: user.courses.map(course => course.courseId) },
+                    status: status ? status : { $exists: true } // Filter by status if provided, otherwise fetch all courses with any status
+                });
                 return enrolledCourses;
             }
         }
@@ -177,11 +185,51 @@ const fetchAllCourses = async (userId) => {
         return { error: 'Internal server error' };
     }
 };
+const updateCourseStatus = asyncHandler(async (req, res) => {
+    const { userId, courseId, newCourseStatus, newPaymentStatus } = req.body;
+
+    try {
+        // Ensure the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Ensure the user has courses and courseId is valid
+        if (!user.courses || !Array.isArray(user.courses)) {
+            return res.status(400).json({ message: 'No courses found for this user' });
+        }
+
+        // Find the course using a safe check for ObjectId validity
+        const courseIndex = user.courses.findIndex(course =>
+         course._id.toString() === courseId
+        );
+
+        if (courseIndex === -1) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        // Update the status and payment status if provided
+        if (newCourseStatus) user.courses[courseIndex].status = newCourseStatus;
+        if (newPaymentStatus) user.courses[courseIndex].paymentStatus = newPaymentStatus;
+        
+        await user.save();
+        res.status(200).json({
+            message: 'Course status updated successfully',
+            course: user.courses[courseIndex]
+        });
+    } catch (error) {
+        console.error('Error updating course status:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 
 
 module.exports = {
 
-    fetchAllCourses, generatePayment, createUser,getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents,addAvailability,getUserAvailability,uploadUserProfilePicture
+    updateCourseStatus, fetchAllCourses, generatePayment, createUser,getAllUsers,getUserById,updateUser,deleteUser,listTeachers,getAllStudents,addAvailability,getUserAvailability,uploadUserProfilePicture
 
 }
 

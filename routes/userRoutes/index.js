@@ -26,7 +26,7 @@ router.post('/:id/addAvailability', addAvailability);
 router.get('/:id/availability', UserController.getUserAvailability);
 router.patch('/:userId/upload-image', upload.single('image'), UserController.uploadUserProfilePicture);
 router.post('/generate-payment', UserController.generatePayment); 
-
+router.post('/update-status', UserController.updateCourseStatus);
 router.get('/:id/courses', async (req, res) => {
     const userId = req.params.id;
     try {
@@ -34,20 +34,62 @@ router.get('/:id/courses', async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        
-        if (user.role === 'user'||'student') {
-            if (user.courses.length === 0) {
-                const courses = await Course.find();
-                return res.json(courses);
+
+        if (user.role === 'user' || user.role === 'student') {
+            let courses = [];
+            if (user.courses.length > 0) {
+                // User has courses, fetch those courses
+                courses = await Course.find({ _id: { $in: user.courses.map(course => course._id) } });
             } else {
-                const courses = await Course.find({ _id: { $in: user.courses.map(course => course.courseId) } });
-                return res.json(courses);
+                // User has no courses, fetch all available courses
+                courses = await Course.find({});
             }
+
+            const userCourses = courses.map(userCourse => ({
+                _id: userCourse._id,
+                title: userCourse.title,
+                description: userCourse.description,
+                category: userCourse.category,
+                teacher: userCourse.teacher,
+                students: userCourse.students,
+                price: userCourse.price,
+                startDate: userCourse.startDate,
+                endDate: userCourse.endDate,
+                isArchived: userCourse.isArchived,
+                isInternship: userCourse.isInternship,
+                image: userCourse.image,
+                status: user.courses.map(status => status.status)  // Adjust if necessary based on actual model
+            }));
+
+            return res.json(userCourses);
+        } else {
+            // If the user is not a student
+            return res.status(200).json({ message: 'User is not a student' });
         }
-        res.status(200).json({ message: 'User is not a student' });
     } catch (error) {
         console.error('Error fetching courses:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+router.get('/enrollments/pending', async (req, res) => {
+    try {
+        const usersWithPendingEnrollments = await User.find({
+            "courses.status": "pending"
+        }).populate('courses.courseId');  // Assuming you want course details too
+        
+        const pendingEnrollments = usersWithPendingEnrollments.map(user => ({
+            userId: user._id,
+            username: user.username,
+            courseid :user.courses[0]._id,
+            enrollments: user.courses.filter(course => course.status === 'pending')
+        }));
+
+        res.json(pendingEnrollments);
+    } catch (error) {
+        console.error("Error fetching pending enrollments:", error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 module.exports = router;
+

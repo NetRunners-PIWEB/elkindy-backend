@@ -115,6 +115,11 @@ const userSchema = new Schema({
         enum: ["pending", "accepted", "rejected"],
         default: "pending",
       },
+      paymentStatus: {
+        type: String,
+        enum: ["paid", "unpaid", "rejected"],
+        default: "unpaid",
+      },
     },
   ],
   availability: {
@@ -127,22 +132,9 @@ const userSchema = new Schema({
       ref: "Student",
     },
   ],
-  paymentStatus: {
-    type: String,
-    enum: ["paid", "unpaid"],
-    default: "unpaid",
-  },
-  paymentDeadline: Date, // Deadline for payment
+
 });
 
-userSchema.methods.updatePaymentStatus = async function () {
-  if (this.paymentStatus === "unpaid" && this.paymentDeadline < new Date()) {
-    this.paymentStatus = "overdue";
-    await this.save();
-    return false;
-  }
-  return true;  
-};
 
 userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, 12);
