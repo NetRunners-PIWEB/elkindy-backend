@@ -9,8 +9,6 @@ const { port, env } = require("./config/vars");
 const cors = require("cors");
 const cloudinary = require("cloudinary").v2;
 const job = require("./cron/cron.js");
-
-
 app.use(bodyParser.json());
 
 const { EventEmitter } = require("events");
@@ -75,10 +73,6 @@ app.use(
     credentials: true,
   })
 );
-
-
-// Assuming you're using Express
-
 
 app.use("/api/instruments", instrumentRouter);
 app.use("/api/exchanges", exchangeRouter);
