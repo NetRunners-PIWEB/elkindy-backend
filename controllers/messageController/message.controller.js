@@ -54,7 +54,7 @@ class MessageController {
     try {
       const { recipientId, message } = req.body;
       let { img, video } = req.body;
-      console.log(video)
+      console.log(video);
       const senderId = req.user._id;
       let conversation = await Conversation.findOne({
         participants: { $all: [senderId, recipientId] },
@@ -143,12 +143,15 @@ class MessageController {
     try {
       const genAI = new GoogleGenerativeAI(process.env.API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const lengthOfQuestions = parseInt(req.query.lengthOfQuestions);
       const topic = req.query.topic;
-      const prompt = `Generate quiz of 5 questions with choices and answers for the topic in json form: ${topic}`;
+      const level = req.query.level;
+
+      const prompt = `Generate a quiz of ${lengthOfQuestions} ${level} difficulty questions with choices and answers for the topic '${topic}' in JSON form.`;
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      const jsonString = text.replace(/```json\n|```|\\n/g, "");
+      const jsonString = text.replace(/```json\s*|```|\n/g, "");
       const reply = JSON.parse(jsonString);
       res.status(200).json({ reply });
     } catch (error) {
