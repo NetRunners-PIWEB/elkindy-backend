@@ -69,7 +69,7 @@ app.use(function (req, res, next) {
 
 app.use(
   cors({
-    origin: ["http://localhost:3001", "http://192.168.167.23:3001","https://elkindy-frontend-git-master-omar-adoulis-projects.vercel.app"],
+    origin: ["http://localhost:3001", "http://192.168.132.23:3001","https://elkindy-frontend.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -109,7 +109,7 @@ EventEmitter.defaultMaxListeners = 20;
 // server.listen(PORT, IP, () => {
 //   console.log(`Server is running on http://${IP}:${PORT}`);
 // });
-const ip = "192.168.167.23";
+
 server.listen(port);
 io.listen(server);
 console.log("Magic happens on port " + port);
