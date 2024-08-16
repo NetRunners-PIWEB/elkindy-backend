@@ -75,6 +75,8 @@ router.get('/:id', courseController.getCourse);
 router.put('/:id', courseController.updateCourse);
 router.delete('/:id', courseController.deleteCourse);
 router.patch('/:courseId/add-students', courseController.addStudentsToCourse);
+router.patch('/:courseId/add-student', courseController.addStudentToCourse);
+
 
 router.patch('/:courseId/upload-image', upload.single('image'), courseController.uploadImageToCourse);
 

@@ -51,7 +51,8 @@ const userSchema = new Schema({
     type: String,
     enum: ["admin", "teacher", "user", "student"],
     required: true,
-  },
+  },  
+// Deadline for payment
   status: {
     type: String,
     enum: [
@@ -101,6 +102,7 @@ const userSchema = new Schema({
     type: String,
     enum: ["Yes", "No"],
   },
+  
   resetToken: { type: String, required: false },
   courses: [
     {
@@ -112,6 +114,11 @@ const userSchema = new Schema({
         type: String,
         enum: ["pending", "accepted", "rejected"],
         default: "pending",
+      },
+      paymentStatus: {
+        type: String,
+        enum: ["paid", "unpaid", "rejected"],
+        default: "unpaid",
       },
     },
   ],
@@ -126,7 +133,9 @@ const userSchema = new Schema({
       ref: "Student",
     },
   ],
+
 });
+
 
 userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, 12);
