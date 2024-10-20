@@ -10,7 +10,7 @@ on:
     branches: ["master"]
 env:
   NODE_VERSION: "20.x"
-
+  ArBaseKey: ${{ secrets.ArBaseKey }}
 jobs:
   build:
     runs-on: ubuntu-latest
