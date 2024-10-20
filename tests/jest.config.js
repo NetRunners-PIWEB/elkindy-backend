@@ -12,5 +12,5 @@ module.exports = {
   // testRegex: "/tests/instrument\\.test\\.[jt]sx?$",
   collectCoverage: true,
   coverageDirectory: "<rootDir>/coverage",
-  coverageReporters: ["lcov", "text-summary"],
+  coverageReporters: ["lcov", "text-summary"]
 };

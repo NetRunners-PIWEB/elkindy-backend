@@ -28,7 +28,19 @@ jobs:
       run: |
         npm install
         npm run build --if-present
-        # npm run test --if-present
+    
+    - name: Run tests with coverage
+      run: |
+        npm run test:mocha
+        npm run test:jest -- --coverage
+
+    - name: Upload coverage to SonarCloud
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        coveragePaths: "./coverage/lcov.info"
+
     - name: Build and push docker image
       uses: mr-smithers-excellent/docker-build-push@v4
       with:
