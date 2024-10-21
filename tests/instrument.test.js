@@ -1,5 +1,6 @@
 const supertest = require("supertest");
-const app = require("../app.js");
+// const app = require("../app.js");
+const { startServer, stopServer } = require('../app');
 const request = supertest(app);
 const Instrument = require("./../models/instrument");
 const jwt = require("jsonwebtoken");
@@ -11,9 +12,13 @@ const generateToken = (id) => {
 describe("Test /instruments routes", () => {
   let token;
 
-  beforeAll(() => {
+  beforeAll(async() => {
     jest.setTimeout(5000);
     token = generateToken("65fda83050e4769c343e9c63");
+    await startServer();
+  });
+  afterAll(async () => {
+    await stopServer();
   });
   describe("GET /api/instruments", () => {
     it("should get all instruments successfully", async () => {
@@ -83,5 +88,5 @@ describe("Test /instruments routes", () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
-  });
+});
 });

@@ -1,7 +1,7 @@
-const supertest = require("supertest");
-const app = require("../app.js");
-const request = supertest(app);
-const Exam = require("../models/exam.js");
+const supertest = require('supertest');
+// const app = require('../app.js');
+// const request = supertest(app);
+const { startServer, stopServer } = require('../app');
 
 jest.mock("../models/exam.js", () => ({
   find: jest.fn(),
@@ -14,6 +14,14 @@ jest.mock("../models/exam.js", () => ({
 
 
 describe("Exam Controller", () => {
+  beforeAll(async () => {
+    await startServer();
+  });
+
+  afterAll(async () => {
+    await stopServer();
+  });
+
   describe("GET /api/exam/typeEvaluation", () => {
     it("should return evaluations with status 200", async () => {
       // Mock data for exams

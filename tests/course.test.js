@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require("../app.js");
+// const app = require("../app.js");
+const { app, startServer, stopServer } = require("../app"); 
 const  Course = require('../models/course');
 const {expect} = require("chai");
 const { connection} = require("mongoose");
@@ -35,7 +36,7 @@ describe('Courses', () => {
                 isArchived: false
             });
             course = await course.save();
-            const res = await chai.request(server).get('/api/courses/' + course._id);
+            const res = await chai.request(app).get('/api/courses/' + course._id);
             res.should.have.status(200);
             res.body.should.be.a('object');
             res.body.should.have.property('_id').eql(course._id.toString());
@@ -49,7 +50,7 @@ describe('PUT /api/courses/:id', () => {
         let course = new Course({ title: 'Initial Title', category: 'Initiation', price: 33 },);
         course = await course.save();
 
-        const res = await chai.request(server)
+        const res = await chai.request(app)
             .put('/api/courses/' + course.id)
             .send({title: 'Updated Title', price: 100});
 
@@ -70,7 +71,7 @@ describe('POST /api/courses', () => {
             description: "This is a new course",
             price: 100
         };
-        chai.request(server)
+        chai.request(app)
             .post('/api/courses/')
             .send(course)
             .end((err, res) => {
@@ -87,7 +88,7 @@ describe('POST /api/courses', () => {
 });
 describe('GET /api/courses', () => {
     it('it should GET all the courses', (done) => {
-        chai.request(server)
+        chai.request(app)
             .get('/api/courses')
             .end((err, res) => {
                 res.should.have.status(200);
@@ -108,7 +109,7 @@ describe('PATCH /api/courses/archive/:id', function() {
         });
         course = await course.save();
 
-        const res = await chai.request(server)
+        const res = await chai.request(app)
             .patch('/api/courses/archive/' + course.id);
 
         res.should.have.status(200);
@@ -118,7 +119,7 @@ describe('PATCH /api/courses/archive/:id', function() {
 });
 describe('GET /api/courses/arch/archived', () => {
     it('should list archived courses with pagination', async () => {
-        const res = await chai.request(server).get('/api/courses/arch/archived').query({ page: 1, pageSize: 5 });
+        const res = await chai.request(app).get('/api/courses/arch/archived').query({ page: 1, pageSize: 5 });
         res.should.have.status(200);
         res.body.should.be.an('object');
         res.body.should.have.property('data').which.is.an('array');
@@ -129,7 +130,7 @@ describe('GET /api/courses/details/:courseId/teachers', () => {
         const course = new Course({ title: 'Test Course for Teachers', category: 'Initiation', price: 33});
         await course.save();
 
-        const res = await chai.request(server).get(`/api/courses/details/${course._id}/teachers`);
+        const res = await chai.request(app).get(`/api/courses/details/${course._id}/teachers`);
         res.should.have.status(200);
         res.body.should.be.a('object');
         res.body.should.have.property('assignedTeachers').which.is.an('array');
@@ -139,7 +140,7 @@ describe('GET /api/courses/details/:courseId/teachers', () => {
 
 describe('GET /api/courses/popular', () => {
     it('should get the top three courses', async () => {
-        const res = await chai.request(server).get('/api/courses/popular');
+        const res = await chai.request(app).get('/api/courses/popular');
         res.should.have.status(200);
         res.body.should.be.an('array');
         res.body.length.should.be.at.most(3);
@@ -147,20 +148,23 @@ describe('GET /api/courses/popular', () => {
 });
 describe('GET /api/courses/teachers-stats', () => {
     it('should get statistics for teachers', async () => {
-        const res = await chai.request(server).get('/api/courses/teachers-stats');
+        const res = await chai.request(app).get('/api/courses/teachers-stats');
         res.should.have.status(200);
         res.body.should.be.a('object');
     });
 });
 describe('GET /api/courses/students-stats', () => {
     it('should get statistics for students', async () => {
-        const res = await chai.request(server).get('/api/courses/students-stats');
+        const res = await chai.request(app).get('/api/courses/students-stats');
         res.should.have.status(200);
         res.body.should.be.a('object');
     });
 });
 
 
+after(async () => {
+    await mongoose.connection.close();
+});
 /*
 after(async () => {
     await mongoose.connection.db.collection('courses').deleteMany({});
