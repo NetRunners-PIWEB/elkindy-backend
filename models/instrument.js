@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
+const ages = ["3-5", "4-5", "4-6", "5-7", "7-9", "9-12", "adult"];
 const instrumentSchema = new mongoose.Schema(
   {
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Users",
       required: true,
     },
 
@@ -12,6 +13,9 @@ const instrumentSchema = new mongoose.Schema(
       required: true,
     },
 
+    img: {
+      type: String,
+    },
     type: {
       type: String,
       required: false,
@@ -35,10 +39,20 @@ const instrumentSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ["exchange", "maintenance", "available for borrow", "buy"],
+      enum: ["exchange", "maintenance", "available for borrow", "sell",''],
+    },
+    itemStatus: {
+      type: String,
+      required: true,
+      enum: ["active", "deleted", "traded"],
+      default: "active",
+    },
+    age: {
+      type: String,
+      required: true,
+      enum: ages,
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-
     likeScore: {
       type: Number,
       default: 0,

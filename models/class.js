@@ -1,11 +1,61 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose');
 
-const classSchema = new Schema({
+const classSchema = new mongoose.Schema({
     name: String,
-    duration: Date,
-    capacity: Number,
-    students:[String]
-});
+    courseId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course',
+        required: true
+    },
+    date: {
+        type: Date,
+    },
+    startTime: {
+        type: Date,
+    },
+    endTime: {
+        type: Date,
+    },
+    teacher: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users'
+    }],
+    notes: [{
+        student: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Users'
+        },
+        note: Number
+    }],
+    assignments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Assignment'
+    }],
 
-module.exports = mongoose.model("Class", classSchema);
+    maxStudents: Number,
+
+    students: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users'
+    }],
+
+    schedule: [{
+        start: Date,
+        end: Date,
+    }],
+    recurring: {
+        type: Boolean,
+        default: false
+    },
+    recurringType: {
+        type: String,
+        enum: ['Daily', 'Weekly', 'Monthly'],
+    },
+    recurringEnd: Date,
+    sessions:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Session'
+    }],
+
+});
+module.exports = mongoose.model('Class', classSchema);
