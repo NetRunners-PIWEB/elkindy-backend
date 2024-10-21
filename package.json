@@ -8,7 +8,7 @@
     "test:jest": "cross-env NODE_ENV=dev jest --config=tests/jest.config.js --detectOpenHandles --coverage --forceExit" ,
     "test:mocha": "cross-env NODE_ENV=test nyc  --reporter=lcov --reporter=text-summary mocha tests/course.test.js --timeout 10000 --reporter spec --exit",
     "test": "cross-env NODE_ENV=test npm run test:mocha && npm run test:jest",
-"coverage": "nyc merge .nyc_output coverage/merged-coverage.json && nyc report --reporter=lcov --reporter=text-summary"
+    "coverage": "nyc merge .nyc_output coverage/merged-coverage.json && nyc report --reporter=lcov --reporter=text-summary"
     },
   "engines": {
     "node": "12.8.0"
