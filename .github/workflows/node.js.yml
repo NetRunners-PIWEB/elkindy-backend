@@ -40,7 +40,7 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       with:
-        coveragePaths: "./coverage/lcov.info"
+        coveragePaths: "/coverage/lcov.info"
 
     - name: Build and push docker image
       uses: mr-smithers-excellent/docker-build-push@v4
