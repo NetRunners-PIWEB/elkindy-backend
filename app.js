@@ -21,11 +21,6 @@ app.use(bodyParser.json());
 const { EventEmitter } = require("events");
 const instrumentRouter = require("./routes/instrument.route.js");
 app.use(express.json());
-// const io = new ioS.Server({
-//   cors: {
-//     origin: "http://localhost:3000",
-//   },
-// });
 
 const userRoutes = require("./routes/userRoutes/index");
 const courseRoutes = require("./routes/courseRoutes/courseRoutes");
@@ -85,10 +80,6 @@ app.use("/api/events", eventRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/reservations", reservationRoutes);
-
-
-
-
 app.use("/api/exam", examRoutes);
 app.use("/api/class", classRoutes);
 app.use(bodyParser.json());
@@ -100,15 +91,28 @@ EventEmitter.defaultMaxListeners = 20;
 // START THE SERVER
 // ==============================================
 
+// Function to start the server
+const startServer = () => {
+  return new Promise((resolve) => {
+    server.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+      resolve();
+    });
+  });
+};
+
+// Function to stop the server
+const stopServer = () => {
+  return new Promise((resolve) => {
+    server.close(resolve);
+  });
+};
+
+// Export app, server, io, and lifecycle functions
+module.exports = { app, startServer, stopServer, io };
+
+// Uncomment the following lines to run the server directly
 // if (process.env.NODE_ENV !== 'test') {
-//   // Only start the server if not in test environment
-//   app.listen(port, () => console.log(`Server running on port ${port}`));
+//   startServer();
 //   io.listen(5000);
 // }
-app.listen(port);
-io.listen(5000);
-console.log("Magic happens on port " + port);
-
-module.exports = app;
-
-

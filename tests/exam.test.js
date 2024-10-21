@@ -1,9 +1,20 @@
 const supertest = require('supertest');
-const app = require('../app.js');
-const request = supertest(app);
+// const app = require('../app.js');
+// const request = supertest(app);
+const { startServer, stopServer } = require('../app');
+
 const Exam = require('./../models/exam');
 
 describe('Exam Controller', () => {
+    beforeAll(async () => {
+        await startServer();
+      });
+    
+      afterAll(async () => {
+        await stopServer();
+      });
+    
+
     test('POST /api/exam/createExam creates a new exam', async () => {
         // Données d'exemple pour l'examen
         const examData = {

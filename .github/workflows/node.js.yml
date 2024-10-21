@@ -34,6 +34,7 @@ jobs:
         npm run test
         npm run coverage
 
+
     - name: Upload coverage to SonarCloud
       uses: SonarSource/sonarcloud-github-action@master
       env:

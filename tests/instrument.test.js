@@ -1,10 +1,26 @@
 const supertest = require("supertest");
-const app = require("../app.js");
+// const app = require("../app.js");
+const { startServer, stopServer } = require('../app');
 const request = supertest(app);
 const Instrument = require("./../models/instrument");
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
 describe("Test /instruments routes", () => {
-  beforeAll(() => {
+  // beforeAll(() => {
+  //   jest.setTimeout(3000);
+  // });
+  beforeAll(async () => {
     jest.setTimeout(3000);
+    await startServer();
+  });
+
+  afterAll(async () => {
+    await stopServer();
+  });
+
   });
   describe("GET /api/v1/instruments", () => {
     it("should get all instruments successfully", async () => {
@@ -69,5 +85,4 @@ describe("Test /instruments routes", () => {
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
     });
-  });
 });

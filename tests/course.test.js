@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require("../app.js");
+// const app = require("../app.js");
+const { app, startServer, stopServer } = require("../app"); 
 const  Course = require('../models/course');
 const {expect} = require("chai");
 const { connection} = require("mongoose");
@@ -34,7 +35,7 @@ describe('Courses', () => {
                 isArchived: false
             });
             course = await course.save();
-            const res = await chai.request(server).get('/api/courses/' + course._id);
+            const res = await chai.request(app).get('/api/courses/' + course._id);
             res.should.have.status(200);
             res.body.should.be.a('object');
             res.body.should.have.property('_id').eql(course._id.toString());
@@ -48,7 +49,7 @@ describe('PUT /api/courses/:id', () => {
         let course = new Course({ title: 'Initial Title', category: 'Initiation', price: 33 },);
         course = await course.save();
 
-        const res = await chai.request(server)
+        const res = await chai.request(app)
             .put('/api/courses/' + course.id)
             .send({title: 'Updated Title', price: 100});
 
@@ -69,7 +70,7 @@ describe('POST /api/courses', () => {
             description: "This is a new course",
             price: 100
         };
-        chai.request(server)
+        chai.request(app)
             .post('/api/courses/')
             .send(course)
             .end((err, res) => {
@@ -86,7 +87,7 @@ describe('POST /api/courses', () => {
 });
 describe('GET /api/courses', () => {
     it('it should GET all the courses', (done) => {
-        chai.request(server)
+        chai.request(app)
             .get('/api/courses')
             .end((err, res) => {
                 res.should.have.status(200);
@@ -107,13 +108,16 @@ describe('PATCH /api/courses/archive/:id', function() {
         });
         course = await course.save();
 
-        const res = await chai.request(server)
+        const res = await chai.request(app)
             .patch('/api/courses/archive/' + course.id);
 
         res.should.have.status(200);
         res.body.should.be.a('object');
         res.body.should.have.property('isArchived').eql(true);
     });
+});
+after(async () => {
+    await mongoose.connection.close();
 });
 /*
 after(async () => {
