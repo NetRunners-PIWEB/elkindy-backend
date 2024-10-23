@@ -31,8 +31,7 @@ jobs:
     
     - name: Run tests with coverage
       run: |
-        npm run test:jest
-        npm run test:mocha
+        npx nyc npm run test:mocha
         npm run coverage
 
 
