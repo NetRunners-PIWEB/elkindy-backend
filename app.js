@@ -12,6 +12,7 @@ const job = require("./cron/cron.js");
 app.use(bodyParser.json());
 
 const { EventEmitter } = require("events");
+
 const instrumentRouter = require("./routes/marketplaceRoutes/instrument.route.js");
 const exchangeRouter = require("./routes/marketplaceRoutes/exchange.route.js");
 const userRoutes = require("./routes/userRoutes/index");
@@ -95,18 +96,28 @@ EventEmitter.defaultMaxListeners = 20;
 // START THE SERVER
 // ==============================================
 
+// Function to start the server
+const startServer = () => {
+  return new Promise((resolve) => {
+    server.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+      resolve();
+    });
+  });
+};
+
+// Function to stop the server
+const stopServer = () => {
+  return new Promise((resolve) => {
+    server.close(resolve);
+  });
+};
+
+// Export app, server, io, and lifecycle functions
+module.exports = { app, startServer, stopServer, io };
+
+// Uncomment the following lines to run the server directly
 // if (process.env.NODE_ENV !== 'test') {
-//   // Only start the server if not in test environment
-//   app.listen(port, () => console.log(`Server running on port ${port}`));
+//   startServer();
 //   io.listen(5000);
 // }
-// server.listen(PORT, IP, () => {
-//   console.log(`Server is running on http://${IP}:${PORT}`);
-// });
-
-server.listen(port);
-io.listen(server);
-console.log("Magic happens on port " + port);
-//variable global pour socket partoutt
-global.io=io;
-module.exports = app;
